@@ -1,0 +1,4 @@
+# nothing here is ignored on purpose — public/ is committed so the exact
+# uploadable output is reviewable in the repo alongside its source.
+*.pyc
+__pycache__/

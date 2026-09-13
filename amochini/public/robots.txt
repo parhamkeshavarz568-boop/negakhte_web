@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Filter and sort states are the same products in a different order.
+# They are canonicalised to the clean category URL, but keeping crawlers out
+# of them saves crawl budget on a 150-page site.
+Disallow: /*?q=
+Disallow: /*?sort=
+Disallow: /*&sort=
+
+# Dead WordPress surface. These 301 to real pages in .htaccess, but if any
+# survive, do not crawl them.
+Disallow: /wp-admin/
+Disallow: /wp-json/
+Disallow: /?s=
+
+Sitemap: https://amochini.ir/sitemap.xml

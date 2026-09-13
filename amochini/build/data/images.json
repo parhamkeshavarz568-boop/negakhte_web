@@ -1,0 +1,28 @@
+{
+ "cat-brake-discs": [
+  400
+ ],
+ "cat-brake-pads": [
+  400
+ ],
+ "cat-headlight": [
+  400
+ ],
+ "disc-drilled": [
+  400,
+  700
+ ],
+ "disc-plain": [
+  400,
+  700
+ ],
+ "disc-slotted": [
+  400,
+  700
+ ],
+ "hero-bg": [
+  640,
+  1024,
+  1500
+ ]
+}
