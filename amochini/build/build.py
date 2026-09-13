@@ -50,6 +50,16 @@ def main():
 
     written = []
 
+    # ---- sweep stale pages ----------------------------------------------
+    # Slugs change when catalogue data is corrected. Without this, the old URL
+    # stays on disk, gets uploaded, and becomes a duplicate of the new one.
+    # Only generated HTML is swept; assets are left alone.
+    stale_before = set()
+    for dp, _dn, fn in os.walk(OUT):
+        for f in fn:
+            if f == "index.html" or f == "404.html":
+                stale_before.add(os.path.join(dp, f))
+
     # ---- assets ---------------------------------------------------------
     os.makedirs(os.path.join(OUT, "assets", "css"), exist_ok=True)
     os.makedirs(os.path.join(OUT, "assets", "js"), exist_ok=True)
@@ -157,6 +167,20 @@ Sitemap: {BASE}/sitemap.xml
              "type": "image/png", "purpose": "maskable"},
         ],
     }, ensure_ascii=False, indent=1))
+
+    # ---- remove pages this build did not write ---------------------------
+    kept = {p for _u, p in written}
+    kept.add(os.path.join(OUT, "404.html"))
+    removed = 0
+    for old in sorted(stale_before - kept):
+        os.remove(old)
+        removed += 1
+        d = os.path.dirname(old)
+        while d != OUT and not os.listdir(d):
+            os.rmdir(d)
+            d = os.path.dirname(d)
+    if removed:
+        print(f"  swept {removed} stale page(s) left by a previous build")
 
     # ---- report ---------------------------------------------------------
     total = sum(os.path.getsize(p) for _, p in written)

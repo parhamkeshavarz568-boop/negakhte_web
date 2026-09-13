@@ -27,6 +27,40 @@ NAME_BRAND_HINTS = [
     ("بست", "bestune", True),
 ]
 
+# ---------------------------------------------------------------------------
+# Bidi visual-entry corrections.
+#
+# Both of these are the same class of bug: someone typed a Latin/numeric model
+# code into a right-to-left text field, and what they saw on screen (correct)
+# is not what got stored (reversed).
+#
+# 1. Brilliance model ranges. The catalogue stores the SAME cars in BOTH
+#    directions — "230-220" three times and "220-230" twice — which is
+#    internally inconsistent whatever the intent, and would produce two
+#    different URLs for the same car family. Under UAX#9 a digit run after a
+#    Persian letter is retyped EN->AN and the hyphen becomes a number
+#    separator, so "220-230" renders as "230-220" and vice versa. Normalised
+#    to ascending order with a slash: U+002F is not a bidi number separator,
+#    so it cannot flip, and it reads correctly in both directions.
+#
+# 2. Changan "35 CS". The model is CS35 — that is how Changan, the Iranian
+#    importer and every buyer writes it. "35 CS" is the on-screen reversal of
+#    CS35 captured verbatim. Left uncorrected, a search for the string the
+#    entire market uses returns nothing, and "changan-35-cs-front" becomes a
+#    permanent URL built on a typo.
+MODEL_FIXES = [
+    (r"\b230-220\b", "220/230"), (r"\b220-230\b", "220/230"),
+    (r"\b330-320\b", "320/330"), (r"\b320-330\b", "320/330"),
+    (r"(?<![A-Za-z])35\s+CS(?![A-Za-z])", "CS35"),
+]
+
+
+def fix_bidi_entry(name):
+    for pat, rep in MODEL_FIXES:
+        name = re.sub(pat, rep, name)
+    return name
+
+
 # Words to strip when isolating the MODEL from a product name.
 NOISE = ["دیسک چرخ", "لنت ترمز", "کاسه چرخ", "جلو", "عقب", "مدل",
          "TRA-X", "XTRA", "و"]
@@ -75,7 +109,10 @@ def main():
     raw = json.load(open(RAW, encoding="utf-8"))
     out, issues = [], []
     for r in raw:
-        name_src = fold(r["n"])
+        name_src = fix_bidi_entry(fold(r["n"]))
+        if name_src != fold(r["n"]):
+            issues.append(f"{r['s']}: bidi visual-entry fix "
+                          f"{fold(r['n'])!r} -> {name_src!r}")
         brand, why = detect_brand(name_src, r["b"])
         if brand is None:
             issues.append(f"{r['s']}: brand unresolved ({why})")

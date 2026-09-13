@@ -140,5 +140,5 @@ def slugify(s):
         s = re.sub(rf"(?<![\w؀-ۿ]){re.escape(fa)}(?![\w؀-ۿ])",
                    f" {BRANDS[slug]['en'].lower().replace(' ', '-')} ", s)
     s = re.sub(r"[؀-ۿ]+", " ", s)          # drop anything still Persian
-    s = re.sub(r"[^A-Za-z0-9]+", "-", s).strip("-").lower()
+    s = re.sub(r"[^A-Za-z0-9]+", "-", s).strip("-").lower()  # "/" -> "-"
     return re.sub(r"-{2,}", "-", s)

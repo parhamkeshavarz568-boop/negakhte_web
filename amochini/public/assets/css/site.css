@@ -30,7 +30,10 @@
   --footer:#2b2b2b;
   --page:#f2f2f2;
   --line:#e3e3e3;
-  --muted:#767676;      /* darkened from #8a8a8a: 4.6:1 on white, was 2.9:1 */
+  --muted:#6e6e6e;      /* lightest grey that still clears 4.5:1 on BOTH
+                           #fff (5.10) and the #f2f2f2 page ground (4.55) */
+  --gold-ink:#996000;   /* the brand yellow is 1.9:1 on white and unusable
+                           as text; this is the same hue darkened to 5.21:1 */
   --text:#3d3d3d;
   --ok:#1c7c3f;
   --warn:#c33;
@@ -84,7 +87,7 @@ bdi{unicode-bidi:isolate}
 .masthead .wrap{padding-block:22px 18px}
 .logo{
   display:block;text-align:center;
-  font-size:34px;font-weight:600;letter-spacing:-.02em;
+  font-size:34px;font-weight:600;
   color:#111;margin-bottom:20px;
 }
 .logo span{color:var(--yellow)}
@@ -181,7 +184,7 @@ bdi{unicode-bidi:isolate}
 .cat{background:#fff;padding:26px 24px;display:grid;grid-template-columns:1fr 108px;gap:16px;align-items:center}
 .cat h3{font-size:19px;font-weight:500;color:#222;margin-bottom:12px}
 .cat-count{color:var(--muted);font-size:14px}
-.cat .all{display:inline-block;margin-top:14px;color:#a97400;font-weight:500}
+.cat .all{display:inline-block;margin-top:14px;color:var(--gold-ink);font-weight:500}
 .cat:hover .all{text-decoration:underline}
 .cat .thumb{aspect-ratio:1;border-radius:6px;overflow:hidden;background:#111}
 .cat .thumb img{width:100%;height:100%;object-fit:cover}
@@ -204,13 +207,15 @@ bdi{unicode-bidi:isolate}
 .card .body{padding:14px;display:flex;flex-direction:column;flex:1}
 .card h3{font-size:14px;font-weight:450;color:#222;line-height:1.7;min-height:3.4em}
 .card h3 a::after{content:"";position:absolute;inset:0;z-index:1}   /* whole card clickable */
-.card .sku{font-size:12px;color:#999;margin-top:4px}
+.card .sku{font-size:12px;color:var(--muted);margin-top:4px}
 .card .tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .card .tags span{font-size:11px;background:#f3f3f3;color:#666;padding:2px 8px}
+/* No letter-spacing on any Persian-bearing selector: Arabic script is
+   cursive, and tracking pulls apart glyphs that must stay joined. */
 .card .tags .brand{background:var(--yellow);color:#1a1a1a;font-weight:700;font-size:12px;padding:3px 10px}
-.card .price{margin-top:auto;padding-top:12px;border-top:1px solid #f0f0f0;font-size:21px;color:#111;font-weight:700;letter-spacing:-.01em}
+.card .price{margin-top:auto;padding-top:12px;border-top:1px solid #f0f0f0;font-size:21px;color:#111;font-weight:700}
 .card .price small{font-size:12px;color:var(--muted);font-weight:400;margin-inline-start:2px}
-.card .price.na{font-size:15px;color:var(--warn);font-weight:500;letter-spacing:0}
+.card .price.na{font-size:15px;color:var(--warn);font-weight:500}
 .card .add{margin-top:12px;background:var(--ink);color:#fff;border:0;cursor:pointer;padding:10px;font:inherit;font-weight:450;position:relative;z-index:2;text-align:center;display:block}
 .card .add:hover{background:#000}
 .card .add.na{background:#eee;color:#666}
@@ -225,7 +230,7 @@ bdi{unicode-bidi:isolate}
 .product h1{font-size:clamp(20px,4vw,28px);font-weight:550;color:#1a1a1a;line-height:1.6}
 .product .sub{color:var(--muted);font-size:14px;margin-top:6px}
 .product .price-box{margin:22px 0;padding:18px;background:#fafafa;border-inline-start:4px solid var(--yellow)}
-.product .price-main{font-size:30px;font-weight:700;color:#111;letter-spacing:-.01em}
+.product .price-main{font-size:30px;font-weight:700;color:#111}
 .product .price-main small{font-size:14px;font-weight:400;color:var(--muted);margin-inline-start:4px}
 .product .price-alt{color:var(--muted);font-size:13px;margin-top:2px}
 .product .price-na{font-size:19px;font-weight:550;color:var(--warn)}
@@ -277,7 +282,7 @@ bdi{unicode-bidi:isolate}
 .news .grid{display:grid;gap:32px}
 .post .cover{aspect-ratio:16/10;background:linear-gradient(115deg,#1a1a1a 0%,#3a1414 45%,#c22f22 100%)}
 .post .meta{margin-top:16px;font-size:13px;color:var(--muted)}
-.post .meta time{color:#a97400;margin-inline-end:10px}
+.post .meta time{color:var(--gold-ink);margin-inline-end:10px}
 .post h3{font-size:20px;font-weight:500;color:#222;margin:8px 0 10px;line-height:1.7}
 .post p{color:#5f5f5f}
 .post .row{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
@@ -300,7 +305,7 @@ footer .cols{display:grid;gap:40px}
 .contact svg{width:20px;height:20px;stroke:#c9c9c9;fill:none;stroke-width:1.6;flex:none;margin-top:6px}
 .contact b{display:block;color:#fff;font-weight:400}
 .contact small{color:#9a9a9a}
-footer h4{color:#fff;font-size:17px;font-weight:500;margin-bottom:18px}
+footer h2{color:#fff;font-size:17px;font-weight:500;margin-bottom:18px}
 footer a:hover{color:var(--yellow)}
 .social{display:flex;gap:8px;flex-wrap:wrap}
 .social a{width:52px;height:52px;display:grid;place-items:center;background:#3b3b3b;color:#fff}

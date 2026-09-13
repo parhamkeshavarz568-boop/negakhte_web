@@ -28,6 +28,9 @@ def exists(url):
 
 
 def main():
+    sys.path.insert(0, os.path.join(ROOT, "build"))
+    from site_config import SITE
+    LANG = SITE["lang"]
     docs = list(walk_html())
     info.append(f"{len(docs)} HTML documents")
 
@@ -78,8 +81,8 @@ def main():
             errors.append(f"{url}: {len(h1s)} <h1> tags (want exactly 1)")
 
         # --- lang/dir ---
-        if 'lang="fa-IR"' not in s or 'dir="rtl"' not in s:
-            errors.append(f"{url}: missing lang=fa-IR or dir=rtl")
+        if f'lang="{LANG}"' not in s or 'dir="rtl"' not in s:
+            errors.append(f'{url}: missing lang="{LANG}" or dir="rtl"')
 
         # --- JSON-LD parses ---
         for block in re.findall(
@@ -224,13 +227,22 @@ def main():
             # visible Toman must be exactly price/10
             toman = want // 10
             fa = "".join("۰۱۲۳۴۵۶۷۸۹"[int(c)] if c.isdigit() else c
-                         for c in f"{toman:,}").replace(",", "،")
+                         for c in f"{toman:,}").replace(",", "\u066C")
             if fa not in s_:
                 errors.append(f"{url}: {sku} displayed price is not {fa} تومان "
                               f"(= {want} IRR / 10)")
             checked += 1
     info.append(f"price integrity: {checked} Product offers match the catalogue "
                 f"exactly, currency IRR, display = Rial/10")
+
+    # --- bidi visual-entry patterns must not come back ----------------------
+    for p_ in src.values():
+        if re.search(r"\d-\d", p_["title"]):
+            errors.append(f"{p_['sku']}: title has a digit-hyphen-digit range "
+                          f"({p_['title']}) — reverses under RTL, use '/'")
+        if re.search(r"\d+\s+[A-Z]{2,3}\b", p_["title"]):
+            errors.append(f"{p_['sku']}: title has '<digits> <LETTERS>' "
+                          f"({p_['title']}) — likely a reversed model code")
 
     # --- regression guards for defects we already fixed once ---------------
     # The draft shipped under a different company's name; the live WordPress

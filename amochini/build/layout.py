@@ -19,14 +19,25 @@ def ld(obj):
             + json.dumps(obj, ensure_ascii=False, indent=2) + "\n</script>")
 
 
-def money(rial, unit=True):
-    """Rial int -> Persian-digit Toman string for DISPLAY only.
-    Never feed this to JSON-LD: schema needs Latin digits and the raw value."""
+# CLDR's thousands separator for fa is U+066C ARABIC THOUSANDS SEPARATOR —
+# not U+060C ARABIC COMMA (which is a list separator) and not an ASCII comma.
+FA_GROUP = "\u066C"
+
+
+def money(rial, unit=True, data=False):
+    """Rial int -> Persian-digit Toman string, for DISPLAY only.
+
+    Never feed this to JSON-LD: schema.org needs Latin digits and the raw
+    Rial integer. `data=True` wraps the number in <data value="..."> carrying
+    the Latin Rial value, so the machine-readable figure is present in the DOM
+    at the visible price and there is no ambiguity between the two."""
     if rial is None:
         return None
     t = rial // COMMERCE["display_divisor"]
-    s = to_fa_digits(f"{t:,}").replace(",", "،")
-    return f"{s} <small>{COMMERCE['display_unit']}</small>" if unit else s
+    txt = to_fa_digits(f"{t:,}").replace(",", FA_GROUP)
+    if data:
+        txt = f'<data value="{rial}">{txt}</data>'
+    return f"{txt} <small>{COMMERCE['display_unit']}</small>" if unit else txt
 
 
 def bdi(s):
@@ -253,9 +264,9 @@ def trust_slots():
 def footer():
     quick = "".join(f'<li><a href="{e(u)}">{e(t)}</a></li>' for u, t in NAV[1:])
     socials = social_links()
-    social_block = (f'<h4>ما را دنبال کنید</h4>\n      <div class="social">{socials}</div>'
+    social_block = (f'<h2>ما را دنبال کنید</h2>\n      <div class="social">{socials}</div>'
                     if socials else
-                    '<h4>ما را دنبال کنید</h4>\n      <p style="color:#8f8f8f;font-size:13px">'
+                    '<h2>ما را دنبال کنید</h2>\n      <p style="color:#8f8f8f;font-size:13px">'
                     'به‌زودی</p>')
     return f'''
 <section class="features">
@@ -304,16 +315,16 @@ def footer():
 
     <div>
       {social_block}
-      <h4 style="margin-top:34px">دسترسی سریع</h4>
+      <h2 style="margin-top:34px">دسترسی سریع</h2>
       <ul class="quick">{quick}</ul>
     </div>
 
     <div>
-      <h4>نمادها</h4>
+      <h2>نمادها</h2>
       <div class="trust">
         {trust_slots()}
       </div>
-      <h4 style="margin-top:30px">پرداخت</h4>
+      <h2 style="margin-top:30px">پرداخت</h2>
       <div class="pay"><span>شتاب</span><span>سامان</span><span>ملت</span></div>
     </div>
   </div>

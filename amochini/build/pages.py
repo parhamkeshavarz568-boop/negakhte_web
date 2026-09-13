@@ -197,7 +197,7 @@ def price_block(p, big=False):
     if p["price_irr"] is None:
         return ('<div class="price-na">قیمت: تماس بگیرید</div>' if big
                 else '<div class="price na">استعلام قیمت</div>')
-    toman = money(p["price_irr"])
+    toman = money(p["price_irr"], data=True)
     rial = to_fa_digits(f"{p['price_irr']:,}").replace(",", "،")
     if big:
         return (f'<div class="price-main">{toman}</div>'
@@ -486,6 +486,7 @@ def category_page(slug, prods, all_p):
 </div></div>
 
 <div class="wrap shop">
+  <h2 class="sr-only">فهرست محصولات</h2>
   {filter_bar(prods, brands_present)}
   <div class="grid-products" id="grid">{"".join(card(p) for p in prods)}</div>
   <p class="empty" id="empty" hidden>کالایی با این مشخصات پیدا نشد. فیلترها را تغییر دهید یا با ما تماس بگیرید.</p>
@@ -585,7 +586,7 @@ def brand_page(slug, prods, all_p):
                      f'{e(b["fa"])}</h2>'
                      f'<div class="grid-products">{"".join(card(p) for p in items)}</div>'
                      f'<p style="text-align:center;margin:18px 0 34px">'
-                     f'<a href="/{e(c)}/" style="color:#a97400;font-weight:500">'
+                     f'<a href="/{e(c)}/" style="color:var(--gold-ink);font-weight:500">'
                      f'مشاهده همه {e(CATEGORIES[c]["fa"])} ›</a></p>')
 
     model_list = ("".join(f"<li>{e(m)}</li>" for m in models)) or "<li>—</li>"
@@ -633,7 +634,10 @@ def brands_index(groups):
   <h1>قطعات ترمز بر اساس خودرو</h1>
   <p>خودروی خود را انتخاب کنید تا لنت ترمز، دیسک چرخ و کاسه چرخ مناسب آن را ببینید.</p>
 </div></div>
-<div class="wrap" style="padding-top:26px"><div class="brandgrid">{cards}</div></div>
+<div class="wrap" style="padding-top:26px">
+  <h2 class="sr-only">فهرست برندهای خودرو</h2>
+  <div class="brandgrid">{cards}</div>
+</div>
 </main>
 {footer()}'''
 
@@ -778,7 +782,7 @@ def about():
 
   <h2>سفارش</h2>
   <p>سفارش‌ها تلفنی و از طریق واتساپ ثبت می‌شوند. برای استعلام قیمت روز و
-  موجودی، <a href="/contact/" style="color:#a97400">با ما تماس بگیرید</a>.</p>
+  موجودی، <a href="/contact/" style="color:var(--gold-ink)">با ما تماس بگیرید</a>.</p>
 </div></div>
 </main>
 {footer()}'''

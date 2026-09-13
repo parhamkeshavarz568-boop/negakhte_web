@@ -11,8 +11,28 @@
      product stored with Persian ی (U+06CC). ZWNJ becomes a SPACE rather than
      being deleted: deleting it turns "ام‌وی‌ام" into "امویام", which still
      fails to match "ام وی ام"; converting to space makes both agree. */
-  var FOLD = { 'ي': 'ی', 'ى': 'ی', 'ك': 'ک',
-               'ة': 'ه', 'ـ': '' };
+  var FOLD = {
+    'ي': 'ی', 'ى': 'ی', 'ے': 'ی', 'ئ': 'ی',        // yeh family  -> ی
+    'ك': 'ک', 'ڪ': 'ک',                              // kaf family  -> ک
+    'ة': 'ه', 'ۀ': 'ه', 'ہ': 'ه',                    // heh family  -> ه
+    'آ': 'ا', 'أ': 'ا', 'إ': 'ا', 'ٱ': 'ا',          // alef family -> ا
+    'ؤ': 'و',
+    'ـ': ''                                          // tatweel: drop
+  };
+  // Iranians routinely write a Latin model letter out phonetically —
+  // "چری تی ۵" is Chery T5, "ترا ایکس" is TRA-X. Applied to the QUERY only,
+  // never to the stored index, so it can never corrupt product data.
+  var LETTER_NAMES = {
+    'ایکس': 'x', 'اکس': 'x', 'اس': 's', 'بی': 'b', 'سی': 'c', 'دی': 'd',
+    'ای': 'e', 'جی': 'g', 'اچ': 'h', 'کی': 'k', 'ام': 'm', 'ان': 'n',
+    'او': 'o', 'پی': 'p', 'آر': 'r', 'ار': 'r', 'تی': 't', 'وی': 'v',
+    'زد': 'z', 'جی\u200Cای': 'j'
+  };
+  function expandLetterNames(q) {
+    return q.split(' ').map(function (w) {
+      return LETTER_NAMES.hasOwnProperty(w) ? LETTER_NAMES[w] : w;
+    }).join(' ');
+  }
   function norm(s) {
     if (!s) return '';
     s = String(s);
@@ -72,7 +92,7 @@
   }
 
   function search(q, limit) {
-    q = norm(q);
+    q = expandLetterNames(norm(q));
     if (!q || !INDEX) return [];
     var hits = [];
     for (var i = 0; i < INDEX.length; i++) {
@@ -159,7 +179,7 @@
         emptyEl = document.getElementById('empty');
 
     function apply() {
-      var q = norm(qEl.value), b = fb.value, a = fa.value, sort = fs.value, n = 0;
+      var q = expandLetterNames(norm(qEl.value)), b = fb.value, a = fa.value, sort = fs.value, n = 0;
       cards.forEach(function (c) {
         var ok = (!q || c.k.indexOf(q) !== -1) &&
                  (!b || c.brand === b) &&

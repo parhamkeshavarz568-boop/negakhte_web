@@ -40,7 +40,7 @@ SITE = dict(
         "خرید لنت ترمز، دیسک چرخ و کاسه چرخ خودروهای چینی با قیمت روز. "
         "ام‌وی‌ام، جک، لیفان، چری، هایما، برلیانس، چانگان، جیلی و بست."
     ),
-    lang="fa-IR",
+    lang="fa",            # W3C: shortest subtag that captures the distinction
     locale="fa_IR",
     theme_color="#fbb316",
 )
