@@ -9,15 +9,33 @@ e-commerce compliance. See docs/PLACEHOLDERS.md.
 """
 
 # ---------------------------------------------------------------- identity
+# HTTP or HTTPS?
+#   The one URL Google currently has indexed for this domain is  http://amochini.ir/
+#   and every product image on the live WordPress site is served over http.
+#   .ir domains are genuinely hard to get a certificate for — Sectigo, which is
+#   cPanel's default AutoSSL provider, will not issue for .ir; Let's Encrypt will.
+#   Publishing https:// canonicals against a domain with no certificate takes the
+#   whole site offline for users AND Googlebot, so http is the safe default.
+#   FLIP THIS TO "https" ONLY AFTER someone outside Iran confirms:
+#       curl -I https://amochini.ir/     ->  200, valid chain
+#   and uncomment the matching block at the bottom of build/templates/htaccess.tpl.
+SCHEME = "http"
+
 SITE = dict(
     domain="amochini.ir",
-    base_url="https://amochini.ir",        # https, no trailing slash
-    name_fa="آموچینی",
+    base_url=f"{SCHEME}://amochini.ir",    # no trailing slash
+    scheme=SCHEME,
+    # The business is عمو چینی ("Uncle Chinese"), which is what amochini spells
+    # out. The uploaded draft was branded یدک‌رسان — a different company name
+    # entirely, carried over from whatever template it started life as.
+    name_fa="عمو چینی",
     name_en="Amochini",
     # The <title> suffix. Kept short: Persian is compact and titles are
     # truncated on PIXEL width, not character count.
-    brand_suffix="آموچینی",
+    brand_suffix="عمو چینی",
     tagline="فروشگاه قطعات ترمز خودروهای چینی",
+    # The slogan the live site already uses.
+    slogan="با عمو چینی همه قطعات پیدا میشه",
     description=(
         "خرید لنت ترمز، دیسک چرخ و کاسه چرخ خودروهای چینی با قیمت روز. "
         "ام‌وی‌ام، جک، لیفان، چری، هایما، برلیانس، چانگان، جیلی و بست."
@@ -30,11 +48,14 @@ SITE = dict(
 # ---------------------------------------------------------------- contact
 # TODO: every value in this block is a placeholder from the draft.
 CONTACT = dict(
-    phone_display="۰۲۱–۱۲۳۴۵۶۷۸",          # TODO: real number, Persian digits
-    phone_tel="+982112345678",              # TODO: real number, E.164 for tel:
-    mobile_display="۰۹۱۲–۱۲۳۴۵۶۷",          # TODO: real mobile
-    mobile_tel="+989121234567",             # TODO: E.164
-    whatsapp="989121234567",                # TODO: digits only, no +
+    # 09122650076 is the number the live amochini.ir publishes — it appears in
+    # Google's cached description of the site. VERIFY it is still current before
+    # launch; it is taken from the search index, not from the owner directly.
+    phone_display="۰۹۱۲۲۶۵۰۰۷۶",
+    phone_tel="+989122650076",
+    mobile_display="۰۹۱۲۲۶۵۰۰۷۶",
+    mobile_tel="+989122650076",
+    whatsapp="989122650076",                # digits only, no +
     email="info@amochini.ir",               # TODO: confirm this mailbox exists
     street="نشانی نمونه، خیابان نمونه، پلاک ۰۰",   # TODO: real street address
     city="تهران",                            # TODO: confirm city

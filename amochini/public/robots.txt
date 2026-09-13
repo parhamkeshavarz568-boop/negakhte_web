@@ -8,10 +8,12 @@ Disallow: /*?q=
 Disallow: /*?sort=
 Disallow: /*&sort=
 
-# Dead WordPress surface. These 301 to real pages in .htaccess, but if any
-# survive, do not crawl them.
+# Dead WordPress surface. These 410 in .htaccess; keeping crawlers out saves
+# crawl budget. NOTE: /wp-content/ is deliberately NOT disallowed — the old
+# product images live there and blocking it would deindex them from Google
+# Images before the new pages have earned any image rankings of their own.
 Disallow: /wp-admin/
 Disallow: /wp-json/
 Disallow: /?s=
 
-Sitemap: https://amochini.ir/sitemap.xml
+Sitemap: http://amochini.ir/sitemap.xml

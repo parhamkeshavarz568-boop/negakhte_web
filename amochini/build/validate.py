@@ -5,7 +5,7 @@ import os, re, json, sys, collections, html
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "public")
-errors, warns, info = [], [], []
+errors, warns, info, blockers = [], [], [], []
 
 
 def walk_html():
@@ -101,9 +101,20 @@ def main():
                     # Persian digits must never leak into schema
                     if re.search(r"[۰-۹]", json.dumps(off, ensure_ascii=False)):
                         errors.append(f"{url}: Persian digits inside Offer JSON-LD")
-                for req in ("name", "sku", "image", "description", "brand"):
+                # `brand` is intentionally NOT required: the source data's
+                # brand field is the CAR MAKE, and claiming the carmaker
+                # manufactured the brake part would be false. Only genuine
+                # product lines (TRA-X / XTRA) carry a brand.
+                for req in ("name", "sku", "image", "description",
+                            "isAccessoryOrSparePartFor"):
                     if req not in obj:
                         errors.append(f"{url}: Product missing {req}")
+                if "mpn" in obj or "gtin" in obj:
+                    errors.append(f"{url}: Product emits a fabricated "
+                                  f"mpn/gtin identifier")
+                if "aggregateRating" in obj or "review" in obj:
+                    errors.append(f"{url}: Product emits a rating with no "
+                                  f"real reviews behind it")
 
         # --- images have dimensions + alt ---
         for img in re.findall(r"<img\b[^>]*>", s):
@@ -173,6 +184,111 @@ def main():
             if ch in s:
                 errors.append(f"{url}: contains {label} ({ch}) — should be the Persian form")
 
+    # --- price integrity: no 10x drift between source, markup and display ---
+    # Iran is mid-redenomination and the source unit (Rial) differs from the
+    # display unit (Toman) by exactly 10, so an off-by-10x is the single most
+    # likely and most damaging bug this site can ship. Assert both ends.
+    src = {p["sku"]: p for p in json.load(
+        open(os.path.join(ROOT, "build", "data", "products.json"), encoding="utf-8"))}
+    checked = 0
+    for url, path in docs:
+        s_ = open(path, encoding="utf-8").read()
+        for block in re.findall(
+                r'<script type="application/ld\+json">(.*?)</script>', s_, re.S):
+            try:
+                o = json.loads(block)
+            except Exception:
+                continue
+            if o.get("@type") != "Product":
+                continue
+            sku = o.get("sku")
+            if sku not in src:
+                errors.append(f"{url}: Product sku {sku} not in catalogue")
+                continue
+            want = src[sku]["price_irr"]
+            off = o.get("offers")
+            if want is None:
+                if off is not None:
+                    errors.append(f"{url}: {sku} has no price but emits an Offer "
+                                  f"— an Offer without price is invalid, omit it")
+                continue
+            if off is None:
+                errors.append(f"{url}: {sku} has a price but emits no Offer")
+                continue
+            if off.get("price") != want:
+                errors.append(f"{url}: {sku} JSON-LD price {off.get('price')} != "
+                              f"catalogue {want} (10x drift?)")
+            if off.get("priceCurrency") != "IRR":
+                errors.append(f"{url}: {sku} priceCurrency "
+                              f"{off.get('priceCurrency')!r} — must be IRR")
+            # visible Toman must be exactly price/10
+            toman = want // 10
+            fa = "".join("۰۱۲۳۴۵۶۷۸۹"[int(c)] if c.isdigit() else c
+                         for c in f"{toman:,}").replace(",", "،")
+            if fa not in s_:
+                errors.append(f"{url}: {sku} displayed price is not {fa} تومان "
+                              f"(= {want} IRR / 10)")
+            checked += 1
+    info.append(f"price integrity: {checked} Product offers match the catalogue "
+                f"exactly, currency IRR, display = Rial/10")
+
+    # --- regression guards for defects we already fixed once ---------------
+    # The draft shipped under a different company's name; the live WordPress
+    # <title> carries a stray Arabic fatha. Neither may come back.
+    # Hard errors: things that are simply wrong and must never ship.
+    BANNED = {
+        "یدک‌رسان": "the draft's wrong company name (Yadak-Resan)",
+        "یدک رسان": "the draft's wrong company name (Yadak-Resan)",
+        "آموچینی": "wrong spelling of the brand — it is عمو چینی",
+        "example.com": "placeholder domain from the draft",
+        "لورم ایپسوم": "lorem ipsum placeholder",
+    }
+    # Launch blockers: real placeholders the owner still has to fill in. Not
+    # build errors — the site builds correctly — but it must not go live
+    # with them. Reported separately so a normal build stays green.
+    PLACEHOLDER = {
+        "نمونه، خیابان نمونه": "street address is still the draft placeholder",
+        "۱۲۳۴۵۶۷۸": "phone number is still the draft placeholder",
+        "info@example": "email is still a placeholder",
+        "جای نماد": "e-Namad badge slot is empty",
+        "جای نشان": "Samandehi badge slot is empty",
+    }
+    seen_ph = {}
+    for url, path in docs:
+        s_ = open(path, encoding="utf-8").read()
+        for bad, why in BANNED.items():
+            if bad in s_:
+                errors.append(f"{url}: contains {bad!r} — {why}")
+        for ph, why in PLACEHOLDER.items():
+            if ph in s_:
+                seen_ph[why] = seen_ph.get(why, 0) + 1
+    for why, n in sorted(seen_ph.items(), key=lambda kv: -kv[1]):
+        blockers.append(f"{why} (on {n} pages)")
+        t = re.search(r"<title>(.*?)</title>", s_, re.S)
+        if t and re.search(r"[\u064B-\u0652\u0670]", t.group(1)):
+            errors.append(f"{url}: <title> contains an Arabic combining "
+                          f"diacritic — the live site has this bug, do not copy it")
+
+    # --- every absolute URL uses the configured scheme ----------------------
+    sys.path.insert(0, os.path.join(ROOT, "build"))
+    from site_config import SCHEME
+    wrong = "https://" if SCHEME == "http" else "http://"
+    for url, path in docs:
+        s_ = open(path, encoding="utf-8").read()
+        for m in re.findall(rf'{wrong}amochini\.ir[^"\s<]*', s_):
+            errors.append(f"{url}: absolute URL uses {wrong} but SCHEME is "
+                          f"{SCHEME} — {m[:60]}")
+    info.append(f"scheme: all absolute URLs are {SCHEME}://")
+
+    # --- canonical must be self-referencing ---------------------------------
+    for url, canon in canons.items():
+        expect = url.replace("/index.html", "/")
+        if expect == "/index.html":
+            expect = "/"
+        got = canon.split("amochini.ir")[-1] or "/"
+        if got != expect and not expect.endswith("404.html"):
+            errors.append(f"{url}: canonical points at {got}, expected {expect}")
+
     # --- assets present ---
     for a in ["assets/css/site.css", "assets/js/site.js",
               "assets/fonts/vazirmatn-subset.woff2", "robots.txt", "sitemap.xml",
@@ -198,8 +314,13 @@ def main():
         agg = collections.Counter(re.sub(r"^/\S+: ", "", w) for w in warns)
         for w, n in agg.most_common(15):
             print(f"   ! ({n}x) {w[:110]}")
+    if blockers:
+        print(f"\n{len(blockers)} LAUNCH BLOCKER(S) — build is fine, but do not "
+              f"publish until these are filled in (see docs/PLACEHOLDERS.md):")
+        for b in blockers:
+            print("   ⚑", b)
     if not errors:
-        print("\n✓ no errors")
+        print("\n✓ build is valid" + ("" if blockers else " and launch-ready"))
     return 1 if errors else 0
 
 

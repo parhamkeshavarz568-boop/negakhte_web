@@ -30,12 +30,17 @@ def org_ld():
     """AutoPartsStore is a real schema.org type (Store > AutomotiveBusiness)."""
     node = {
         "@context": "https://schema.org",
-        "@type": "AutoPartsStore",
-        "@id": BASE + "/#store",
+        # Multi-typed on purpose: OnlineStore is the Google-supported
+        # Organization subtype, AutoPartsStore is the precise vertical.
+        "@type": ["OnlineStore", "AutoPartsStore"],
+        "@id": BASE + "/#org",
         "name": SITE["name_fa"],
         "alternateName": SITE["name_en"],
+        "slogan": SITE["slogan"],
         "url": BASE + "/",
         "description": SITE["description"],
+        "logo": {"@type": "ImageObject", "url": BASE + "/icon-512.png",
+                 "width": 512, "height": 512},
         "image": BASE + "/assets/img/hero-bg-1024.jpg",
         "telephone": CONTACT["phone_tel"],
         "email": CONTACT["email"],
@@ -69,7 +74,7 @@ def website_ld():
     return {"@context": "https://schema.org", "@type": "WebSite",
             "@id": BASE + "/#website", "url": BASE + "/",
             "name": SITE["name_fa"], "inLanguage": "fa-IR",
-            "publisher": {"@id": BASE + "/#store"}}
+            "publisher": {"@id": BASE + "/#org"}}
 
 
 def offer_ld(p):
@@ -77,15 +82,22 @@ def offer_ld(p):
     Products with no price get no Offer at all rather than a fake one."""
     if p["price_irr"] is None:
         return None
+    # priceValidUntil is deliberately omitted. It is only "recommended", but a
+    # date in the PAST actively suppresses the listing — so a generator that
+    # stamps build_date+30d silently kills every rich result the first month
+    # nobody rebuilds.
     return {
         "@type": "Offer",
         "url": BASE + p["url"],
+        # Rial, exactly as stored. IRR is the only ISO 4217 code for Iran;
+        # Toman (the unit we DISPLAY) has no ISO code and Google rejects it.
+        # Display divides by 10 — see money() — the markup never does.
         "price": p["price_irr"],
         "priceCurrency": "IRR",
         "availability": ("https://schema.org/InStock" if p["in_stock"]
                          else "https://schema.org/OutOfStock"),
         "itemCondition": "https://schema.org/NewCondition",
-        "seller": {"@id": BASE + "/#store"},
+        "seller": {"@id": BASE + "/#org"},
     }
 
 
@@ -96,18 +108,35 @@ def product_ld(p):
         "@id": BASE + p["url"] + "#product",
         "name": p["title"],
         "sku": p["sku"],
-        "mpn": p["sku"],
         "category": CATEGORIES[p["category"]]["fa"],
         "url": BASE + p["url"],
         "image": [BASE + f"/assets/img/{p['image']}-{img_w(p['image'], 700)}.jpg"],
         "description": product_description(p, plain=True),
-        "brand": {"@type": "Brand", "name": b["fa"]},
+        # NOTE: `brand` is deliberately NOT the car make. The `b` field in the
+        # source data is the vehicle it fits (ام‌وی‌ام, جک...), not who
+        # manufactured the part. Emitting "brand": "MVM" on a brake disc
+        # asserts MVM made it, which is false and is exactly the misleading
+        # markup that earns a structured-data manual action. The car make is
+        # expressed through isAccessoryOrSparePartFor instead.
+        # TRA-X / XTRA *are* genuine product lines, so those get a brand.
         "isAccessoryOrSparePartFor": {
-            "@type": "Car",
+            "@type": "Vehicle",
             "name": f"{b['fa']} {p['model']}".strip(),
-            "brand": {"@type": "Brand", "name": b["fa"]},
+            "manufacturer": {"@type": "Organization", "name": b["fa"]},
         },
+        "additionalProperty": [
+            {"@type": "PropertyValue", "name": "موقعیت نصب",
+             "value": AXLE_FA[p["axle"]]},
+            {"@type": "PropertyValue", "name": "خودرو",
+             "value": f"{b['fa']} {p['model']}".strip()},
+        ],
     }
+    if p["variant"] != "base":
+        node["brand"] = {"@type": "Brand", "name": VARIANTS[p["variant"]]["code"]}
+    # No `mpn` and no `gtin`: we do not have manufacturer part numbers, and
+    # repeating our own SKU as an MPN would be a fabricated identifier.
+    # No `aggregateRating`: there are zero reviews, and inventing one is a
+    # domain-wide manual-action risk.
     off = offer_ld(p)
     if off:
         node["offers"] = off
@@ -435,7 +464,12 @@ def category_page(slug, prods, all_p):
            if priced else "")
 
     qa = category_faq(slug, brand_names)
-    jsonld = [itemlist_ld(prods, c["h1"], url), crumbs_ld(cr), faq_ld(qa), org_ld()]
+    jsonld = [
+        {"@context": "https://schema.org", "@type": "CollectionPage",
+         "name": c["h1"], "url": BASE + url, "inLanguage": "fa-IR",
+         "description": c["blurb"], "isPartOf": {"@id": BASE + "/#website"},
+         "publisher": {"@id": BASE + "/#org"}},
+        itemlist_ld(prods, c["h1"], url), crumbs_ld(cr), faq_ld(qa), org_ld()]
 
     brand_links = " ".join(
         f'<a href="/brands/{e(b)}/">{e(BRANDS[b]["fa"])}</a>'
@@ -607,7 +641,7 @@ def brands_index(groups):
 # --------------------------------------------------------------------- home
 def home(all_p, groups):
     url = "/"
-    title = f"{SITE['name_fa']} | {SITE['tagline']} — لنت، دیسک و کاسه چرخ"
+    title = f"{SITE['name_fa']} | لنت ترمز، دیسک و کاسه چرخ خودروهای چینی"
     desc = SITE["description"]
     cr = [(None, "خانه")]
 
@@ -671,7 +705,7 @@ def home(all_p, groups):
   </div>
   <div class="inner">
     <h1>قطعات ترمز خودروهای چینی، با قیمت روز</h1>
-    <p>لنت ترمز، دیسک چرخ و کاسه چرخ — {to_fa_digits(len(all_p))} کالا برای {to_fa_digits(len(groups))} برند</p>
+    <p>{e(SITE["slogan"])} — {to_fa_digits(len(all_p))} کالا برای {to_fa_digits(len(groups))} برند</p>
 
     <form class="finder" id="finder" action="/brake-pads/" method="get">
       <label class="sr-only" for="f-brand">خودرو</label>
@@ -711,7 +745,7 @@ def home(all_p, groups):
 def about():
     url = "/about/"
     title = f"درباره {SITE['name_fa']} | فروشگاه قطعات ترمز خودروهای چینی"
-    desc = ("آموچینی، عرضه‌کننده لنت ترمز، دیسک چرخ و کاسه چرخ خودروهای چینی "
+    desc = ("عمو چینی، عرضه‌کننده لنت ترمز، دیسک چرخ و کاسه چرخ خودروهای چینی "
             "با تضمین اصالت کالا و مشاوره فنی.")
     cr = [("/", "خانه"), (None, "درباره ما")]
     jsonld = [crumbs_ld(cr), org_ld(),
@@ -724,7 +758,7 @@ def about():
 <div class="page-head"><div class="wrap"><h1>درباره {e(SITE["name_fa"])}</h1>
 <p>{e(SITE["tagline"])}</p></div></div>
 <div class="wrap"><div class="prose" style="background:#fff;padding:26px;margin-block:26px;max-width:none">
-  <p>آموچینی روی یک چیز تمرکز دارد: قطعات سیستم ترمز خودروهای چینی که در ایران
+  <p>عمو چینی روی یک چیز تمرکز دارد: قطعات سیستم ترمز خودروهای چینی که در ایران
   تردد می‌کنند. لنت ترمز، دیسک چرخ و کاسه چرخ — برای ام‌وی‌ام، جک، لیفان، چری،
   هایما، برلیانس، چانگان، جیلی، بست و دیگر برندها.</p>
 
@@ -753,7 +787,7 @@ def about():
 def contact():
     url = "/contact/"
     title = f"تماس با {SITE['name_fa']} | سفارش و استعلام قیمت"
-    desc = (f"تماس با آموچینی برای استعلام قیمت و سفارش قطعات ترمز خودروهای چینی. "
+    desc = (f"تماس با عمو چینی برای استعلام قیمت و سفارش قطعات ترمز خودروهای چینی. "
             f"تلفن، واتساپ و نشانی فروشگاه.")
     cr = [("/", "خانه"), (None, "تماس با ما")]
     wa = SOCIAL.get("whatsapp") or CONTACT["whatsapp"]

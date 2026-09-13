@@ -170,8 +170,8 @@ def header(active="/"):
 
 <header class="masthead">
   <div class="wrap">
-    <a href="/" class="logo">آمو<span>چینی</span>
-      <small>{e(SITE["tagline"])}</small>
+    <a href="/" class="logo">عمو<span>چینی</span>
+      <small>{e(SITE["slogan"])}</small>
     </a>
 
     <form class="search" role="search" action="/brake-pads/" method="get" id="siteSearch">
@@ -284,7 +284,7 @@ def footer():
 <footer>
   <div class="wrap cols">
     <div>
-      <div class="f-logo">آمو<span>چینی</span></div>
+      <div class="f-logo">عمو<span>چینی</span></div>
       <ul class="contact">
         <li>
           <svg viewBox="0 0 24 24" aria-hidden="true">{SVG["pin"]}</svg>
