@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آزمون‌های خودشناسی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5EFE6;
+    --bg-deep: #ECE2D2;
+    --ink: #1F1A15;
+    --ink-soft: #4A4036;
+    --ink-muted: #7A6E60;
+    --oxblood: #7A2E1F;
+    --oxblood-dark: #5A1F12;
+    --teal: #2D5C5C;
+    --gold: #C99846;
+    --line: #D9CDB8;
+    --paper: #FBF7EF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Vazirmatn', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(122,46,31,0.06) 0%, transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(45,92,92,0.05) 0%, transparent 40%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    pointer-events: none; z-index: 0;
+    mix-blend-mode: multiply; opacity: 0.7;
+  }
+  .app {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 32px 24px 80px; min-height: 100vh;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 24px; border-bottom: 1px solid var(--line); margin-bottom: 48px;
+  }
+  .brand { font-weight: 700; font-size: 18px; letter-spacing: 0.5px; color: var(--oxblood); cursor: pointer; }
+  .brand .dot {
+    display: inline-block; width: 8px; height: 8px;
+    background: var(--gold); margin-left: 8px; transform: rotate(45deg);
+  }
+  .tagline { font-size: 13px; color: var(--ink-muted); letter-spacing: 1px; }
+
+  .screen { display: none; animation: fadeIn 0.5s ease-out; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== HUB ===== */
+  .hub-hero { padding: 24px 0 8px; text-align: right; }
+  .hub-hero .ornament {
+    display: flex; align-items: center; gap: 12px; color: var(--gold);
+    margin-bottom: 24px; font-size: 13px; letter-spacing: 3px; font-weight: 500;
+  }
+  .hub-hero .ornament::before { content: ''; flex: 0 0 32px; height: 1px; background: var(--gold); }
+  .hub-hero h1 {
+    font-size: clamp(34px, 5.5vw, 54px); line-height: 1.15; font-weight: 800;
+    color: var(--ink); margin-bottom: 24px; letter-spacing: -0.5px;
+  }
+  .hub-hero h1 em { font-style: normal; color: var(--oxblood); position: relative; display: inline-block; }
+  .hub-hero h1 em::after {
+    content: ''; position: absolute; bottom: 4px; right: 0; width: 100%;
+    height: 8px; background: var(--gold); opacity: 0.35; z-index: -1;
+  }
+  .hub-hero .lead { font-size: 18px; color: var(--ink-soft); max-width: 600px; margin-bottom: 8px; }
+
+  .test-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 18px; margin-top: 44px;
+  }
+  .test-card {
+    background: var(--paper); border: 1.5px solid var(--line); padding: 28px 26px;
+    cursor: pointer; transition: all 0.22s ease; text-align: right;
+    display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden;
+  }
+  .test-card:hover { border-color: var(--ink); background: #fff; transform: translateY(-4px); box-shadow: 0 10px 0 -2px var(--gold); }
+  .test-card .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .test-card .tc-icon { color: var(--oxblood); flex-shrink: 0; }
+  .test-card .tc-icon svg { width: 40px; height: 40px; }
+  .test-card .tc-index {
+    font-size: 12px; font-weight: 700; color: var(--gold);
+    letter-spacing: 2px; border: 1px solid var(--line); padding: 4px 10px;
+  }
+  .test-card .tc-title { font-size: 21px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+  .test-card .tc-desc { font-size: 14px; color: var(--ink-muted); line-height: 1.7; flex: 1; }
+  .test-card .tc-meta {
+    display: flex; align-items: center; gap: 10px; font-size: 12px;
+    color: var(--ink-soft); padding-top: 14px; border-top: 1px solid var(--line);
+  }
+  .test-card .tc-meta .tc-go { margin-right: auto; color: var(--gold); font-size: 20px; }
+
+  .hub-note {
+    margin-top: 40px; padding: 20px 24px; background: var(--paper);
+    border: 1px solid var(--line); border-right: 3px solid var(--gold);
+    font-size: 13px; color: var(--ink-muted); line-height: 1.9;
+  }
+
+  /* ===== BUTTONS (from reference) ===== */
+  .btn {
+    font-family: inherit; font-size: 16px; font-weight: 600; border: none; cursor: pointer;
+    padding: 16px 36px; transition: all 0.25s ease; letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .btn-primary { background: var(--ink); color: var(--bg); box-shadow: 4px 4px 0 var(--gold); }
+  .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--oxblood); }
+  .btn-primary:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--oxblood); }
+  .btn-primary:disabled {
+    background: var(--bg-deep); color: var(--ink-muted); box-shadow: 4px 4px 0 var(--line);
+    cursor: not-allowed; transform: none;
+  }
+  .btn-primary:disabled:hover { transform: none; box-shadow: 4px 4px 0 var(--line); }
+  .btn-arrow { font-size: 20px; line-height: 1; }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); padding: 14px 24px; font-size: 14px; }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ===== INTRO / BRANCH (from reference) ===== */
+  .intro { padding: 24px 0; max-width: 640px; margin: 0 auto; text-align: center; }
+  .intro .pill {
+    display: inline-block; padding: 6px 16px; background: var(--bg-deep);
+    color: var(--ink-soft); border-radius: 100px; font-size: 13px; font-weight: 500; margin-bottom: 24px;
+  }
+  .intro h2 { font-size: 30px; font-weight: 700; margin-bottom: 16px; line-height: 1.3; }
+  .intro p { color: var(--ink-soft); margin-bottom: 16px; }
+  .intro-back { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .branch-cards { display: grid; gap: 16px; margin: 40px 0 24px; }
+  .branch-card {
+    background: var(--paper); border: 1.5px solid var(--line); padding: 28px 26px;
+    cursor: pointer; transition: all 0.2s ease; text-align: right;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .branch-card:hover { border-color: var(--ink); background: #fff; transform: translateY(-3px); box-shadow: 0 8px 0 -2px var(--gold); }
+  .branch-card .bc-title { font-size: 19px; font-weight: 600; }
+  .branch-card .bc-sub { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+  .branch-card .bc-arrow { color: var(--gold); font-size: 24px; }
+  .branch-note { font-size: 13px; color: var(--ink-muted); margin-top: 8px; }
+
+  .field-group { text-align: right; margin: 12px 0; }
+  .field-group label { display: block; font-size: 14px; color: var(--ink-soft); margin-bottom: 8px; font-weight: 500; }
+  .field-group input, .field-group select {
+    width: 100%; padding: 14px 16px; font-family: inherit; font-size: 15px;
+    background: var(--paper); border: 1.5px solid var(--line); color: var(--ink);
+  }
+  .field-group input:focus, .field-group select:focus { outline: none; border-color: var(--ink); }
+
+  /* ===== QUIZ (from reference) ===== */
+  .quiz-header { margin-bottom: 40px; }
+  .progress-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; font-size: 13px; color: var(--ink-muted); letter-spacing: 1px;
+  }
+  .progress-meta .gold { color: var(--gold); font-weight: 600; }
+  .progress-bar { height: 3px; background: var(--bg-deep); overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(to left, var(--gold), var(--oxblood)); transition: width 0.4s ease; width: 0%; }
+
+  .question-block { padding: 24px 0; }
+  .question-prompt {
+    font-size: clamp(20px, 2.6vw, 27px); font-weight: 700; line-height: 1.5;
+    color: var(--ink); margin-bottom: 32px; text-align: center;
+  }
+  .question-prompt .small { display: block; font-size: 14px; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 12px; }
+  .answers { display: grid; gap: 14px; }
+  .answer {
+    background: var(--paper); border: 1.5px solid var(--line); padding: 20px 24px;
+    cursor: pointer; font-family: inherit; font-size: 17px; text-align: right;
+    transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; color: var(--ink-soft); line-height: 1.6;
+  }
+  .answer:hover { border-color: var(--ink); background: #fff; transform: translateX(-4px); color: var(--ink); }
+  .answer .marker {
+    width: 26px; height: 26px; border: 1.5px solid var(--line); border-radius: 50%;
+    flex-shrink: 0; transition: all 0.2s ease; position: relative;
+  }
+  .answer:hover .marker { border-color: var(--ink); }
+  .answer.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .answer.selected .marker { background: var(--gold); border-color: var(--gold); }
+  .answer.selected .marker::after {
+    content: '✓'; position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; color: var(--ink); font-size: 15px; font-weight: 700;
+  }
+  /* Likert row variant */
+  .likert { display: grid; gap: 10px; }
+  .likert .answer { padding: 16px 22px; font-size: 16px; }
+  /* DISC most/least group */
+  .disc-group { display: grid; gap: 12px; }
+  .disc-word {
+    display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px;
+    background: var(--paper); border: 1.5px solid var(--line); padding: 16px 20px;
+  }
+  .disc-word .dw-text { font-size: 17px; font-weight: 500; color: var(--ink); }
+  .disc-pick {
+    border: 1.5px solid var(--line); background: transparent; font-family: inherit;
+    font-size: 12px; font-weight: 600; color: var(--ink-muted); padding: 8px 14px;
+    cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+  }
+  .disc-pick:hover { border-color: var(--ink); color: var(--ink); }
+  .disc-pick.most-on { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .disc-pick.least-on { background: var(--oxblood); color: #fff; border-color: var(--oxblood); }
+
+  .quiz-nav { margin-top: 32px; display: flex; justify-content: space-between; align-items: center; }
+
+  /* ===== RESULTS (from reference) ===== */
+  .results-header { text-align: center; padding: 24px 0 32px; }
+  .results-header .stamp {
+    display: inline-block; padding: 8px 20px; border: 1px solid var(--gold);
+    color: var(--gold); font-size: 12px; letter-spacing: 4px; margin-bottom: 20px;
+  }
+  .result-hero {
+    text-align: center; padding: 48px 32px; background: var(--ink); color: var(--bg);
+    margin: 24px 0 48px; position: relative; overflow: hidden;
+  }
+  .result-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(201,152,70,0.25) 0%, transparent 60%);
+  }
+  .result-hero .rh-content { position: relative; z-index: 1; }
+  .result-hero .rh-label { font-size: 13px; letter-spacing: 4px; color: var(--gold); margin-bottom: 20px; }
+  .result-hero .rh-icon { color: var(--gold); margin-bottom: 16px; }
+  .result-hero .rh-icon svg { width: 56px; height: 56px; }
+  .result-hero .rh-name { font-size: clamp(30px, 5vw, 48px); font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+  .result-hero .rh-code {
+    font-size: clamp(44px, 8vw, 72px); font-weight: 800; letter-spacing: 8px;
+    color: #fff; margin-bottom: 12px; direction: ltr;
+  }
+  .result-hero .rh-desc { font-size: 16px; color: #E8DECB; max-width: 540px; margin: 0 auto; line-height: 1.8; }
+
+  .breakdown-title { font-size: 14px; letter-spacing: 2px; color: var(--gold); font-weight: 600; margin-bottom: 20px; text-align: center; }
+  .lang-row {
+    display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+    background: var(--paper); border: 1px solid var(--line); margin-bottom: 12px;
+  }
+  .lang-row.primary { border-color: var(--oxblood); border-right: 4px solid var(--oxblood); }
+  .lang-row .lr-icon { color: var(--ink-soft); flex-shrink: 0; }
+  .lang-row.primary .lr-icon { color: var(--oxblood); }
+  .lang-row .lr-icon svg { width: 28px; height: 28px; }
+  .lang-row .lr-body { flex: 1; }
+  .lang-row .lr-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .lang-row .lr-name { font-size: 16px; font-weight: 600; }
+  .lang-row .lr-score { font-size: 18px; font-weight: 800; color: var(--oxblood); }
+  .lang-row .lr-bar { height: 6px; background: var(--bg-deep); overflow: hidden; }
+  .lang-row .lr-bar-fill { height: 100%; background: linear-gradient(to left, var(--gold), var(--oxblood)); transition: width 0.7s ease; }
+
+  .dim-detail { font-size: 13px; color: var(--ink-muted); margin-top: 6px; line-height: 1.7; }
+
+  /* dichotomy pair bars (MBTI) */
+  .pair-row { margin-bottom: 22px; background: var(--paper); border: 1px solid var(--line); padding: 18px 20px; }
+  .pair-head { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .pair-head .on { color: var(--oxblood); }
+  .pair-head .off { color: var(--ink-muted); }
+  .pair-track { height: 8px; background: var(--bg-deep); position: relative; overflow: hidden; }
+  .pair-track .fill { position: absolute; top: 0; bottom: 0; background: linear-gradient(to left, var(--gold), var(--oxblood)); }
+
+  /* political compass quadrant */
+  .compass-wrap { display: flex; flex-direction: column; align-items: center; margin: 24px 0; }
+  .compass {
+    position: relative; width: min(420px, 88vw); height: min(420px, 88vw);
+    border: 2px solid var(--ink); background: #fff;
+    border-radius: 50%;
+  }
+  .compass .q { position: absolute; width: 50%; height: 50%; opacity: 0.14; }
+  .compass .q.tl { top: 0; right: 0; background: #C0392B; border-top-right-radius: 100%; }
+  .compass .q.tr { top: 0; left: 0; background: #8E44AD; border-top-left-radius: 100%; }
+  .compass .q.bl { bottom: 0; right: 0; background: #27AE60; border-bottom-right-radius: 100%; }
+  .compass .q.br { bottom: 0; left: 0; background: #2980B9; border-bottom-left-radius: 100%; }
+  .compass .axis-x, .compass .axis-y { position: absolute; background: var(--ink); opacity: 0.5; }
+  .compass .axis-x { top: 50%; left: 0; right: 0; height: 1.5px; }
+  .compass .axis-y { left: 50%; top: 0; bottom: 0; width: 1.5px; }
+  .compass .dot {
+    position: absolute; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--gold); border: 3px solid var(--ink); transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 4px rgba(201,152,70,0.3); z-index: 2;
+  }
+  .compass-label { position: absolute; font-size: 11px; font-weight: 600; color: var(--ink-soft); letter-spacing: 1px; }
+  .compass-label.top { top: 10px; left: 50%; transform: translateX(-50%); }
+  .compass-label.bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
+  .compass-label.left { left: 14px; top: 50%; transform: translateY(-50%) rotate(0deg); }
+  .compass-label.right { right: 14px; top: 50%; transform: translateY(-50%); }
+  .compass-coords { margin-top: 20px; font-size: 15px; color: var(--ink-soft); direction: ltr; font-weight: 600; }
+
+  .results-actions { display: flex; gap: 16px; justify-content: center; margin-top: 48px; flex-wrap: wrap; }
+  .footer {
+    margin-top: 72px; padding-top: 32px; border-top: 1px solid var(--line);
+    text-align: center; font-size: 12px; color: var(--ink-muted); line-height: 1.8;
+  }
+
+  @media (max-width: 640px) {
+    .app { padding: 20px 16px 60px; }
+    .test-grid { grid-template-columns: 1fr; }
+    .hub-hero h1 { font-size: 32px; }
+    .question-prompt { font-size: 20px; }
+    .answer { font-size: 16px; padding: 16px 18px; }
+    .btn { padding: 14px 22px; font-size: 15px; }
+    .result-hero { padding: 36px 20px; }
+    .disc-word { grid-template-columns: 1fr; gap: 10px; }
+    .disc-word .dw-picks { display: flex; gap: 10px; }
+  }
+  @media print {
+    body::before, body::after { display: none; }
+    .results-actions, .topbar { display: none; }
+    .result-hero { background: #fff !important; color: var(--ink) !important; border: 2px solid var(--ink); }
+    .result-hero .rh-name, .result-hero .rh-desc, .result-hero .rh-label, .result-hero .rh-code { color: var(--ink) !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand" onclick="goHub()">آزمون‌های خودشناسی<span class="dot"></span></div>
+    <div class="tagline">مجموعه‌ی شناخت</div>
+  </div>
+
+  <!-- ============ HUB ============ -->
+  <section class="screen active" id="screen-hub">
+    <div class="hub-hero">
+      <div class="ornament">شش آزمون خودشناسی</div>
+      <h1>خودت را <em>بهتر بشناس</em></h1>
+      <p class="lead">
+        مجموعه‌ای از آزمون‌های شناختِ شخصیت، بر پایه‌ی چارچوب‌های شناخته‌شده‌ی روان‌شناسی.
+        یکی را انتخاب کن، صادقانه پاسخ بده و نتیجه‌ی فوری‌ات را ببین. همه‌ی پاسخ‌ها فقط در مرورگر تو می‌مانند.
+      </p>
+    </div>
+
+    <div class="test-grid" id="test-grid"><!-- cards injected --></div>
+
+    <div class="hub-note">
+      این آزمون‌ها ابزار خودشناسی و سرگرمی‌اند و جایگزین ارزیابی یا مشاوره‌ی تخصصی روان‌شناسی نیستند.
+      هر آزمون بر اساس مفاهیم عمومی همان چارچوب طراحی شده و نتایج جنبه‌ی راهنما دارند.
+    </div>
+  </section>
+
+  <!-- ============ INTRO (shared, per-test content injected) ============ -->
+  <section class="screen" id="screen-intro">
+    <div class="intro">
+      <span class="pill" id="intro-pill">پیش از شروع</span>
+      <h2 id="intro-title">…</h2>
+      <p id="intro-text">…</p>
+      <div id="intro-body"><!-- branch cards or info form injected --></div>
+      <p class="branch-note" id="intro-note">صادقانه و بر اساس اولین احساست پاسخ بده. پاسخ‌ها فقط در مرورگر تو می‌مانند.</p>
+      <div class="intro-back">
+        <button class="btn btn-ghost" onclick="goHub()"><span class="btn-arrow">→</span> بازگشت به فهرست آزمون‌ها</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ (shared) ============ -->
+  <section class="screen" id="screen-quiz">
+    <div class="quiz-header">
+      <div class="progress-meta">
+        <span>پرسش <span id="q-current">۱</span> از <span id="q-total">۳۰</span></span>
+        <span class="gold" id="q-testname">آزمون</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+
+    <div class="question-block">
+      <div class="question-prompt" id="question-prompt">
+        <span class="small" id="prompt-small">…</span>
+        <span id="prompt-main">…</span>
+      </div>
+      <div id="answers-container"><!-- answers/likert/disc injected --></div>
+    </div>
+
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" id="btn-back" onclick="prevQuestion()">→ پرسش قبلی</button>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <button class="btn btn-ghost" onclick="goHub()">انصراف</button>
+        <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" disabled>
+          <span id="btn-next-label">پرسش بعدی</span>
+          <span class="btn-arrow">←</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS (shared, renderer swaps content) ============ -->
+  <section class="screen" id="screen-results">
+    <div class="results-header">
+      <div class="stamp">نتیجه‌ی شما</div>
+    </div>
+    <div id="result-body"><!-- hero + breakdown injected per test --></div>
+    <div class="results-actions">
+      <button class="btn btn-primary" onclick="window.print()"><span>چاپ نتیجه</span></button>
+      <button class="btn btn-ghost" onclick="restartCurrent()">شروع دوباره</button>
+      <button class="btn btn-ghost" onclick="goHub()">بازگشت به فهرست آزمون‌ها</button>
+    </div>
+  </section>
+
+  <div class="footer" id="footer">
+    مجموعه‌ی آزمون‌های خودشناسی — ابزاری برای آشنایی بهتر با خود. نتایج جنبه‌ی راهنما دارند.
+  </div>
+
+</div>
+<script>
+/* =========================================================
+   ICONS (line-svg, currentColor)
+========================================================= */
+const ICONS = {
+  crown:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 34h32M10 34l-3-16 9 7 8-13 8 13 9-7-3 16" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  bow:     '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8c10 4 16 12 16 32M12 8l6 4M12 8l-1 7" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="38" x2="34" y2="14" stroke-linecap="round"/></svg>',
+  owl:     '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20a12 12 0 0124 0v6a12 12 0 01-24 0z" stroke-linejoin="round"/><circle cx="19" cy="21" r="3"/><circle cx="29" cy="21" r="3"/><path d="M24 26l-2 3h4z" stroke-linejoin="round"/></svg>',
+  flame:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 6c6 8 12 12 12 20a12 12 0 01-24 0c0-4 2-7 5-9 0 3 2 5 4 5-3-6 1-12 3-16z" stroke-linejoin="round"/></svg>',
+  wheat:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><line x1="24" y1="42" x2="24" y2="14" stroke-linecap="round"/><path d="M24 14c-4-2-6-6-5-10 4-1 8 2 8 6M24 20c-4-2-6-6-5-10M24 20c4-2 6-6 5-10 0 0 0 0 0 0M24 26c-4-2-6-6-5-10M24 26c4-2 6-6 5-10" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  seed:    '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 40V22M24 22c0-8 6-14 14-14 0 8-6 14-14 14zM24 26c0-6-5-11-11-11 0 6 5 11 11 11z" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  heart:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 38l-11-11c-3-3-3-8 0-11 2.5-2.5 7-2.5 9 0l2 2 2-2c2-2.5 6.5-2.5 9 0 3 3 3 8 0 11z" stroke-linejoin="round"/></svg>',
+  bolt:    '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M26 6L12 26h10l-2 16 16-22H26z" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  wave:    '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18c4-4 8-4 12 0s8 4 12 0 8-4 12 0M6 28c4-4 8-4 12 0s8 4 12 0 8-4 12 0" stroke-linecap="round"/></svg>',
+  moon:    '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M30 8a16 16 0 100 32 13 13 0 010-32z" stroke-linejoin="round"/></svg>',
+  sun:     '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><circle cx="24" cy="24" r="9"/><path d="M24 6v4M24 38v4M6 24h4M38 24h4M11 11l3 3M34 34l3 3M37 11l-3 3M14 34l-3 3" stroke-linecap="round"/></svg>',
+  wing:    '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 30c8 2 16-2 20-10M10 24c8 1 14-2 17-8M12 18c6 1 11-1 14-5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sword:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M32 8l8 0 0 8-18 18-4-4z" stroke-linejoin="round"/><path d="M18 30l-8 8M14 34l4 4M8 34l6 6" stroke-linecap="round"/></svg>',
+  anvil:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 18h20c0 5-4 7-8 7h12l-2 6H16l-2-6h4c-4 0-8-2-8-7z" stroke-linejoin="round"/><path d="M20 31v5h-6v3h20v-3h-6v-5" stroke-linejoin="round"/></svg>',
+  grapes:  '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 10c0-2 2-4 4-4" stroke-linecap="round"/><circle cx="24" cy="16" r="4"/><circle cx="18" cy="23" r="4"/><circle cx="30" cy="23" r="4"/><circle cx="21" cy="31" r="4"/><circle cx="27" cy="31" r="4"/><circle cx="24" cy="39" r="4"/></svg>',
+  compass: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><circle cx="24" cy="24" r="17"/><path d="M31 17l-5 12-9 5 5-12z" stroke-linejoin="round"/></svg>',
+  brain:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10a6 6 0 00-6 6 5 5 0 00-3 9 5 5 0 004 7 5 5 0 0011 2V12a4 4 0 00-6-2zM28 10a6 6 0 016 6 5 5 0 013 9 5 5 0 01-4 7 5 5 0 01-11 2" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  link:    '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 28l8-8M17 25l-4 4a6 6 0 108 8l4-4M31 23l4-4a6 6 0 10-8-8l-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  target:  '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="9"/><circle cx="24" cy="24" r="2.5" fill="currentColor"/></svg>',
+  words:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15a4 4 0 014-4h20a4 4 0 014 4v12a4 4 0 01-4 4H21l-11 8z" stroke-linejoin="round"/><line x1="17" y1="18" x2="31" y2="18" stroke-linecap="round"/><line x1="17" y1="24" x2="26" y2="24" stroke-linecap="round"/></svg>',
+  quality: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 7h18M15 41h18" stroke-linecap="round"/><path d="M18 7v6c0 5 6 7 6 11s-6 6-6 11v6M30 7v6c0 5-6 7-6 11s6 6 6 11v6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  gifts:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="10" y="21" width="28" height="19" rx="1.5"/><rect x="8" y="15" width="32" height="6" rx="1.5"/><line x1="24" y1="15" x2="24" y2="40"/><path d="M24 15c-2-6-5-7-7.5-5.5S15 15 24 15zM24 15c2-6 5-7 7.5-5.5S33 15 24 15z" stroke-linejoin="round"/></svg>',
+  service: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 21v11c0 5 4 9 9 9h5c5 0 9-4 9-9v-8a2.5 2.5 0 00-5 0v-3a2.5 2.5 0 00-5 0v-2a2.5 2.5 0 00-5 0V9a2.5 2.5 0 00-5 0v16" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  touch:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 40c-5 0-9-4-9-9v-9a2.5 2.5 0 015 0v-8a2.5 2.5 0 015 0v14" stroke-linecap="round" stroke-linejoin="round"/><path d="M26 40c5 0 9-4 9-9v-9a2.5 2.5 0 00-5 0v-8a2.5 2.5 0 00-5 0v14" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  spark:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 6l4 12 12 4-12 4-4 12-4-12-12-4 12-4z" stroke-linejoin="round"/></svg>',
+  shield:  '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 6l14 5v10c0 9-6 16-14 20-8-4-14-11-14-20V11z" stroke-linejoin="round"/></svg>',
+  scale:   '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><line x1="24" y1="8" x2="24" y2="40" stroke-linecap="round"/><path d="M10 40h28M14 14h20M14 14l-6 12h12zM34 14l-6 12h12z" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+};
+
+/* =========================================================
+   STATE
+========================================================= */
+let TEST = null;          // current test definition
+let currentTestId = null;
+let currentQ = 0;
+let answers = [];         // shape depends on test type
+let meta = {};            // e.g. political subject, attachment info, disc handled specially
+
+const FA = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+function toFa(num){ return String(num).split('').map(d=>/\d/.test(d)?FA[+d]:d).join(''); }
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goHub(){ currentTestId=null; TEST=null; goTo('hub'); }
+
+/* =========================================================
+   HUB CARD RENDER
+========================================================= */
+function renderHub(){
+  const grid = document.getElementById('test-grid');
+  grid.innerHTML='';
+  Object.keys(TESTS).forEach((id,i)=>{
+    const t = TESTS[id];
+    const card = document.createElement('div');
+    card.className='test-card';
+    card.onclick=()=>startTest(id);
+    card.innerHTML =
+      '<div class="tc-top">'+
+        '<div class="tc-icon">'+ICONS[t.icon]+'</div>'+
+        '<div class="tc-index">'+toFa(String(i+1).padStart(2,'0'))+'</div>'+
+      '</div>'+
+      '<div class="tc-title">'+t.title+'</div>'+
+      '<div class="tc-desc">'+t.tagline+'</div>'+
+      '<div class="tc-meta">'+
+        '<span>'+t.metaLabel+'</span>'+
+        '<span class="tc-go">←</span>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+/* =========================================================
+   TEST START  ->  intro screen (branch or info or straight)
+========================================================= */
+function startTest(id){
+  currentTestId=id;
+  TEST=TESTS[id];
+  currentQ=0;
+  meta={};
+  answers = TEST.buildAnswers();
+  buildIntro();
+}
+
+function buildIntro(){
+  document.getElementById('intro-pill').textContent = TEST.introPill || 'پیش از شروع';
+  document.getElementById('intro-title').textContent = TEST.introTitle;
+  document.getElementById('intro-text').textContent = TEST.introText;
+  document.getElementById('intro-note').textContent = TEST.introNote || 'صادقانه و بر اساس اولین احساست پاسخ بده. پاسخ‌ها فقط در مرورگر تو می‌مانند.';
+  const body = document.getElementById('intro-body');
+  body.innerHTML='';
+
+  if(TEST.intro === 'branch'){
+    const wrap=document.createElement('div'); wrap.className='branch-cards';
+    TEST.branches.forEach(b=>{
+      const c=document.createElement('div'); c.className='branch-card';
+      c.onclick=()=>{ meta.branch=b.key; if(b.partner) meta.partner=b.partner; beginQuiz(); };
+      c.innerHTML='<div><div class="bc-title">'+b.title+'</div><div class="bc-sub">'+b.sub+'</div></div><span class="bc-arrow">←</span>';
+      wrap.appendChild(c);
+    });
+    body.appendChild(wrap);
+  } else if(TEST.intro === 'info'){
+    const wrap=document.createElement('div'); wrap.style.margin='32px 0 8px';
+    TEST.infoFields.forEach(f=>{
+      const g=document.createElement('div'); g.className='field-group';
+      let input;
+      if(f.type==='select'){
+        input='<select id="info-'+f.key+'">'+f.options.map(o=>'<option value="'+o+'">'+o+'</option>').join('')+'</select>';
+      } else {
+        input='<input id="info-'+f.key+'" type="'+(f.type||'text')+'" placeholder="'+(f.placeholder||'')+'">';
+      }
+      g.innerHTML='<label>'+f.label+'</label>'+input;
+      wrap.appendChild(g);
+    });
+    const btn=document.createElement('button');
+    btn.className='btn btn-primary'; btn.style.marginTop='16px';
+    btn.innerHTML='<span>شروع آزمون</span><span class="btn-arrow">←</span>';
+    btn.onclick=()=>{
+      TEST.infoFields.forEach(f=>{ meta[f.key]=(document.getElementById('info-'+f.key)||{}).value||''; });
+      beginQuiz();
+    };
+    wrap.appendChild(btn);
+    body.appendChild(wrap);
+  } else {
+    const btn=document.createElement('button');
+    btn.className='btn btn-primary'; btn.style.marginTop='24px';
+    btn.innerHTML='<span>شروع آزمون</span><span class="btn-arrow">←</span>';
+    btn.onclick=()=>beginQuiz();
+    body.appendChild(btn);
+  }
+  goTo('intro');
+}
+
+function beginQuiz(){
+  currentQ=0;
+  document.getElementById('q-testname').textContent = TEST.title;
+  document.getElementById('q-total').textContent = toFa(TEST.questions.length);
+  renderQuestion();
+  goTo('quiz');
+}
+
+/* =========================================================
+   QUESTION RENDER  (three formats: likert, paired, disc)
+========================================================= */
+function renderQuestion(){
+  const total = TEST.questions.length;
+  document.getElementById('q-current').textContent = toFa(currentQ+1);
+  document.getElementById('progress-fill').style.width = (currentQ/total*100)+'%';
+  document.getElementById('prompt-small').textContent = TEST.promptSmall || '';
+  const q = TEST.questions[currentQ];
+  document.getElementById('prompt-main').innerHTML = subMeta(q.text || TEST.promptMain || '');
+  // section label (e.g. Political Compass 6 sections); fall back to test title
+  if(TEST.sections && q.sec!=null){ document.getElementById('q-testname').textContent = TEST.sections[q.sec]; }
+  else { document.getElementById('q-testname').textContent = TEST.title; }
+
+  const cont = document.getElementById('answers-container');
+  cont.innerHTML='';
+
+  if(TEST.format==='likert'){
+    const box=document.createElement('div'); box.className='likert';
+    TEST.scale.forEach((label,si)=>{
+      const val = TEST.scaleValues[si];
+      const btn=document.createElement('button');
+      btn.className='answer'+(answers[currentQ]===val?' selected':'');
+      btn.innerHTML='<span>'+label+'</span><span class="marker"></span>';
+      btn.onclick=()=>{ answers[currentQ]=val; renderQuestion(); syncNext(); };
+      box.appendChild(btn);
+    });
+    cont.appendChild(box);
+  }
+  else if(TEST.format==='paired'){
+    const box=document.createElement('div'); box.className='answers';
+    [['a',q.a],['b',q.b]].forEach(([key,opt])=>{
+      const btn=document.createElement('button');
+      btn.className='answer'+(answers[currentQ]===key?' selected':'');
+      btn.innerHTML='<span>'+subMeta(opt.t)+'</span><span class="marker"></span>';
+      btn.onclick=()=>{ answers[currentQ]=key; renderQuestion(); syncNext(); };
+      box.appendChild(btn);
+    });
+    cont.appendChild(box);
+  }
+  else if(TEST.format==='disc'){
+    // answers[currentQ] = {most:idx|null, least:idx|null}
+    const state = answers[currentQ] || {most:null,least:null};
+    const box=document.createElement('div'); box.className='disc-group';
+    q.words.forEach((w,wi)=>{
+      const row=document.createElement('div'); row.className='disc-word';
+      const mostOn = state.most===wi;
+      const leastOn = state.least===wi;
+      row.innerHTML='<span class="dw-text">'+w.t+'</span>';
+      const picks=document.createElement('div'); picks.className='dw-picks'; picks.style.display='contents';
+      const mBtn=document.createElement('button');
+      mBtn.className='disc-pick'+(mostOn?' most-on':''); mBtn.textContent='بیشترین شباهت';
+      mBtn.onclick=()=>{ if(state.least===wi) state.least=null; state.most=mostOn?null:wi; answers[currentQ]={...state}; renderQuestion(); syncNext(); };
+      const lBtn=document.createElement('button');
+      lBtn.className='disc-pick'+(leastOn?' least-on':''); lBtn.textContent='کمترین شباهت';
+      lBtn.onclick=()=>{ if(state.most===wi) state.most=null; state.least=leastOn?null:wi; answers[currentQ]={...state}; renderQuestion(); syncNext(); };
+      row.appendChild(mBtn); row.appendChild(lBtn);
+      box.appendChild(row);
+    });
+    cont.appendChild(box);
+  }
+
+  document.getElementById('btn-back').style.visibility = currentQ===0?'hidden':'visible';
+  document.getElementById('btn-next-label').textContent = currentQ===total-1?'نمایش نتیجه':'پرسش بعدی';
+  syncNext();
+}
+
+function isAnswered(i){
+  const a=answers[i];
+  if(TEST.format==='disc'){ return a && a.most!==null && a.least!==null && a.most!==a.least; }
+  return a!==null && a!==undefined;
+}
+function syncNext(){ document.getElementById('btn-next').disabled = !isAnswered(currentQ); }
+
+function nextQuestion(){
+  if(!isAnswered(currentQ)) return;
+  if(currentQ < TEST.questions.length-1){ currentQ++; renderQuestion(); }
+  else { showResults(); }
+}
+function prevQuestion(){ if(currentQ>0){ currentQ--; renderQuestion(); } }
+function restartCurrent(){ if(currentTestId) startTest(currentTestId); }
+
+/* meta substitution (e.g. political subject not needed, but keep for parity) */
+function subMeta(text){
+  if(!text) return '';
+  return text
+    .replace(/\{name\}/g, meta.name || 'شما')
+    .replace(/\{p\}/g, meta.partner || 'شریک عاطفی‌ام');
+}
+
+/* =========================================================
+   RESULTS DISPATCH
+========================================================= */
+function showResults(){
+  document.getElementById('progress-fill').style.width='100%';
+  const scores = TEST.score(answers, meta);
+  const html = TEST.renderResult(scores, meta);
+  document.getElementById('result-body').innerHTML = html;
+  // animate bars
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+    document.querySelectorAll('[data-fill]').forEach(el=>{ el.style.width = el.getAttribute('data-fill')+'%'; });
+    document.querySelectorAll('[data-left]').forEach(el=>{ el.style.left = el.getAttribute('data-left'); el.style.width = el.getAttribute('data-w'); });
+  }); });
+  goTo('results');
+}
+
+/* shared result partials */
+function heroBlock(label, name, desc, icon, isCode){
+  return '<div class="result-hero"><div class="rh-content">'+
+    '<div class="rh-label">'+label+'</div>'+
+    (icon&&ICONS[icon]?'<div class="rh-icon">'+ICONS[icon]+'</div>':'')+
+    (isCode?'<div class="rh-code">'+name+'</div>':'<div class="rh-name">'+name+'</div>')+
+    '<div class="rh-desc">'+desc+'</div>'+
+  '</div></div>';
+}
+function rankedBars(title, rows){
+  // rows: [{name, icon, score, max, primary, detail}]
+  let h='<div class="breakdown-title">'+title+'</div>';
+  rows.forEach(r=>{
+    const pct=Math.round(r.score/r.max*100);
+    h+='<div class="lang-row'+(r.primary?' primary':'')+'">'+
+      (r.icon&&ICONS[r.icon]?'<div class="lr-icon">'+ICONS[r.icon]+'</div>':'')+
+      '<div class="lr-body">'+
+        '<div class="lr-head"><span class="lr-name">'+r.name+(r.primary&&r.primaryTag?' — '+r.primaryTag:'')+'</span>'+
+        '<span class="lr-score">'+toFa(pct)+'٪</span></div>'+
+        '<div class="lr-bar"><div class="lr-bar-fill" data-fill="'+pct+'" style="width:0%"></div></div>'+
+        (r.detail?'<div class="dim-detail">'+r.detail+'</div>':'')+
+      '</div>'+
+    '</div>';
+  });
+  return h;
+}
+</script>
+<script>
+/* =========================================================
+   SHARED LIKERT SCALE (5-point agreement, faithful to
+   archetype/attachment/MBTI style tests)
+========================================================= */
+const AGREE5 = ['کاملاً مخالفم','تا حدی مخالفم','بی‌نظرم','تا حدی موافقم','کاملاً موافقم'];
+const AGREE5_VALS = [1,2,3,4,5];
+
+/* helper to build a likert answer array */
+function likertAnswers(){ return new Array(this.questions.length).fill(null); }
+
+/* generic likert category scorer:
+   each question has .cat (category key) and optional .rev (reverse-scored) */
+function scoreLikertCategories(cats){
+  return function(answers){
+    const s={}; cats.forEach(c=>s[c]=0);
+    const count={}; cats.forEach(c=>count[c]=0);
+    this.questions.forEach((q,i)=>{
+      let v=answers[i]; if(v==null) v=3;
+      if(q.rev) v=6-v;
+      s[q.cat]+=v; count[q.cat]++;
+    });
+    // normalize each category to 0-100 by its own item count (max 5/item)
+    const norm={};
+    cats.forEach(c=>{ norm[c]= count[c]? (s[c]/(count[c]*5))*100 : 0; });
+    return {raw:s, count, norm};
+  };
+}
+
+const TESTS = {};
+
+/* =========================================================
+   REBUILT TESTS — matched to reference counts & structure
+   Shared AGREE5 scale + scoreLikertCategories already defined in shell.
+========================================================= */
+
+/* ---------------------------------------------------------
+   TEST 1 — FEMININE ARCHETYPES (testotype #16)
+   Reference: 70 questions, 7 goddess archetypes, situational agreement.
+   10 items per archetype × 7 = 70.
+--------------------------------------------------------- */
+TESTS.archetypeWomen = {
+  icon:'moon',
+  title:'کهن‌الگوهای زنانه',
+  tagline:'کدام الهه‌های اسطوره‌ای در شخصیت تو زنده‌اند؟ بر پایه‌ی روان‌شناسی یونگی و کار جین شینودا بولن.',
+  metaLabel:'۷۰ پرسش • حدود ۱۲ دقیقه',
+  intro:'straight',
+  introTitle:'کهن‌الگوهای زنانه',
+  introText:'به هر گزاره سریع و بر اساس اولین احساست پاسخ بده و مکث نکن. اگر هنوز ازدواج نکرده‌ای، فرزند نداری یا شاغل نیستی، پاسخی را انتخاب کن که برای خودت پیش‌بینی می‌کنی. گزینه‌ای را برگزین که به ویژگی‌های حال حاضر توست، نه آنچه آرزو داری یا دیگران از تو انتظار دارند.',
+  introNote:'به همه‌ی پرسش‌ها پاسخ بده؛ اگر پرسشی بی‌پاسخ بماند نتیجه نمایش داده نمی‌شود.',
+  format:'likert',
+  scale:AGREE5, scaleValues:AGREE5_VALS,
+  promptSmall:'چقدر با این جمله موافقی؟',
+  buildAnswers:likertAnswers,
+  archs:{
+    artemis:{name:'آرتمیس',icon:'bow',desc:'الهه‌ی شکار و استقلال. هدف‌گرا، مستقل و پیگیر؛ به آزادی و دنبال‌کردن مسیر خودت بیش از هر چیز اهمیت می‌دهی و به‌سختی از راهت منحرف می‌شوی.'},
+    athena:{name:'آتنا',icon:'owl',desc:'الهه‌ی خرد و راهبرد. منطقی، هوشمند و اهل برنامه‌ریزی؛ با ذهن تصمیم می‌گیری نه با احساس، و در موقعیت‌های چالش‌برانگیز خونسرد و کارآمدی.'},
+    hestia:{name:'هستیا',icon:'flame',desc:'الهه‌ی آتشِ خانه و آرامش درونی. درون‌گرا، متمرکز و در صلح با خود؛ به سکوت، معنا و فضای شخصی‌ات ارزش می‌دهی و از تأیید دیگران بی‌نیازی.'},
+    hera:{name:'هرا',icon:'crown',desc:'الهه‌ی پیوند و تعهد. وفادار، متعهد و در پی رابطه‌ای پایدار؛ شریک زندگی و تعهد برایت محور معنا و هویت است.'},
+    demeter:{name:'دیمیتر',icon:'wheat',desc:'الهه‌ی مادری و پرورش. مهربان، حمایت‌گر و بخشنده؛ در مراقبت از دیگران و دیده‌شدن نیازهایشان شکوفا می‌شوی.'},
+    persephone:{name:'پرسفونه',icon:'seed',desc:'الهه‌ی دگرگونی و ژرفا. انعطاف‌پذیر، خیال‌پرداز و پذیرا؛ دنیای درون، تخیل و توان تغییر و رشد از ویژگی‌های توست.'},
+    aphrodite:{name:'آفرودیت',icon:'heart',desc:'الهه‌ی عشق و زیبایی. پرشور، خلاق و مجذوب‌کننده؛ به زیبایی، پیوند عاطفی و تجربه‌ی شدید لحظه‌ها کشیده می‌شوی.'}
+  },
+  questions:[
+    // ARTEMIS (10)
+    {cat:'artemis',text:'دنبال‌کردن هدف‌هایم را به هر قیمتی مهم می‌دانم، حتی اگر تنها بمانم.'},
+    {cat:'artemis',text:'استقلالم را به هیچ رابطه‌ای نمی‌فروشم.'},
+    {cat:'artemis',text:'وقتی تصمیمی می‌گیرم، نظر دیگران کمتر مسیرم را عوض می‌کند.'},
+    {cat:'artemis',text:'طبیعت و فضای باز به من حس آزادی می‌دهد.'},
+    {cat:'artemis',text:'دوست دارم برای رسیدن به هدفم با موانع مبارزه کنم.'},
+    {cat:'artemis',text:'به توانایی‌ام برای انجام کارها به‌تنهایی افتخار می‌کنم.'},
+    {cat:'artemis',text:'از حمایت زنان و کسانی که در موقعیت ضعیف‌ترند لذت می‌برم.'},
+    {cat:'artemis',text:'رقابت مرا به تلاش بیشتر برمی‌انگیزد.'},
+    {cat:'artemis',text:'ترجیح می‌دهم مسیرم را خودم انتخاب کنم تا اینکه از جمع پیروی کنم.'},
+    {cat:'artemis',text:'وقتی روی هدفی متمرکز می‌شوم، به‌سختی حواسم پرت می‌شود.'},
+    // ATHENA (10)
+    {cat:'athena',text:'در تصمیم‌گیری بیشتر به منطق تکیه می‌کنم تا احساس.'},
+    {cat:'athena',text:'پیش از هر کار، نقشه و راهبرد می‌چینم.'},
+    {cat:'athena',text:'در بحث‌ها معمولاً خونسرد و استدلالی‌ام.'},
+    {cat:'athena',text:'حل مسئله‌های پیچیده برایم لذت‌بخش است.'},
+    {cat:'athena',text:'در شرایط بحرانی آرامشم را حفظ می‌کنم و راه‌حل پیدا می‌کنم.'},
+    {cat:'athena',text:'به دانش، یادگیری و مهارت عملی اهمیت زیادی می‌دهم.'},
+    {cat:'athena',text:'بیشتر با ذهنم زندگی می‌کنم تا با قلبم.'},
+    {cat:'athena',text:'در محیط کار به‌خوبی با افراد قدرتمند و باتجربه کنار می‌آیم.'},
+    {cat:'athena',text:'دوست دارم اوضاع را کنترل‌شده و سازمان‌یافته پیش ببرم.'},
+    {cat:'athena',text:'احساساتم به‌ندرت بر قضاوتم غلبه می‌کنند.'},
+    // HESTIA (10)
+    {cat:'hestia',text:'تنهاییِ آرام برایم بازیابنده و دلپذیر است.'},
+    {cat:'hestia',text:'به تأیید و توجه دیگران چندان نیازی ندارم.'},
+    {cat:'hestia',text:'نظم و آرامشِ فضای شخصی‌ام برایم مهم است.'},
+    {cat:'hestia',text:'بیشتر ناظرِ آرام رویدادهایم تا در مرکز آن‌ها.'},
+    {cat:'hestia',text:'انجام کارهای خانه برایم نوعی مراقبه و آرامش است.'},
+    {cat:'hestia',text:'به دنیای درونی و معنوی‌ام بیش از رویدادهای بیرونی توجه دارم.'},
+    {cat:'hestia',text:'حضور در جمع‌های شلوغ زود خسته‌ام می‌کند.'},
+    {cat:'hestia',text:'در سکوت و خلوت احساس کامل‌بودن می‌کنم.'},
+    {cat:'hestia',text:'به رقابت و جاه‌طلبی بیرونی علاقه‌ی چندانی ندارم.'},
+    {cat:'hestia',text:'آرامش درونی را به موفقیت اجتماعی ترجیح می‌دهم.'},
+    // HERA (10)
+    {cat:'hera',text:'داشتن رابطه‌ای متعهد و پایدار محور زندگی من است.'},
+    {cat:'hera',text:'به شریک زندگی‌ام عمیقاً وفادارم.'},
+    {cat:'hera',text:'تعهد و پیمان برایم ارزش مقدسی دارد.'},
+    {cat:'hera',text:'بخش مهمی از هویتم را در پیوند با شریکم می‌بینم.'},
+    {cat:'hera',text:'نقش همسری برایم بسیار پراهمیت است.'},
+    {cat:'hera',text:'وفاداری در رابطه را از هر ویژگی دیگری مهم‌تر می‌دانم.'},
+    {cat:'hera',text:'دوست دارم در کنار شریکم یک واحد کامل بسازیم.'},
+    {cat:'hera',text:'به آیین‌ها و مراسمِ رسمی رابطه (مثل ازدواج) اهمیت می‌دهم.'},
+    {cat:'hera',text:'بی‌وفایی برایم سنگین‌ترین خیانت ممکن است.'},
+    {cat:'hera',text:'حضور یک شریک متعهد به زندگی‌ام معنا می‌بخشد.'},
+    // DEMETER (10)
+    {cat:'demeter',text:'از مراقبت و رسیدگی به دیگران انرژی می‌گیرم.'},
+    {cat:'demeter',text:'وقتی کسی به کمکم نیاز دارد، به‌سختی نه می‌گویم.'},
+    {cat:'demeter',text:'پرورش‌دادن و حمایت‌کردن برایم طبیعی و رضایت‌بخش است.'},
+    {cat:'demeter',text:'دیدن رشد کسانی که از آن‌ها مراقبت می‌کنم خوشحالم می‌کند.'},
+    {cat:'demeter',text:'نقش مادری (واقعی یا نمادین) برایم بسیار پرمعناست.'},
+    {cat:'demeter',text:'اغلب نیازهای دیگران را بر نیازهای خودم مقدم می‌کنم.'},
+    {cat:'demeter',text:'دوست دارم به دیگران غذا بدهم و از آن‌ها پذیرایی کنم.'},
+    {cat:'demeter',text:'وقتی کسی که دوستش دارم رنج می‌کشد، عمیقاً متأثر می‌شوم.'},
+    {cat:'demeter',text:'بخشندگی و سخاوت بخشی از سرشت من است.'},
+    {cat:'demeter',text:'حس می‌کنم وظیفه دارم از دیگران محافظت کنم.'},
+    // PERSEPHONE (10)
+    {cat:'persephone',text:'دنیای درون، رؤیا و تخیل بخش پررنگی از من است.'},
+    {cat:'persephone',text:'به‌راحتی با شرایط تازه همرنگ و سازگار می‌شوم.'},
+    {cat:'persephone',text:'گاهی حس می‌کنم چند نسخه‌ی متفاوت از خودم را در خود دارم.'},
+    {cat:'persephone',text:'توان دگرگون‌شدن و از نو ساختن خودم را دارم.'},
+    {cat:'persephone',text:'اغلب پیش از تصمیم‌گیری منتظر نظر دیگران می‌مانم.'},
+    {cat:'persephone',text:'به دنیای ناخودآگاه، خواب‌ها و نمادها علاقه دارم.'},
+    {cat:'persephone',text:'گاهی احساس می‌کنم هنوز در حال کشف اینم که واقعاً که هستم.'},
+    {cat:'persephone',text:'انعطاف‌پذیری‌ام باعث می‌شود در موقعیت‌های مختلف جا بیفتم.'},
+    {cat:'persephone',text:'به راهنمایی و همراهی کسی که تجربه‌ی بیشتری دارد تمایل دارم.'},
+    {cat:'persephone',text:'روحیه‌ام مثل فصل‌ها تغییر می‌کند و در جریان است.'},
+    // APHRODITE (10)
+    {cat:'aphrodite',text:'به زیبایی و جذابیت در زندگی‌ام اهمیت زیادی می‌دهم.'},
+    {cat:'aphrodite',text:'پیوند عاطفی و شور، مهم‌ترین چاشنی رابطه است.'},
+    {cat:'aphrodite',text:'در لحظه‌های شدید و پرشور بیشتر زنده‌ام.'},
+    {cat:'aphrodite',text:'خلاقیت و بیان هنری برایم راهی برای ابراز خود است.'},
+    {cat:'aphrodite',text:'به‌راحتی مجذوب زیبایی، هنر و عشق می‌شوم.'},
+    {cat:'aphrodite',text:'دوست دارم دیگران را مجذوب و شیفته‌ی خود کنم.'},
+    {cat:'aphrodite',text:'از تجربه‌های حسی و لذت‌های زندگی استقبال می‌کنم.'},
+    {cat:'aphrodite',text:'روابطم اغلب پرشور و سرشار از احساس‌اند.'},
+    {cat:'aphrodite',text:'به ظاهر و جلوه‌ی بیرونی‌ام توجه ویژه‌ای دارم.'},
+    {cat:'aphrodite',text:'زندگی بدون عشق و شور برایم کم‌رنگ و بی‌معناست.'}
+  ],
+  score:function(answers){
+    const cats=Object.keys(this.archs);
+    return scoreLikertCategories(cats).call(this,answers);
+  },
+  renderResult:function(scores){
+    const cats=Object.keys(this.archs);
+    const ranked=cats.sort((a,b)=>scores.norm[b]-scores.norm[a]);
+    const top=ranked[0];
+    let h=heroBlock('کهن‌الگوی غالب تو', this.archs[top].name, this.archs[top].desc, this.archs[top].icon, false);
+    h+=rankedBars('نمای کامل کهن‌الگوهای تو', ranked.map((c,i)=>({
+      name:this.archs[c].name, icon:this.archs[c].icon,
+      score:scores.norm[c], max:100, primary:i===0, primaryTag:'الگوی غالب',
+      detail:i<3?this.archs[c].desc:''
+    })));
+    return h;
+  }
+};
+
+/* ---------------------------------------------------------
+   TEST 2 — MASCULINE ARCHETYPES (testotype #15)
+   Reference: 8 god archetypes, ~70 questions.
+   Distribution to hit 70: Zeus/Poseidon/Hades/Apollo/Hermes/Ares = 9 each (54),
+   Hephaestus/Dionysus = 8 each (16). Total = 70.
+--------------------------------------------------------- */
+TESTS.archetypeMen = {
+  icon:'sun',
+  title:'کهن‌الگوهای مردانه',
+  tagline:'کدام خدایان اسطوره‌ای در شخصیت تو نیرومندند؟ بر پایه‌ی روان‌شناسی یونگی و کار جین شینودا بولن.',
+  metaLabel:'۷۰ پرسش • حدود ۱۲ دقیقه',
+  intro:'straight',
+  introTitle:'کهن‌الگوهای مردانه',
+  introText:'به هر گزاره سریع و بر اساس اولین احساست پاسخ بده و مکث نکن. اگر هنوز ازدواج نکرده‌ای، فرزند نداری یا شاغل نیستی، پاسخی را انتخاب کن که برای خودت پیش‌بینی می‌کنی. گزینه‌ای را برگزین که به ویژگی‌های حال حاضر توست، نه آنچه آرزو داری یا دیگران از تو انتظار دارند.',
+  introNote:'به همه‌ی پرسش‌ها پاسخ بده؛ اگر پرسشی بی‌پاسخ بماند نتیجه نمایش داده نمی‌شود.',
+  format:'likert',
+  scale:AGREE5, scaleValues:AGREE5_VALS,
+  promptSmall:'چقدر با این جمله موافقی؟',
+  buildAnswers:likertAnswers,
+  archs:{
+    zeus:{name:'زئوس',icon:'bolt',desc:'خدای فرمانروایی و اراده. رهبر، بلندپرواز و اهل قدرت؛ به کنترل، جایگاه و شکل‌دادن به دنیای پیرامونت گرایش داری.'},
+    poseidon:{name:'پوزئیدون',icon:'wave',desc:'خدای دریا و احساسات ژرف. پرشور و عاطفی؛ هیجان‌هایت نیرومندند و گاه توفانی، و از عمقِ حس زندگی می‌کنی.'},
+    hades:{name:'هادس',icon:'moon',desc:'خدای جهان زیرین و درون. درون‌گرا، ژرف‌اندیش و منزوی؛ به دنیای پنهان ذهن و معناهای عمیق کشیده می‌شوی.'},
+    apollo:{name:'آپولون',icon:'sun',desc:'خدای نور و نظم. منطقی، معتدل و هدفمند؛ به وضوح، هماهنگی و پیشرفتِ سنجیده ارزش می‌دهی.'},
+    hermes:{name:'هرمس',icon:'wing',desc:'خدای پیام و حرکت. کنجکاو، سازگار و اهل ارتباط؛ آزادی، تنوع و کشفِ تازه‌ها تو را زنده نگه می‌دارد.'},
+    ares:{name:'آرس',icon:'sword',desc:'خدای نبرد و کنش. پرانرژی، بی‌واسطه و در لحظه؛ با شور می‌جنگی، حاضری و از رویارویی نمی‌گریزی.'},
+    hephaestus:{name:'هفائستوس',icon:'anvil',desc:'خدای صنعت و آفرینش. سازنده، کوشا و اهل مهارت؛ در ساختن و پرداختن با دستانت رضایت عمیقی می‌یابی.'},
+    dionysus:{name:'دیونیزوس',icon:'grapes',desc:'خدای شور و رهایی. حسی، خودانگیخته و مشتاق تجربه؛ به لذت، هنر و درآمیختن با لحظه گرایش داری.'}
+  },
+  questions:[
+    // ZEUS (9)
+    {cat:'zeus',text:'دوست دارم در موقعیت‌ها نقش رهبر و تصمیم‌گیرنده را داشته باشم.'},
+    {cat:'zeus',text:'رسیدن به جایگاه و قدرت برایم انگیزه‌ی مهمی است.'},
+    {cat:'zeus',text:'ترجیح می‌دهم اوضاع را خودم کنترل و هدایت کنم.'},
+    {cat:'zeus',text:'به آینده و ساختنِ چیزی بزرگ فکر می‌کنم.'},
+    {cat:'zeus',text:'در جمع، دیگران معمولاً به من به‌عنوان رهبر نگاه می‌کنند.'},
+    {cat:'zeus',text:'دوست دارم قلمرو و دستاوردهای خودم را گسترش دهم.'},
+    {cat:'zeus',text:'تصمیم‌های بزرگ را با اعتمادبه‌نفس می‌گیرم.'},
+    {cat:'zeus',text:'سازمان‌دهی افراد و منابع برایم آسان است.'},
+    {cat:'zeus',text:'به اراده و توانایی‌ام برای تحقق خواسته‌هایم باور دارم.'},
+    // POSEIDON (9)
+    {cat:'poseidon',text:'احساساتم نیرومندند و گاهی مرا با خود می‌برند.'},
+    {cat:'poseidon',text:'وقتی چیزی مرا برنجاند، واکنشم شدید است.'},
+    {cat:'poseidon',text:'با عمقِ حس و شور زندگی می‌کنم، نه سطحی.'},
+    {cat:'poseidon',text:'پیوندهای خانوادگی و خونی برایم بسیار پراهمیت‌اند.'},
+    {cat:'poseidon',text:'خشم یا شادی‌ام می‌تواند مثل موج ناگهانی بالا بگیرد.'},
+    {cat:'poseidon',text:'به‌سختی احساسات شدیدم را پنهان می‌کنم.'},
+    {cat:'poseidon',text:'در روابطم عمیقاً درگیر و پرشور می‌شوم.'},
+    {cat:'poseidon',text:'طبیعت، به‌ویژه آب و دریا، مرا آرام می‌کند.'},
+    {cat:'poseidon',text:'وفاداری به خانواده برایم یک اصل مقدس است.'},
+    // HADES (9)
+    {cat:'hades',text:'ساعت‌ها در دنیای درونی و افکارم غرق می‌شوم.'},
+    {cat:'hades',text:'تنهایی را به جمع‌های شلوغ ترجیح می‌دهم.'},
+    {cat:'hades',text:'به معناهای پنهان و لایه‌های عمیق‌تر چیزها فکر می‌کنم.'},
+    {cat:'hades',text:'کمتر احساسات درونی‌ام را به دیگران نشان می‌دهم.'},
+    {cat:'hades',text:'دنیای خیال و ناخودآگاهم بسیار غنی است.'},
+    {cat:'hades',text:'به دیده‌شدن یا تأیید اجتماعی اهمیت چندانی نمی‌دهم.'},
+    {cat:'hades',text:'اغلب حس می‌کنم ناظری خاموش در کناره‌ی رویدادهایم.'},
+    {cat:'hades',text:'به موضوعات عمیق مانند مرگ، معنا و راز زندگی فکر می‌کنم.'},
+    {cat:'hades',text:'رازداری و درون‌نگری بخشی از سرشت من است.'},
+    // APOLLO (9)
+    {cat:'apollo',text:'به نظم، وضوح و منطق در کارهایم اهمیت می‌دهم.'},
+    {cat:'apollo',text:'اهدافم را گام‌به‌گام و سنجیده دنبال می‌کنم.'},
+    {cat:'apollo',text:'در شرایط پرتنش می‌کوشم معتدل و متعادل بمانم.'},
+    {cat:'apollo',text:'از یادگیری و فهمیدنِ ساختارِ چیزها لذت می‌برم.'},
+    {cat:'apollo',text:'به هماهنگی و تناسب در محیط اطرافم اهمیت می‌دهم.'},
+    {cat:'apollo',text:'ترجیح می‌دهم فاصله‌ام را با هیجان‌های افراطی حفظ کنم.'},
+    {cat:'apollo',text:'به موسیقی، هنر یا علم با نگاهی منظم علاقه دارم.'},
+    {cat:'apollo',text:'دوست دارم پیش از عمل، همه‌چیز را روشن و شفاف ببینم.'},
+    {cat:'apollo',text:'خویشتن‌داری و اعتدال را ارزش مهمی می‌دانم.'},
+    // HERMES (9)
+    {cat:'hermes',text:'کنجکاوی مرا به سمت تجربه‌های تازه می‌کشاند.'},
+    {cat:'hermes',text:'به‌راحتی با آدم‌ها ارتباط می‌گیرم و گفت‌وگو می‌کنم.'},
+    {cat:'hermes',text:'از یکنواختی زود خسته می‌شوم و به تغییر نیاز دارم.'},
+    {cat:'hermes',text:'انعطاف‌پذیرم و خودم را زود با شرایط تازه وفق می‌دهم.'},
+    {cat:'hermes',text:'سفر و جابه‌جایی به من انرژی می‌دهد.'},
+    {cat:'hermes',text:'در انتقال پیام و ایده میان آدم‌ها مهارت دارم.'},
+    {cat:'hermes',text:'دوست دارم چند کار مختلف را هم‌زمان دنبال کنم.'},
+    {cat:'hermes',text:'شوخ‌طبعی و زیرکی بخشی از شخصیت من است.'},
+    {cat:'hermes',text:'قواعد خشک و محدودکننده مرا کلافه می‌کند.'},
+    // ARES (9)
+    {cat:'ares',text:'وقتی به چیزی باور دارم، بی‌پروا از آن دفاع می‌کنم.'},
+    {cat:'ares',text:'در لحظه و بی‌واسطه واکنش نشان می‌دهم.'},
+    {cat:'ares',text:'انرژی بدنی و کنش برایم مهم‌تر از حرف است.'},
+    {cat:'ares',text:'از رویارویی مستقیم با مشکلات نمی‌ترسم.'},
+    {cat:'ares',text:'در ورزش یا فعالیت‌های پرتحرک شکوفا می‌شوم.'},
+    {cat:'ares',text:'وقتی کسی به عزیزانم بی‌احترامی کند، بی‌درنگ واکنش نشان می‌دهم.'},
+    {cat:'ares',text:'احساساتم را با شور و بی‌پرده ابراز می‌کنم.'},
+    {cat:'ares',text:'در لحظه‌ی حال زندگی می‌کنم، نه در گذشته یا آینده.'},
+    {cat:'ares',text:'از چالش و رقابت فیزیکی لذت می‌برم.'},
+    // HEPHAESTUS (8)
+    {cat:'hephaestus',text:'از ساختن و درست‌کردن چیزها با دستانم لذت می‌برم.'},
+    {cat:'hephaestus',text:'وقتی روی کاری تمرکز می‌کنم، ساعت‌ها غرقش می‌شوم.'},
+    {cat:'hephaestus',text:'مهارت و کیفیتِ کار برایم منبع غرور است.'},
+    {cat:'hephaestus',text:'ترجیح می‌دهم عمل کنم و بسازم تا اینکه در کانون توجه باشم.'},
+    {cat:'hephaestus',text:'در تنهایی و در کارگاه یا فضای کارم آرامش می‌یابم.'},
+    {cat:'hephaestus',text:'از حل مسائل فنی و عملی رضایت عمیقی می‌گیرم.'},
+    {cat:'hephaestus',text:'دوست دارم چیزی ملموس و ماندگار خلق کنم.'},
+    {cat:'hephaestus',text:'صبور و سخت‌کوشم، حتی وقتی کار دشوار است.'},
+    // DIONYSUS (8)
+    {cat:'dionysus',text:'به تجربه‌کردنِ لذت‌ها و لحظه‌های شدید کشیده می‌شوم.'},
+    {cat:'dionysus',text:'خودانگیخته‌ام و کمتر به برنامه‌ی از پیش‌تعیین‌شده پایبندم.'},
+    {cat:'dionysus',text:'هنر، موسیقی یا سرمستیِ لحظه مرا زنده می‌کند.'},
+    {cat:'dionysus',text:'دوست دارم مرزها را کنار بزنم و در تجربه غرق شوم.'},
+    {cat:'dionysus',text:'با احساساتم، چه شاد و چه غمگین، صادقانه همراه می‌شوم.'},
+    {cat:'dionysus',text:'از جمع‌های پرشور و جشن و پایکوبی لذت می‌برم.'},
+    {cat:'dionysus',text:'به دنبال معنا و شور در تجربه‌های عمیق زندگی‌ام.'},
+    {cat:'dionysus',text:'گاهی خودم را رها می‌کنم و اجازه می‌دهم لحظه مرا ببرد.'}
+  ],
+  score:function(answers){
+    const cats=Object.keys(this.archs);
+    return scoreLikertCategories(cats).call(this,answers);
+  },
+  renderResult:function(scores){
+    const cats=Object.keys(this.archs);
+    const ranked=cats.sort((a,b)=>scores.norm[b]-scores.norm[a]);
+    const top=ranked[0];
+    let h=heroBlock('کهن‌الگوی غالب تو', this.archs[top].name, this.archs[top].desc, this.archs[top].icon, false);
+    h+=rankedBars('نمای کامل کهن‌الگوهای تو', ranked.map((c,i)=>({
+      name:this.archs[c].name, icon:this.archs[c].icon,
+      score:scores.norm[c], max:100, primary:i===0, primaryTag:'الگوی غالب',
+      detail:i<3?this.archs[c].desc:''
+    })));
+    return h;
+  }
+};
+
+/* ---------------------------------------------------------
+   TEST 3 — POLITICAL COMPASS (politicalcompass.org)
+   Reference: 62 propositions in 6 sections; 4-point forced (no neutral);
+   two axes (econ -10..+10, soc -10..+10); quadrant plot.
+   Section 1 statements anchored to the live Persian page.
+   axis: 'econ'|'soc'; dir: +1/-1 sign of shift when agreeing.
+   section: section title (mirrors the 6-page structure).
+--------------------------------------------------------- */
+const FOUR = ['شدیداً مخالفم','مخالفم','موافقم','شدیداً موافقم'];
+const FOUR_VALS = [0,1,2,3];
+
+TESTS.compass = {
+  icon:'compass',
+  title:'قطب‌نمای سیاسی',
+  tagline:'دیدگاه سیاسی‌ات روی دو محورِ اقتصادی (چپ↔راست) و اجتماعی (اقتدارگرا↔آزادی‌خواه) کجا می‌ایستد؟',
+  metaLabel:'۶۲ گزاره • ۶ بخش',
+  intro:'straight',
+  introPill:'پیش از آزمون',
+  introTitle:'قطب‌نمای سیاسی',
+  introText:'این‌ها سؤال نیستند، بلکه گزاره‌اند. برخی عمداً افراطی و برخی متعادل‌ترند؛ هدفشان سنجش واکنش و گرایش توست، نه نظر دقیقت درباره‌ی یک سیاست خاص. زیر سؤال بردن منطق گزاره‌هایی که آزارت می‌دهند یعنی دورشدن از اصل مطلب. وسواس به خرج نده و بر اساس اولین واکنشت پاسخ بده.',
+  introNote:'گزینه‌ی «بی‌نظر» عمداً وجود ندارد؛ به سمتی که بیشتر متمایلی پاسخ بده.',
+  format:'likert',
+  scale:FOUR, scaleValues:FOUR_VALS,
+  promptSmall:'واکنشت به این گزاره چیست؟',
+  buildAnswers:likertAnswers,
+  sections:[
+    'بخش ۱ از ۶ — شما و جهان',
+    'بخش ۲ از ۶ — اقتصاد',
+    'بخش ۳ از ۶ — جامعه و اخلاق فردی',
+    'بخش ۴ از ۶ — اقتدار و نظم',
+    'بخش ۵ از ۶ — جهان‌بینی و ملیت',
+    'بخش ۶ از ۶ — سبک زندگی و ارزش‌ها'
+  ],
+  questions:[
+    // ===== SECTION 1 — SHR & WORLD (real anchored statements, 7) =====
+    {sec:0,axis:'econ',dir:-1,text:'اگر جهانی‌شدن اقتصاد اجتناب‌ناپذیر است، اولویت آن باید خدمت به انسان‌ها باشد تا سود شرکت‌های فراملیتی.'},
+    {sec:0,axis:'soc',dir:+1,text:'من همیشه از کشورم حمایت می‌کنم، چه درست باشد و چه غلط.'},
+    {sec:0,axis:'soc',dir:-1,text:'هیچ‌کس کشور زادگاهش را انتخاب نمی‌کند، پس افتخارکردن به آن بی‌معناست.'},
+    {sec:0,axis:'soc',dir:+1,text:'نژاد من نسبت به نژادهای دیگر صاحب خصوصیاتی برتر است.'},
+    {sec:0,axis:'soc',dir:+1,text:'دشمنِ دشمن من، دوست من است.'},
+    {sec:0,axis:'soc',dir:+1,text:'اقدام نظامی مغایر با قوانین بین‌المللی گاهی موجه است.'},
+    {sec:0,axis:'soc',dir:+1,text:'ترکیب‌شدن اخبار و اطلاعات با سرگرمی موضوع نگران‌کننده‌ای است.'},
+    // ===== SECTION 2 — ECONOMY (12) =====
+    {sec:1,axis:'econ',dir:+1,text:'کنترل اقتصاد باید تا حد ممکن به دست بازار آزاد سپرده شود، نه دولت.'},
+    {sec:1,axis:'econ',dir:-1,text:'ثروتمندان باید مالیات به‌مراتب بیشتری بپردازند تا نابرابری کاهش یابد.'},
+    {sec:1,axis:'econ',dir:+1,text:'خصوصی‌سازی خدمات عمومی منجر به افزایش کارایی این خدمات می‌گردد.'},
+    {sec:1,axis:'econ',dir:-1,text:'خدمات پایه مانند آموزش و درمان باید رایگان و در اختیار همه باشند.'},
+    {sec:1,axis:'econ',dir:+1,text:'موفقیت اقتصادی هر کس عمدتاً نتیجه‌ی تلاش خودِ اوست.'},
+    {sec:1,axis:'econ',dir:-1,text:'شکاف میان فقیر و غنی یکی از بزرگ‌ترین مشکلات جامعه است.'},
+    {sec:1,axis:'econ',dir:+1,text:'پاکسازی فضای کسب‌وکارها از قوانین سفت و سخت، به نفع رشد اقتصادی است.'},
+    {sec:1,axis:'econ',dir:-1,text:'کارگران باید در تصمیم‌ها و سود شرکت‌ها سهم داشته باشند.'},
+    {sec:1,axis:'econ',dir:+1,text:'رقابت آزاد، بهترین سازوکار برای پیشرفت جامعه است.'},
+    {sec:1,axis:'econ',dir:-1,text:'صنایع کلیدی و زیرساخت‌ها بهتر است تحت مالکیت عمومی باقی بمانند.'},
+    {sec:1,axis:'econ',dir:+1,text:'یارانه و کمک‌های دولتی انگیزه‌ی کار و تلاش را کم می‌کند.'},
+    {sec:1,axis:'econ',dir:-1,text:'دسترسی به مسکن جزو حقوق اولیه به شمار می‌رود و دولت مسئول فراهم‌کردن این حق است.'},
+    // ===== SECTION 3 — SOCIETY & PERSONAL MORALITY (11) =====
+    {sec:2,axis:'soc',dir:-1,text:'اخلاق امری شخصی است و نباید در قالب قانون به مردم تحمیل شود.'},
+    {sec:2,axis:'soc',dir:-1,text:'افراد باید آزاد باشند تا هرگونه که می‌خواهند زندگی کنند و آزادی بیان نیز داشته باشند.'},
+    {sec:2,axis:'soc',dir:+1,text:'حفظ سنت‌ها و ارزش‌های ملی مهم‌تر از تغییرات اجتماعی سریع است.'},
+    {sec:2,axis:'soc',dir:-1,text:'دولت نباید در انتخاب‌های خصوصی و سبک زندگی افراد دخالت کند.'},
+    {sec:2,axis:'soc',dir:+1,text:'برای حفظ نظم اخلاقی جامعه، دسترسی به برخی کتاب‌ها یا محتواها باید محدود شود.'},
+    {sec:2,axis:'soc',dir:-1,text:'حق آزادی بیان باید برای دیدگاه‌های آزاردهنده نیز حفظ شود.'},
+    {sec:2,axis:'soc',dir:+1,text:'آموزش باید به‌جای تفکر انتقادی، بیشتر بر انضباط و احترام تأکید کند.'},
+    {sec:2,axis:'soc',dir:-1,text:'مصرف شخصی مواد، تا وقتی به دیگران آسیب نزند، نباید جرم تلقی گردد.'},
+    {sec:2,axis:'soc',dir:+1,text:'ارزش‌های دینی باید در قانون‌گذاری جامعه نقش داشته باشند.'},
+    {sec:2,axis:'econ',dir:-1,text:'سوددهی نباید بر رفاه کارکنان و محیط زیست اولویت داشته باشد.'},
+    {sec:2,axis:'econ',dir:+1,text:'دخالت دولت در اقتصاد معمولاً بیش از آنکه کمک‌کننده باشد، آسیب‌رسان است.'},
+    // ===== SECTION 4 — AUTHORITY & ORDER (11) =====
+    {sec:3,axis:'soc',dir:+1,text:'قانون باید در برابر ناآرامی اجتماعی با قاطعیت کامل برخورد کند.'},
+    {sec:3,axis:'soc',dir:-1,text:'مجازات باید به‌جای تنبیه، بیشتر بر بازپروری و اصلاح متمرکز باشد.'},
+    {sec:3,axis:'soc',dir:+1,text:'مردم باید در برابر اقتدار قانون، بی‌چون‌وچرا فرمان‌بردار باشند.'},
+    {sec:3,axis:'soc',dir:-1,text:'شهروندان حق دارند در برابر قوانین ناعادلانه نافرمانی مدنی کنند.'},
+    {sec:3,axis:'soc',dir:+1,text:'نظارت گسترده‌ی دولت بر شهروندان برای ایجاد و حفظ امنیت لازم است.'},
+    {sec:3,axis:'soc',dir:-1,text:'حریم خصوصی افراد باید به هر قیمتی حفظ شود، حتی اگر بهای آن امنیت کمتر باشد.'},
+    {sec:3,axis:'soc',dir:+1,text:'وجود رهبران مقتدر که قاطعانه عمل می‌کنند برای جامعه ضروری است.'},
+    {sec:3,axis:'soc',dir:+1,text:'وجود و اعمال قوانین سخت‌گیرانه بهترین راه حفظ ثبات اجتماعی است.'},
+    {sec:3,axis:'soc',dir:-1,text:'اعتراض و مخالفت با حکومت حق طبیعی هر شهروند است.'},
+    {sec:3,axis:'econ',dir:-1,text:'حمایت از اقشار آسیب‌پذیر یک مسئولیت اجتماعی به شمار می‌رود و در یک جامعه‌ی سالم پرداختن به این موضوع امری ضروری است.'},
+    {sec:3,axis:'econ',dir:+1,text:'مالکیت خصوصی و کارآفرینی موتور اصلی پیشرفت است.'},
+    // ===== SECTION 5 — WORLDVIEW & NATIONHOOD (11) =====
+    {sec:4,axis:'soc',dir:+1,text:'مهاجرت باید به‌شدت محدود و کنترل شود.'},
+    {sec:4,axis:'soc',dir:-1,text:'تنوع فرهنگی و مهاجرپذیری جامعه را غنی‌تر می‌کند.'},
+    {sec:4,axis:'soc',dir:+1,text:'وحدت و انسجام ملی مهم‌تر از تفاوت‌های فردی است.'},
+    {sec:4,axis:'soc',dir:-1,text:'دولت نباید باورهای دینی یا اخلاقی خاصی را ترویج کند.'},
+    {sec:4,axis:'soc',dir:+1,text:'رسانه‌ها باید در چارچوب منافع و ارزش‌های ملی فعالیت کنند.'},
+    {sec:4,axis:'soc',dir:-1,text:'مرزهای ملی در جهان امروز از اهمیت کمتری برخوردارند.'},
+    {sec:4,axis:'soc',dir:+1,text:'منافع ملی همیشه باید بر تعهدات بین‌المللی مقدم باشد.'},
+    {sec:4,axis:'econ',dir:-1,text:'نفوذ و تسلط شرکت‌های چندملیتی بر زندگی مردم، کنترل‌نشده و بیش از حدِ ضروری است.'},
+    {sec:4,axis:'econ',dir:+1,text:'تجارت آزاد جهانی در مجموع به نفع همه‌ی کشورهاست.'},
+    {sec:4,axis:'soc',dir:-1,text:'همه‌ی انسان‌ها فارغ از ملیت، شایسته‌ی حقوق برابرند.'},
+    {sec:4,axis:'econ',dir:-1,text:'بازار آزاد به‌تنهایی نمی‌تواند عدالت اجتماعی را تأمین کند.'},
+    // ===== SECTION 6 — LIFESTYLE & VALUES (10) =====
+    {sec:5,axis:'soc',dir:-1,text:'ساختار خانواده می‌تواند شکل‌های گوناگونی داشته باشد و تمام این اشکال معتبر و قابل احترام‌اند.'},
+    {sec:5,axis:'soc',dir:+1,text:'ارزش‌های سنتی خانواده پایه‌ی یک جامعه‌ی سالم‌اند.'},
+    {sec:5,axis:'soc',dir:-1,text:'انتخاب‌های فردی در زمینه‌ی روابط به کسی جز خود فرد مربوط نیست.'},
+    {sec:5,axis:'soc',dir:+1,text:'جامعه باید از معیارهای اخلاقی روشنی برخوردار باشد که در میان همه‌ی افراد مشترک باشد.'},
+    {sec:5,axis:'econ',dir:-1,text:'حفاظت از محیط زیست باید بر رشد اقتصادی اولویت داشته باشد.'},
+    {sec:5,axis:'econ',dir:+1,text:'مقررات زیست‌محیطی سخت‌گیرانه به کسب‌وکارها آسیب می‌زند.'},
+    {sec:5,axis:'soc',dir:-1,text:'هنر و ابراز خلاقانه نباید هیچ محدودیتی داشته باشد.'},
+    {sec:5,axis:'soc',dir:+1,text:'برخی ارزش‌ها آن‌قدر مهم‌اند که باید از نسلی به نسل دیگر حفظ شوند.'},
+    {sec:5,axis:'econ',dir:-1,text:'ثروت جامعه باید به شکلی عادلانه‌تر میان همه توزیع شود.'},
+    {sec:5,axis:'econ',dir:+1,text:'هر کس حق دارد ثروتی را که به دست آورده بدون هیچ محدودیتی نگه دارد.'}
+  ],
+  score:function(answers){
+    const mag=[-1.5,-0.5,0.5,1.5];
+    let econ=0, soc=0, ecMax=0, soMax=0;
+    this.questions.forEach((q,i)=>{
+      let v=answers[i]; if(v==null) v=1;
+      const contribution = mag[v]*q.dir;
+      if(q.axis==='econ'){ econ+=contribution; ecMax+=1.5; }
+      else { soc+=contribution; soMax+=1.5; }
+    });
+    const ex = +(econ/ecMax*10).toFixed(1);
+    const sy = +(soc/soMax*10).toFixed(1);
+    return {econ:ex, soc:sy};
+  },
+  renderResult:function(scores){
+    const {econ,soc}=scores;
+    const ecName = econ<0?'چپ':'راست';
+    const soName = soc<0?'آزادی‌خواه':'اقتدارگرا';
+    const quadName = soName+'ِ '+ecName;
+    const descMap={
+      'اقتدارگراِ چپ':'به عدالت اقتصادی و نقش پررنگ دولت باور داری و در کنارش به نظم و انسجام اجتماعی اهمیت می‌دهی.',
+      'اقتدارگراِ راست':'به بازار آزاد و مالکیت خصوصی گرایش داری و در کنارش برای سنت، نظم و اقتدار ارزش قائلی.',
+      'آزادی‌خواهِ چپ':'هم به برابری اقتصادی باور داری و هم به آزادی‌های فردی؛ دولتی که در زندگی خصوصی دخالت نکند اما نابرابری را کاهش دهد.',
+      'آزادی‌خواهِ راست':'به بازار آزاد و کمترین دخالت دولت باور داری، چه در اقتصاد و چه در سبک زندگی و آزادی‌های فردی.'
+    };
+    const K = 0.7071; // dot stays inside the circle (inscribed square)
+    const xPct = 50 + (econ/10)*50*K;
+    const yPct = 50 + (soc/10)*50*K;
+    const leftStyle = xPct+'%';
+    const topStyle = (100-yPct)+'%';
+    let h=heroBlock('گرایش سیاسی تو', quadName, descMap[quadName]||'', 'compass', false);
+    h+='<div class="compass-wrap">'+
+      '<div class="compass">'+
+        '<div class="q tl"></div><div class="q tr"></div><div class="q bl"></div><div class="q br"></div>'+
+        '<div class="axis-x"></div><div class="axis-y"></div>'+
+        '<span class="compass-label top">اقتدارگرا</span>'+
+        '<span class="compass-label bottom">آزادی‌خواه</span>'+
+        '<span class="compass-label right">راست</span>'+
+        '<span class="compass-label left">چپ</span>'+
+        '<div class="dot" style="left:'+leftStyle+';top:'+topStyle+'"></div>'+
+      '</div>'+
+      '<div class="compass-coords">اقتصادی: '+(econ>0?'+':'')+toFa(econ)+' &nbsp;•&nbsp; اجتماعی: '+(soc>0?'+':'')+toFa(soc)+'</div>'+
+    '</div>';
+    return h;
+  }
+};
+
+/* ---------------------------------------------------------
+   TEST 4 — MBTI-STYLE (seemypersonality.com/MBTI-Test)
+   Reference: 60 items, 15 per dimension, balanced forward+reverse.
+   4 dichotomies EI/SN/TF/JP. dir:+1 favors first letter, -1 favors second.
+   Balanced: within each pair, ~8 forward (+1) and ~7 reverse (-1).
+--------------------------------------------------------- */
+TESTS.mbti = {
+  icon:'brain',
+  title:'تیپ شخصیتی MBTI (۱۶ گونه)',
+  tagline:'بر پایه‌ی چارچوب مایرز-بریگز: چهار بُعدِ درون‌گرا/برون‌گرا، شهودی/حسی، فکری/احساسی و قضاوتی/ادراکی.',
+  metaLabel:'۶۰ پرسش • حدود ۱۰ دقیقه',
+  intro:'straight',
+  introTitle:'تیپ شخصیتی تو',
+  introText:'به هر گزاره بر اساس میل درونی‌ات پاسخ بده، نه بر اساس رفتارت در موقعیت خاصی مثل محیط کار. بعضی سؤال‌ها موضوع ثابتی را مورد پرسش قرار می‌دهند تا نتیجه دقیق‌تری به دست بیاید. در پایان، ترکیبِ چهارحرفیِ تیپ شخصیتی‌ات مشخص می‌شود.',
+  format:'likert',
+  scale:AGREE5, scaleValues:AGREE5_VALS,
+  promptSmall:'چقدر با این جمله موافقی؟',
+  buildAnswers:likertAnswers,
+  pairs:{
+    EI:{first:'E',second:'I', fName:'برون‌گرا', sName:'درون‌گرا'},
+    SN:{first:'S',second:'N', fName:'حسی', sName:'شهودی'},
+    TF:{first:'T',second:'F', fName:'منطقی', sName:'احساسی'},
+    JP:{first:'J',second:'P', fName:'قضاوتی', sName:'ادراکی'}
+  },
+  types:{
+    ISTJ:'بازرس — واقع‌گرا، مسئولیت‌پذیر و منظم؛ به وظیفه و نظم پایبند.',
+    ISFJ:'حامی — دلسوز، وفادار و توجه‌کننده به نیاز دیگران.',
+    INFJ:'مشاور — ژرف‌اندیش، آرمان‌گرا و در پی معنا.',
+    INTJ:'معمار — راهبردی، مستقل و آینده‌نگر.',
+    ISTP:'صنعتگر — عمل‌گرا، کنجکاو و اهل حل مسئله در لحظه.',
+    ISFP:'هنرمند — حساس، آرام و در پیوند با زیبایی و لحظه.',
+    INFP:'میانجی — آرمان‌خواه، خیال‌پرداز و وفادار به ارزش‌ها.',
+    INTP:'اندیشمند — تحلیلگر، کنجکاو و عاشق ایده‌ها.',
+    ESTP:'کارآفرین — پرانرژی، جسور و اهل عمل.',
+    ESFP:'سرگرم‌کننده — پرشور، اجتماعی و عاشق لحظه.',
+    ENFP:'مبارز — خلاق، مشتاق و پر از ایده و انرژی.',
+    ENTP:'مناظره‌گر — باهوش، جسور و عاشق چالش فکری.',
+    ESTJ:'مدیر — سازمان دهنده، قاطع و عمل‌گرا.',
+    ESFJ:'سفیر — گرم، اجتماعی و مراقبِ دیگران.',
+    ENFJ:'قهرمان — الهام‌بخش، همدل و رهبرِ طبیعی.',
+    ENTJ:'فرمانده — قاطع، راهبردی و رهبرِ بلندپرواز.'
+  },
+  questions:[
+    // ===== EI : 15 (8 forward E, 7 reverse -> I) =====
+    {pair:'EI',dir:+1,text:'در جمع‌های شلوغ انرژی می‌گیرم و سرحال می‌شوم.'},
+    {pair:'EI',dir:+1,text:'به‌راحتی با غریبه‌ها سر صحبت را باز می‌کنم.'},
+    {pair:'EI',dir:+1,text:'دوست دارم بیشتر وقتم را میان مردم بگذرانم.'},
+    {pair:'EI',dir:+1,text:'با بلند فکر کردن و حرف‌زدن بهتر به نتیجه می‌رسم.'},
+    {pair:'EI',dir:+1,text:'در مهمانی‌ها معمولاً با افراد زیادی گرم می‌گیرم.'},
+    {pair:'EI',dir:+1,text:'وقتی مدتی تنها می‌مانم دلم برای جمع تنگ می‌شود.'},
+    {pair:'EI',dir:+1,text:'برای من ابراز احساسات و افکارم آسان و طبیعی است.'},
+    {pair:'EI',dir:+1,text:'فعالیت‌های گروهی بیشتر از کارهای انفرادی برای من لذت‌بخش است.'},
+    {pair:'EI',dir:-1,text:'بعد از معاشرت طولانی به تنهایی نیاز دارم تا انرژی بگیرم.'},
+    {pair:'EI',dir:-1,text:'پیش از حرف‌زدن معمولاً مدتی در ذهنم فکر می‌کنم.'},
+    {pair:'EI',dir:-1,text:'دنیای درونی و افکارم برایم از رویدادهای بیرونی جذاب‌ترند.'},
+    {pair:'EI',dir:-1,text:'جمع‌های کوچک و صمیمی را به مهمانی‌های بزرگ ترجیح می‌دهم.'},
+    {pair:'EI',dir:-1,text:'در جمع‌های ناآشنا بیشتر ساکت و تماشاگر هستم.'},
+    {pair:'EI',dir:-1,text:'برای تجدید انرژی به فضای خلوت و آرام پناه می‌برم.'},
+    {pair:'EI',dir:-1,text:'ترجیح می‌دهم افکارم را پیش خودم نگه دارم تا اینکه بلند بیانشان کنم.'},
+    // ===== SN : 15 (8 forward S, 7 reverse -> N) =====
+    {pair:'SN',dir:+1,text:'بیشتر به واقعیت‌های ملموس توجه می‌کنم تا احتمالات و ایده‌ها.'},
+    {pair:'SN',dir:+1,text:'بیشتر به جزئیات دقیق و تجربه‌ی مستقیم اعتماد می‌کنم.'},
+    {pair:'SN',dir:+1,text:'ترجیح می‌دهم روی چیزی که در حال حاضر در جریان است تمرکز کنم.'},
+    {pair:'SN',dir:+1,text:'دستورالعمل‌های گام‌به‌گام و عملی را می‌پسندم.'},
+    {pair:'SN',dir:+1,text:'به تجربه‌ی گذشته بیشتر از نظریه‌های تازه اعتماد دارم.'},
+    {pair:'SN',dir:+1,text:'کارهای عملی و ملموس را به بحث‌های انتزاعی ترجیح می‌دهم.'},
+    {pair:'SN',dir:+1,text:'وقتی چیزی را توضیح می‌دهم، به واقعیت‌ها و مثال‌های مشخص تکیه می‌کنم.'},
+    {pair:'SN',dir:+1,text:'به آنچه با حواس پنج‌گانه‌ام درک می‌کنم بیشتر از حدس و شهود اعتماد دارم.'},
+    {pair:'SN',dir:-1,text:'ذهنم مدام به سمت نیت‌های پنهان و امکان‌های آینده می‌رود.'},
+    {pair:'SN',dir:-1,text:'الگوها و تصویر کلی برایم از جزئیات مهم‌ترند.'},
+    {pair:'SN',dir:-1,text:'از تخیل و پرداختن به ایده‌های انتزاعی لذت می‌برم.'},
+    {pair:'SN',dir:-1,text:'بیشتر به الهام و شهود تکیه می‌کنم تا رویه‌ی مشخص.'},
+    {pair:'SN',dir:-1,text:'دوست دارم درباره‌ی «چه می‌شد اگر» و احتمالات خیال‌پردازی کنم.'},
+    {pair:'SN',dir:-1,text:'بیشتر به آینده و احتمالاتش فکر می‌کنم تا زمان حال.'},
+    {pair:'SN',dir:-1,text:'کشف ارتباط پنهان میان ایده‌هایی که به نظر می‌رسد با هم تفاوت بسیاری دارند، برایم لذت‌بخش است.'},
+    // ===== TF : 15 (8 forward T, 7 reverse -> F) =====
+    {pair:'TF',dir:+1,text:'در تصمیم‌گیری، منطق و انصاف را بر احساسات مقدم می‌دانم.'},
+    {pair:'TF',dir:+1,text:'نقد صریح را، حتی اگر تند باشد، بر تعارف ترجیح می‌دهم.'},
+    {pair:'TF',dir:+1,text:'وقتی کسی مشکلش را با من در میان می‌گذارد، اول به راه‌حل منطقی فکر می‌کنم.'},
+    {pair:'TF',dir:+1,text:'تصمیم‌هایم را بر پایه‌ی اصول عینی می‌گیرم.'},
+    {pair:'TF',dir:+1,text:'موقع قضاوت کردن، روشن شدن حقیقت را بر ملاحظه‌ی احساسات دیگران مقدم می‌دانم.'},
+    {pair:'TF',dir:+1,text:'ترجیح می‌دهم منصف باشم تا مهربان.'},
+    {pair:'TF',dir:+1,text:'موقع بحث‌کردن بیشتر به استدلال منطقی توجه می‌کنم تا احوال افراد.'},
+    {pair:'TF',dir:+1,text:'کارآمد بودن و درستی تصمیمی که گرفته می‌شود، برایم از خشنودی دیگران مهم‌تر است.'},
+    {pair:'TF',dir:-1,text:'در تصمیم‌ها به احساسات خودم و دیگران اهمیت زیادی می‌دهم.'},
+    {pair:'TF',dir:-1,text:'سازگاری با دیگران و نرنجاندن آن‌ها برایم مهم است.'},
+    {pair:'TF',dir:-1,text:'وقتی کسی ناراحت است، به جای دادن راهکار ابتدا با او همدلی می‌کنم.'},
+    {pair:'TF',dir:-1,text:'ارزش‌های شخصی بیش از منطقِ خشک بر تصمیمم اثر می‌گذارند.'},
+    {pair:'TF',dir:-1,text:'به‌راحتی می‌توانم خودم را جای دیگران بگذارم و حسشان را درک کنم.'},
+    {pair:'TF',dir:-1,text:'تأثیری که تصمیم‌های مختلف بر احساسات آدم‌ها می‌گذارند، برایم بسیار مهم است.'},
+    {pair:'TF',dir:-1,text:'ترجیح می‌دهم مهربان باشم، حتی اگر این مهربانی منصفانه نباشد.'},
+    // ===== JP : 15 (8 forward J, 7 reverse -> P) =====
+    {pair:'JP',dir:+1,text:'دوست دارم کارها برنامه‌ریزی‌شده و از پیش مشخص باشند.'},
+    {pair:'JP',dir:+1,text:'فهرست کارها و برنامه‌ی منظم به من آرامش می‌دهد.'},
+    {pair:'JP',dir:+1,text:'دوست دارم کارها را زودتر تمام کنم تا خیالم راحت شود.'},
+    {pair:'JP',dir:+1,text:'نظم و قطعیت را به ابهام و انعطاف ترجیح می‌دهم.'},
+    {pair:'JP',dir:+1,text:'تصمیم‌گیری و بستنِ موضوع برایم راحت‌تر از باز نگه‌داشتن آن است.'},
+    {pair:'JP',dir:+1,text:'محیط مرتب و ساختارمند به من این حس را می‌دهد که همه‌چیز تحت کنترل است.'},
+    {pair:'JP',dir:+1,text:'دوست دارم پیش از شروع هر کار یا فعالیتی، همه‌چیز را سازمان‌دهی کنم.'},
+    {pair:'JP',dir:+1,text:'به ضرب‌الاجل‌ها پایبندم و کارها را به‌موقع تحویل می‌دهم.'},
+    {pair:'JP',dir:-1,text:'موقع انتخاب، ترجیح می‌دهم گزینه‌ها را باز نگه دارم و در لحظه تصمیم بگیرم.'},
+    {pair:'JP',dir:-1,text:'از خودانگیختگی و انجام کارها به‌صورت فی‌البداهه بیشتر لذت می‌برم تا از برنامه‌ریزی کردن.'},
+    {pair:'JP',dir:-1,text:'اغلب کارها را به لحظه‌ی آخر موکول می‌کنم و باز هم خوب پیش می‌رود.'},
+    {pair:'JP',dir:-1,text:'با تغییر ناگهانی برنامه راحت کنار می‌آیم.'},
+    {pair:'JP',dir:-1,text:'دوست دارم انعطاف داشته باشم و خودم را به یک مسیر محدود نکنم.'},
+    {pair:'JP',dir:-1,text:'کار کردن بدون برنامه‌ی دقیق برایم سخت نیست.'},
+    {pair:'JP',dir:-1,text:'بیشتر ترجیح می‌دهم در میان گزینه‌ها و امکانات موجود کندوکاو کنم تا اینکه زود تصمیم نهایی را بگیرم.'}
+  ],
+  score:function(answers){
+    const lean={EI:0,SN:0,TF:0,JP:0}; const cnt={EI:0,SN:0,TF:0,JP:0};
+    this.questions.forEach((q,i)=>{
+      let v=answers[i]; if(v==null) v=3;
+      const signed=(v-3)*q.dir;
+      lean[q.pair]+=signed; cnt[q.pair]++;
+    });
+    const code=Object.keys(this.pairs).map(p=>{
+      const pr=this.pairs[p];
+      return lean[p]>=0?pr.first:pr.second;
+    }).join('');
+    const pct={};
+    Object.keys(this.pairs).forEach(p=>{
+      const maxAbs=cnt[p]*2;
+      const strength=Math.abs(lean[p])/maxAbs;
+      pct[p]={ side: lean[p]>=0?this.pairs[p].first:this.pairs[p].second,
+               sideName: lean[p]>=0?this.pairs[p].fName:this.pairs[p].sName,
+               otherName: lean[p]>=0?this.pairs[p].sName:this.pairs[p].fName,
+               pct: Math.round(50+strength*50) };
+    });
+    return {code, lean, pct};
+  },
+  renderResult:function(scores){
+    const t=this.types[scores.code]||'';
+    let h=heroBlock('تیپ شخصیتی شما', scores.code, t, null, true);
+    h+='<div class="breakdown-title">چهار بُعد شخصیت شما</div>';
+    Object.keys(this.pairs).forEach(p=>{
+      const info=scores.pct[p];
+      h+='<div class="pair-row">'+
+        '<div class="pair-head"><span class="on">'+info.sideName+' ('+info.side+')</span>'+
+        '<span class="off">'+info.otherName+'</span></div>'+
+        '<div class="pair-track"><div class="fill" data-fill="'+info.pct+'" style="width:0%"></div></div>'+
+        '<div class="dim-detail">'+toFa(info.pct)+'٪ میل به '+info.sideName+'</div>'+
+      '</div>';
+    });
+    return h;
+  }
+};
+
+/* ---------------------------------------------------------
+   TEST 5 — ATTACHMENT STYLE (quiz.attachmentproject.com)
+   Reference: 4 styles, Likert, 3-way branch (single / relationship / parent).
+   36 items (9 per style). Branch sets framing context.
+--------------------------------------------------------- */
+TESTS.attachment = {
+  icon:'link',
+  title:'سبک دلبستگی',
+  tagline:'بر پایه‌ی نظریه‌ی دلبستگی: در روابط نزدیک، امن، مضطرب، اجتنابی یا دوسوگرا هستی؟',
+  metaLabel:'۳۶ پرسش • حدود ۵ دقیقه',
+  intro:'branch',
+  introPill:'پیش از شروع',
+  introTitle:'کدام‌یک وضعیت شماست؟',
+  introText:'از میان گزینه‌های ارائه شده، یک مورد را انتخاب کنید تا رفتارها و ویژگی‌های هر سبک دلبستگی متناسب با موقعیت شما نمایش داده شود.',
+  introNote:'به هر گزاره بر اساس احساس واقعی خود پاسخ دهید، نه آنچه آرزو می‌کنید. روی روابط مهمتان با شریک عاطفی، والدین یا دوستان نزدیکتان تمرکز کنید.',
+  branches:[
+    { key:'single',       title:'مجرد هستم',       sub:'بر اساس تجربه‌ی کلی خود در روابط نزدیک پاسخ می‌دهید', partner:'دیگران' },
+    { key:'relationship', title:'در یک رابطه هستم', sub:'بر اساس رابطه‌ی عاطفی فعلی خود پاسخ می‌دهید',        partner:'شریکم' },
+    { key:'parent',       title:'پدر یا مادر هستم', sub:'می‌توانید رابطه با فرزند یا شریک خود را در نظر بگیرید',  partner:'عزیزانم' }
+  ],
+  format:'likert',
+  scale:AGREE5, scaleValues:AGREE5_VALS,
+  promptSmall:'چقدر این جمله دربارهٔ توست؟',
+  buildAnswers:likertAnswers,
+  styles:{
+    secure:{name:'دلبستگی امن',icon:'shield',desc:'در روابط احساس امنیت و آرامش می‌کنید. هم با صمیمیت راحتید و هم با استقلال؛ به دیگران اعتماد می‌کنید و از نزدیکی نمی‌ترسید، بی‌آنکه در آن غرق شوید.'},
+    anxious:{name:'دلبستگی مضطرب',icon:'heart',desc:'به صمیمیت اشتیاق زیادی دارید اما نگرانِ ازدست‌دادن یا کافی‌نبودن هستید. به اطمینان‌خاطر مکرر نیاز دارید و کوچک‌ترین اثری از سردی می‌تواند مضطربتان کند.'},
+    avoidant:{name:'دلبستگی اجتنابی',icon:'moon',desc:'به استقلال و خودکفایی ارزش زیادی می‌دهید و نزدیکیِ بیش از حد می‌تواند معذبتان کند. ترجیح می‌دهید احساساتتان را درون خودتان نگه دارید.'},
+    fearful:{name:'دلبستگی دوسوگرا',icon:'wave',desc:'هم‌زمان به صمیمیت اشتیاق دارید و از آن می‌ترسید. کشمکشی درونی میان میل به نزدیکی و ترس از آسیب، که رابطه را پرنوسان می‌کند.'}
+  },
+  questions:[
+    // SECURE (9)
+    {cat:'secure',text:'به‌راحتی می‌توانم به آدم‌های نزدیکم تکیه کنم.'},
+    {cat:'secure',text:'با صمیمیت عاطفی احساس راحتی می‌کنم.'},
+    {cat:'secure',text:'وقتی مشکلی پیش می‌آید، می‌توانم آرام درباره‌اش حرف بزنم.'},
+    {cat:'secure',text:'اعتماد به کسانی که دوستشان دارم برایم آسان است.'},
+    {cat:'secure',text:'با نزدیکی به دیگران و ورود آن‌ها به فضای شخصی‌ام راحت کنار می‌آیم.'},
+    {cat:'secure',text:'باور دارم که ارزش دوست‌داشته‌شدن را دارم.'},
+    {cat:'secure',text:'حتی وقتی رنجیده‌ام، می‌توانم احساسم را بدون ترس بیان کنم.'},
+    {cat:'secure',text:'اختلاف‌نظر با نزدیکانم باعث نمی‌شود احساس ترس کنم.'},
+    {cat:'secure',text:'در روابطم بیشتر احساس آرامش دارم تا نگرانی.'},
+    // ANXIOUS (9)
+    {cat:'anxious',text:'اغلب نگرانم که کسانی که دوستشان دارم دیگر مرا نخواهند.'},
+    {cat:'anxious',text:'نیاز دارم نزدیکانم بابت ارزش و اهمیت رابطه‌ی میانمان مکرراً به من اطمینان خاطر بدهند.'},
+    {cat:'anxious',text:'وقتی به کسی پیام می‌دهم و دیر پاسخ می‌گیرم، مضطرب می‌شوم.'},
+    {cat:'anxious',text:'گاهی می‌ترسم به عشقم به اندازه‌ی کافی پاسخ ندهند.'},
+    {cat:'anxious',text:'کوچک‌ترین تغییر در رفتار نزدیکانم نگرانم می‌کند.'},
+    {cat:'anxious',text:'دوست دارم با کسی که دوستش دارم تا حد ممکن نزدیک باشم.'},
+    {cat:'anxious',text:'وقتی بین من و کسی که دوستش دارم فاصله می‌افتد، بی‌قرار می‌شوم.'},
+    {cat:'anxious',text:'به اینکه رابطه‌ام پایدار می‌ماند یا نه، زیاد فکر می‌کنم.'},
+    {cat:'anxious',text:'ترس از طردشدن اغلب در ذهنم پررنگ است.'},
+    // AVOIDANT (9)
+    {cat:'avoidant',text:'ترجیح می‌دهم روی خودم حساب کنم تا دیگران.'},
+    {cat:'avoidant',text:'وقتی کسی خیلی نزدیک می‌شود، کمی معذب می‌شوم.'},
+    {cat:'avoidant',text:'سخت است که احساسات عمیقم را با کسی در میان بگذارم.'},
+    {cat:'avoidant',text:'استقلالم را به وابستگی عاطفی ترجیح می‌دهم.'},
+    {cat:'avoidant',text:'در لحظه‌های تنش، ترجیح می‌دهم تنها باشم تا اینکه در موردش حرف بزنم.'},
+    {cat:'avoidant',text:'نشان‌دادن آسیب‌پذیری برایم دشوار است.'},
+    {cat:'avoidant',text:'وقتی رابطه‌ای بیش از حد نزدیک می‌شود، فاصله می‌گیرم.'},
+    {cat:'avoidant',text:'ترجیح می‌دهم مشکلاتم را خودم و در سکوت حل کنم.'},
+    {cat:'avoidant',text:'وابسته‌شدن به دیگران را نشانه‌ی ضعف می‌دانم.'},
+    // FEARFUL (9)
+    {cat:'fearful',text:'هم‌زمان صمیمیت را می‌خواهم و از آن می‌ترسم.'},
+    {cat:'fearful',text:'در روابطم گاهی نزدیکی زیاد به من امنیت می‌دهد و گاهی ناگهان پس می‌کشم.'},
+    {cat:'fearful',text:'می‌ترسم اگر به کسی نزدیک شوم، آسیب ببینم.'},
+    {cat:'fearful',text:'به کسانی که دوستشان دارم، هم اعتماد دارم و هم بدگمانم.'},
+    {cat:'fearful',text:'رابطه‌هایم اغلب پرنوسان و پر از کشمکش درونی‌اند.'},
+    {cat:'fearful',text:'میان میل به نزدیکی و ترس از آن گیر می‌کنم.'},
+    {cat:'fearful',text:'وقتی کسی به من نزدیک می‌شود، هم آرام می‌شوم و هم مضطرب.'},
+    {cat:'fearful',text:'به‌سختی می‌توانم به کسی به‌طور کامل اعتماد کنم.'},
+    {cat:'fearful',text:'گاهی رفتارم در روابط برای خودم هم گیج‌کننده است.'}
+  ],
+  score:function(answers){
+    const cats=Object.keys(this.styles);
+    return scoreLikertCategories(cats).call(this,answers);
+  },
+  renderResult:function(scores,meta){
+    const cats=Object.keys(this.styles);
+    const ranked=cats.sort((a,b)=>scores.norm[b]-scores.norm[a]);
+    const top=ranked[0];
+    let h=heroBlock('سبک دلبستگی غالب شما', this.styles[top].name, this.styles[top].desc, this.styles[top].icon, false);
+    h+=rankedBars('نمای کامل سبک‌های دلبستگی شما', ranked.map((c,i)=>({
+      name:this.styles[c].name, icon:this.styles[c].icon,
+      score:scores.norm[c], max:100, primary:i===0, primaryTag:'سبک غالب',
+      detail:i<2?this.styles[c].desc:''
+    })));
+    return h;
+  }
+};
+
+/* ---------------------------------------------------------
+   TEST 6 — DISC (discpersonalitytesting.com — free version)
+   Reference: 12 groups, forced-choice most/least, 4 traits D/I/S/C.
+   Each group = 4 words, one per trait. most:+1, least:-1.
+--------------------------------------------------------- */
+TESTS.disc = {
+  icon:'target',
+  title:'آزمون رفتاری DISC',
+  tagline:'سبک رفتاری خود را در چهار بُعد بسنجید: قدرت‌طلبی (D)، تأثیرگذاری (I)، ثباتمندی (S) و وظیفه‌شناسی (C).',
+  metaLabel:'۱۲ گروه • حدود ۵ دقیقه',
+  intro:'straight',
+  introTitle:'آزمون رفتاری DISC',
+  introText:'در هر گروه، چهار واژه می‌بینید. واژه‌ای که «بیشترین» شباهت را به شما دارد و واژه‌ای که «کمترین» شباهت را دارد انتخاب کنید. سریع و بر اساس طبیعی‌ترین پاسخی که به ذهنتان می‌رسد جواب بدهید، نه با تمرکز و فکر زیاد.',
+  introNote:'در هر گروه باید یک «بیشترین» و یک «کمترین» انتخاب کنید تا بتوانید جلو بروید.',
+  format:'disc',
+  promptSmall:'در این گروه، کدام بیشترین و کدام کمترین شباهت را به شما دارند؟',
+  buildAnswers:function(){ return new Array(this.questions.length).fill(null); },
+  traits:{
+    D:{name:'قدرت‌طلبی',icon:'bolt',desc:'قاطع، نتیجه‌محور و رک. چالش را دوست دارید، سریع تصمیم می‌گیرید و پیش‌قدم می‌شوید. محرکتان رسیدن به هدف و کنترل اوضاع است.'},
+    I:{name:'تأثیرگذاری',icon:'spark',desc:'اجتماعی، پرشور و متقاعدکننده. با آدم‌ها گرم می‌گیرید، انرژی به جمع می‌دهید و با خوش‌بینی پیش می‌روید. محرکتان پذیرش و ارتباط است.'},
+    S:{name:'ثباتمندی',icon:'shield',desc:'آرام، صبور و قابل‌اتکا. به هماهنگی و ثبات اهمیت می‌دهید، شنونده‌ی خوبی هستید و از تغییرِ ناگهانی پرهیز می‌کنید. محرکتان امنیت و همکاری است.'},
+    C:{name:'وظیفه‌شناسی',icon:'scale',desc:'دقیق، منطقی و اصولی. به کیفیت، جزئیات و درست‌بودن اهمیت می‌دهید و پیش از تصمیم تحلیل می‌کنید. محرکتان دقت و درستی است.'}
+  },
+  questions:[
+    {words:[{t:'قاطع',trait:'D'},{t:'سرزنده',trait:'I'},{t:'باثبات',trait:'S'},{t:'دقیق',trait:'C'}]},
+    {words:[{t:'جسور',trait:'D'},{t:'اهل معاشرت',trait:'I'},{t:'صبور',trait:'S'},{t:'محتاط',trait:'C'}]},
+    {words:[{t:'رقابتی',trait:'D'},{t:'خوش‌بین',trait:'I'},{t:'وفادار',trait:'S'},{t:'منظم',trait:'C'}]},
+    {words:[{t:'مصمم',trait:'D'},{t:'متقاعدکننده',trait:'I'},{t:'آرام',trait:'S'},{t:'تحلیلگر',trait:'C'}]},
+    {words:[{t:'مستقل',trait:'D'},{t:'پرانرژی',trait:'I'},{t:'همراه',trait:'S'},{t:'کمال‌گرا',trait:'C'}]},
+    {words:[{t:'رک',trait:'D'},{t:'الهام‌بخش',trait:'I'},{t:'ملایم',trait:'S'},{t:'سیستماتیک',trait:'C'}]},
+    {words:[{t:'هدف‌گرا',trait:'D'},{t:'شوخ‌طبع',trait:'I'},{t:'شنونده',trait:'S'},{t:'منطقی',trait:'C'}]},
+    {words:[{t:'پیش‌قدم',trait:'D'},{t:'گرم',trait:'I'},{t:'پایدار',trait:'S'},{t:'موشکاف',trait:'C'}]},
+    {words:[{t:'بی‌پروا',trait:'D'},{t:'پرحرف',trait:'I'},{t:'فروتن',trait:'S'},{t:'محافظه‌کار',trait:'C'}]},
+    {words:[{t:'قدرت‌طلب',trait:'D'},{t:'مردم‌دار',trait:'I'},{t:'آرامش‌طلب',trait:'S'},{t:'اصولی',trait:'C'}]},
+    {words:[{t:'خطرپذیر',trait:'D'},{t:'خوش‌مشرب',trait:'I'},{t:'ثابت‌قدم',trait:'S'},{t:'باریک‌بین',trait:'C'}]},
+    {words:[{t:'سریع',trait:'D'},{t:'بانشاط',trait:'I'},{t:'شکیبا',trait:'S'},{t:'روشمند',trait:'C'}]}
+  ],
+  score:function(answers){
+    const s={D:0,I:0,S:0,C:0};
+    this.questions.forEach((q,i)=>{
+      const a=answers[i]; if(!a) return;
+      if(a.most!=null) s[q.words[a.most].trait]+=1;
+      if(a.least!=null) s[q.words[a.least].trait]-=1;
+    });
+    const n=this.questions.length;
+    const norm={};
+    Object.keys(s).forEach(k=>{ norm[k]= ((s[k]+n)/(2*n))*100; });
+    return {raw:s, norm};
+  },
+  renderResult:function(scores){
+    const traits=Object.keys(this.traits);
+    const ranked=traits.sort((a,b)=>scores.norm[b]-scores.norm[a]);
+    const primary=ranked[0], secondary=ranked[1];
+    const name=this.traits[primary].name+' / '+this.traits[secondary].name;
+    const desc=this.traits[primary].desc+' سبک دومِ شما '+this.traits[secondary].name+' است که به این پروفایل تعادل می‌دهد.';
+    let h=heroBlock('پروفایل رفتاری شما', name, desc, this.traits[primary].icon, false);
+    h+=rankedBars('نمای کامل چهار بُعد DISC شما', ranked.map((c,i)=>({
+      name:this.traits[c].name+' ('+c+')', icon:this.traits[c].icon,
+      score:scores.norm[c], max:100, primary:i===0, primaryTag:'سبک غالب',
+      detail:i<2?this.traits[c].desc:''
+    })));
+    return h;
+  }
+};
+
+</script>
+<script>
+
+/* ---------------------------------------------------------
+   TEST 7 — LOVE LANGUAGES (ported from original file)
+   5 languages, 30 paired-choice questions, branch sets partner word.
+   paired format + ranked-bar result (raw counts, max 12 / language)
+--------------------------------------------------------- */
+TESTS.loveLanguages = {
+  icon:'heart',
+  title:'زبان‌های عشق',
+  tagline:'کدام «زبان عشق» برای تو گویاترین است؟ بر پایه‌ی مفهوم پنج زبان عشق.',
+  metaLabel:'۳۰ پرسش • حدود ۵ دقیقه',
+  intro:'branch',
+  introPill:'پیش از شروع',
+  introTitle:'خودتان را چگونه توصیف می‌کنید؟',
+  introText:'پاسخ به این سؤال کمک می‌کند پرسش‌های تست بر اساس شرایط شما تدوین شوند.',
+  introNote:'صادقانه و بر اساس اولین احساستان پاسخ دهید. پاسخ‌ها فقط در مرورگر شما می‌مانند.',
+  branches:[
+    { key:'relationship', title:'در یک رابطه هستم', sub:'ازدواج، نامزدی یا رابطه‌ی بلندمدت', partner:'شریک عاطفی‌ام' },
+    { key:'single',       title:'مجرد هستم',        sub:'بر اساس کسی که دوستش دارید پاسخ می‌دهید', partner:'کسی که دوستش دارم' }
+  ],
+  format:'paired',
+  promptSmall:'کدام برایت معنادارتر است؟',
+  promptMain:'برای من معنادارتر است وقتی…',
+  buildAnswers:function(){ return new Array(this.questions.length).fill(null); },
+  langs:{
+    words:   { name:'کلمات محبت‌آمیز', icon:'words',   desc:'وقتی کسی محبتش را با کلمات بیان می‌کند — تعریف، تشویق، «دوستت دارم» — بیشترین احساس دوست‌داشته‌شدن را دارید. برای دل شما، کلمات مثبت ارزشمندترند و عبارت‌های تند می‌توانند عمیق آزارتان دهند.' },
+    quality: { name:'زمان باکیفیت',   icon:'quality', desc:'توجه کامل و بی‌وقفه برایتان از هر چیز گویاتر است. وقتی کسی گوشی‌اش را کنار می‌گذارد و واقعاً با شما حاضر می‌شود، احساس می‌کنید دیده شده‌اید. حضور، مهم‌تر از هدیه یا حرف است.' },
+    gifts:   { name:'هدیه گرفتن',     icon:'gifts',   desc:'برای شما هدیه فقط یک شیء نیست؛ نشانه‌ای است که می‌گوید «به تو فکر کردم». یک هدیه‌ی بافکر، حتی کوچک، احساس ارزشمندی و به‌یادبودن به شما می‌دهد.' },
+    service: { name:'خدمت‌رسانی',      icon:'service', desc:'«عمل از حرف مهم‌تر است» شعار قلبی شماست. وقتی کسی کاری عملی برایتان انجام می‌دهد و باری از دوشتان برمی‌دارد، عشق را به‌روشنی احساس می‌کنید.' },
+    touch:   { name:'تماس بدنی',       icon:'touch',   desc:'در آغوش گرفتن، لمس دست، یک نوازش ساده — این‌ها برای شما عمیق‌ترین راه ارتباط‌اند. تماس فیزیکی به شما حس امنیت و پیوند می‌دهد.' }
+  },
+  questions:[
+    { a:{t:'جمله‌ی «دوستت دارم» را از {p} می‌شنوم', l:'words'},        b:{t:'با {p} تنهایی وقت می‌گذرانیم، فقط خودمان دو نفر', l:'quality'} },
+    { a:{t:'{p} بدون دلیل خاصی از من تعریف می‌کند', l:'words'},         b:{t:'{p} برایم هدیه‌ای می‌آورد', l:'gifts'} },
+    { a:{t:'{p} می‌گوید «به تو افتخار می‌کنم»', l:'words'},             b:{t:'{p} کاری عملی برای کمک به من انجام می‌دهد', l:'service'} },
+    { a:{t:'{p} برایم پیام محبت‌آمیز و بی‌مناسبت می‌فرستد', l:'words'}, b:{t:'من و {p}، یکدیگر را در آغوش می‌گیریم', l:'touch'} },
+    { a:{t:'زمان کافی و بدون مشغله‌ی بیرونی در اختیارم هست تا با {p} وقت بگذرانم', l:'quality'},       b:{t:'از {p}، هدیه‌ای کوچک به نشانه‌ی محبت می‌گیرم', l:'gifts'} },
+    { a:{t:'کارها و فعالیت‌هایم را در کنار {p} انجام می‌دهم', l:'quality'}, b:{t:'{p} در کارهای روزمره کمکم می‌کند', l:'service'} },
+    { a:{t:'با {p} گفت‌وگوی طولانی و عمیق داریم', l:'quality'},         b:{t:'{p} دستم را می‌گیرد', l:'touch'} },
+    { a:{t:'هدیه‌ای می‌گیرم که می‌دانم {p} با دقت انتخابش کرده است', l:'gifts'}, b:{t:'{p} کاری را که مسئولیت من است به‌عهده می‌گیرد', l:'service'} },
+    { a:{t:'{p} برایم هدیه می‌گیرد', l:'gifts'},           b:{t:'{p} هنگام تماشای فیلم به من نزدیک می‌شود و لمسم می‌کند', l:'touch'} },
+    { a:{t:'{p} بدون اینکه بخواهم کاری برایم انجام می‌دهد', l:'service'}, b:{t:'{p} مرا نوازش می‌کند یا ماساژ می‌دهد', l:'touch'} },
+    { a:{t:'{p} با من حرف می‌زند و به من دلگرمی می‌دهد', l:'words'},              b:{t:'{p} هنگام صحبت کردن، گوشی‌اش را کنار می‌گذارد و فقط به من توجه می‌کند', l:'quality'} },
+    { a:{t:'{p} قدردانی‌اش بابت تلاش‌هایم را در قالب کلمات به زبان می‌آورد', l:'words'},      b:{t:'{p} از سفر برایم سوغاتی می‌آورد', l:'gifts'} },
+    { a:{t:'از {p}، حرف‌های حمایت‌آمیز و مثبت می‌شنوم', l:'words'},          b:{t:'{p} به‌جای حرف‌زدن، عملاً کاری برایم انجام می‌دهد', l:'service'} },
+    { a:{t:'{p} می‌گوید چقدر برایش مهم هستم', l:'words'},               b:{t:'{p} در جمع دستش را دور شانه‌ام می‌اندازد', l:'touch'} },
+    { a:{t:'با {p} به گردش یا سفر می‌روم', l:'quality'},                b:{t:'{p} چیزی به من می‌دهد که نشان می‌دهد به فکرم بوده است', l:'gifts'} },
+    { a:{t:'{p} وقت می‌گذارد تا واقعاً به حرف‌هایم گوش دهد', l:'quality'}, b:{t:'{p} در پروژه یا کاری به من کمک می‌کند', l:'service'} },
+    { a:{t:'فقط کنار {p} حضور دارم، حتی اگر کاری نکنیم', l:'quality'},       b:{t:'نزدیک {p} می‌نشینم و تماس فیزیکی داریم', l:'touch'} },
+    { a:{t:'{p} با یک هدیه‌ی کوچک غافلگیرم می‌کند', l:'gifts'},         b:{t:'{p} در زمان خستگی‌ام کارها را به‌عهده می‌گیرد', l:'service'} },
+    { a:{t:'منتظر مناسبتی هستم چون احتمالاً هدیه‌ای می‌گیرم', l:'gifts'}, b:{t:'{p} مرا می‌بوسد', l:'touch'} },
+    { a:{t:'{p} کاری می‌کند که فشار را از روی من بردارد', l:'service'}, b:{t:'{p} در طول روز زیاد لمسم می‌کند', l:'touch'} },
+    { a:{t:'{p} از ظاهر یا کارهایم تعریف می‌کند', l:'words'},           b:{t:'فرصت داریم بدون برنامه‌ی خاصی با هم وقت بگذرانیم', l:'quality'} },
+    { a:{t:'{p} حرف‌های دلگرم‌کننده به من می‌زند', l:'words'},          b:{t:'{p} هدیه‌ای می‌دهد که با دقت برایم خریده است', l:'gifts'} },
+    { a:{t:'{p} با کلمات نشان می‌دهد قدرم را می‌داند', l:'words'},      b:{t:'{p} کارهای خانه را بیش از سهم معمولش انجام می‌دهد', l:'service'} },
+    { a:{t:'{p} از من تعریف و تمجید می‌کند', l:'words'},                b:{t:'{p} موقع رد شدن از کنارم دستش را روی شانه‌ام می‌گذارد', l:'touch'} },
+    { a:{t:'{p} هنگام صحبت کردن حرفم را قطع نمی‌کند', l:'quality'},          b:{t:'{p} روزهای خاص را با یک هدیه یادآوری می‌کند', l:'gifts'} },
+    { a:{t:'با {p} به یک سرگرمی مشترک می‌پردازیم', l:'quality'},     b:{t:'{p} در کاری که برای انجامش استرس دارم به دادم می‌رسد', l:'service'} },
+    { a:{t:'{p} برای بودن با من وقت می‌گذارد', l:'quality'},            b:{t:'من و {p}، بعد از مدتی دوری همدیگر را در آغوش می‌گیریم', l:'touch'} },
+    { a:{t:'{p} برایم هدیه‌ای می‌آورد که نشان می‌دهد در طول روز به یادم بوده است', l:'gifts'}, b:{t:'{p} کاری عملی انجام می‌دهد تا کارم راحت‌تر شود', l:'service'} },
+    { a:{t:'از {p}، هدیه‌ی فکر شده‌ای دریافت می‌کنم', l:'gifts'},            b:{t:'{p} دستم را در دست می‌گیرد و نوازش می‌کند', l:'touch'} },
+    { a:{t:'{p} با اشتیاق کاری را که خواسته‌ام انجام می‌دهد', l:'service'}, b:{t:'من و {p}، هر روز با هم تماس فیزیکی برقرار می‌کنیم', l:'touch'} }
+  ],
+  score:function(answers){
+    const s={words:0,quality:0,gifts:0,service:0,touch:0};
+    this.questions.forEach((q,i)=>{
+      if(answers[i]==='a') s[q.a.l]++;
+      else if(answers[i]==='b') s[q.b.l]++;
+    });
+    return {raw:s, max:12};
+  },
+  renderResult:function(scores){
+    const langs=Object.keys(this.langs);
+    const ranked=langs.sort((a,b)=>scores.raw[b]-scores.raw[a]);
+    const top=ranked[0];
+    let h=heroBlock('زبان عشق اصلی شما', this.langs[top].name, this.langs[top].desc, this.langs[top].icon, false);
+    h+=rankedBars('نمای کامل پنج زبان عشق شما', ranked.map((c,i)=>({
+      name:this.langs[c].name, icon:this.langs[c].icon,
+      score:scores.raw[c], max:scores.max, primary:i===0, primaryTag:'زبان اصلی شما',
+      detail:i<2?this.langs[c].desc:''
+    })));
+    return h;
+  }
+};
+
+/* =========================================================
+   INIT
+========================================================= */
+renderHub();
+</script>
+</body>
+</html>

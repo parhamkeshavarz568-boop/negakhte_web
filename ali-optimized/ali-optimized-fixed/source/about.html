@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>دفتر تذکره — کافه نگاخته</title>
+<!-- Self-hosted fonts (see @font-face block below). Previously loaded from
+     fonts.googleapis.com which is unreliable from Iran.
+     The body uses Vazirmatn (originally fell back from Estedad which we
+     no longer load — they're nearly indistinguishable Persian sans-serif fonts). -->
+<link rel="preload" as="font" type="font/woff2" href="images/fonts/vazirmatn-arabic-400-normal.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="images/fonts/vazirmatn-arabic-700-normal.woff2" crossorigin>
+<style>
+/* ============ SELF-HOSTED FONTS ============
+   Hosted from images/fonts/ instead of Google Fonts. Google's CDN
+   (fonts.googleapis.com / fonts.gstatic.com) is unreliable from Iran,
+   which was causing some users to see blank pages or get stuck in
+   refresh loops while waiting for the stylesheet to download.
+
+   unicode-range tells the browser which characters each font file
+   covers. With this, an English-only viewer never downloads the
+   Arabic subset, and a Persian-only viewer never downloads the Latin
+   subset — the browser only fetches what it actually needs to render.
+
+   font-display: swap — show text in fallback font immediately, then
+   swap to custom font when it loads. No invisible-text period.
+*/
+
+/* ===== Vazirmatn (Persian/Arabic body + UI) ===== */
+/* Arabic subset */
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-arabic-400-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-arabic-500-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-arabic-600-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-arabic-700-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-arabic-800-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+
+/* Latin subset (digits, punctuation, English fallback chars) */
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-latin-500-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-latin-600-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('images/fonts/vazirmatn-latin-800-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ===== Cormorant Garamond (English serif body) ===== */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('images/fonts/cormorant-garamond-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('images/fonts/cormorant-garamond-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('images/fonts/cormorant-garamond-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('images/fonts/cormorant-garamond-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('images/fonts/cormorant-garamond-latin-400-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('images/fonts/cormorant-garamond-latin-500-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('images/fonts/cormorant-garamond-latin-600-italic.woff2') format('woff2');
+}
+
+/* ===== Cormorant SC (small-caps display) ===== */
+@font-face {
+  font-family: 'Cormorant SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('images/fonts/cormorant-sc-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant SC';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('images/fonts/cormorant-sc-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant SC';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('images/fonts/cormorant-sc-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Cormorant SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('images/fonts/cormorant-sc-latin-700-normal.woff2') format('woff2');
+}
+
+  :root {
+    --paper: #f4ebd9;
+    --paper-shadow: #ede2c5;
+    --paper-edge: #d8c89c;
+    --ink: #2a1f14;
+    --ink-soft: #5a4628;
+    --shangarf: #9c2a2a;       /* the red used for headings, key terms */
+    --lapis: #2c4f7a;           /* deep blue accent of illumination */
+    --turquoise: #4a8a8a;
+    --gold: #b89968;
+    --gold-deep: #8c6f3d;
+    --gold-bright: #d4b783;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse at center, #2a1810 0%, #18100a 100%);
+    color: var(--ink);
+    font-family: 'Estedad', 'Vazirmatn', 'Sahel', 'Noto Naskh Arabic', serif;
+    min-height: 100vh;
+    padding: 30px 16px 60px;
+  }
+
+  /* ============ THE CODEX ============ */
+  .codex {
+    max-width: 760px;
+    margin: 0 auto;
+    background: var(--paper);
+    background-image:
+      /* faded ink stains and age */
+      radial-gradient(ellipse 200px 80px at 15% 10%, rgba(140,100,60,0.06), transparent 60%),
+      radial-gradient(ellipse 160px 100px at 85% 30%, rgba(140,100,60,0.05), transparent 60%),
+      radial-gradient(ellipse 220px 90px at 50% 70%, rgba(140,100,60,0.04), transparent 60%),
+      /* very subtle paper grain */
+      repeating-linear-gradient(
+        90deg,
+        rgba(180,150,100,0.015) 0,
+        rgba(180,150,100,0.015) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.6),
+      0 6px 20px rgba(0,0,0,0.4),
+      inset 0 0 100px rgba(180,140,80,0.08);
+    position: relative;
+    border: 1px solid rgba(140,100,60,0.4);
+  }
+
+  /* ============ THE FRAME (jadval / jadwal) ============ */
+  /* Classical manuscripts have multi-band rule frames around the
+     written area. Outer: heavy gold band defined by black fillets,
+     innermost red rule, outermost blue rule, with narrower gold
+     bands inside. We approximate this with layered borders. */
+  .folio {
+    position: relative;
+    padding: 50px 38px 70px;
+  }
+  .folio::before {
+    /* outer blue rule */
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border: 1px solid var(--lapis);
+    pointer-events: none;
+  }
+  .folio::after {
+    /* gold band with inner black fillet, then inner red rule */
+    content: '';
+    position: absolute;
+    inset: 18px;
+    border: 4px solid var(--gold);
+    box-shadow:
+      inset 0 0 0 1px rgba(0,0,0,0.5),
+      0 0 0 1px rgba(0,0,0,0.5),
+      inset 0 0 0 5px var(--shangarf);
+    pointer-events: none;
+  }
+
+  .folio-inner {
+    position: relative;
+    z-index: 1;
+    padding: 16px 20px 0;
+  }
+
+  /* ============ SARLAWH (illuminated headpiece) ============ */
+  /* Real sarlawhs are W-shaped or arched, filled with vegetal
+     scrollwork in lavender/orange/blue on gold. We render a
+     stylised version with SVG so it scales cleanly. */
+  .sarlawh {
+    text-align: center;
+    margin: 10px 0 30px;
+  }
+  .sarlawh-illumination {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto 24px;
+    display: block;
+  }
+  .basmala {
+    font-size: 19px;
+    color: var(--shangarf);
+    margin: 0 0 22px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+  .book-title {
+    font-size: 42px;
+    color: var(--ink);
+    margin: 0 0 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .book-subtitle {
+    font-size: 17px;
+    color: var(--ink-soft);
+    margin: 0 0 6px;
+    font-style: italic;
+    line-height: 1.7;
+  }
+  .book-author {
+    font-size: 14px;
+    color: var(--gold-deep);
+    margin: 14px 0 0;
+    letter-spacing: 0.05em;
+  }
+
+  /* ============ DECORATIVE SECTION DIVIDERS ============ */
+  .divider {
+    text-align: center;
+    margin: 36px 0 28px;
+    color: var(--gold-deep);
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: 0.5em;
+  }
+  .divider svg {
+    width: 100%;
+    max-width: 280px;
+    height: 24px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ============ CHAPTER HEADINGS ============ */
+  /* Classical books have rubricated section headings — red ink, often
+     with a small ornament. Chapter title in shangarf, with a small
+     gold rosette before/after. */
+  .chapter {
+    margin-top: 44px;
+  }
+  .chapter-title {
+    text-align: center;
+    margin: 0 0 24px;
+    color: var(--shangarf);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.4;
+    position: relative;
+  }
+  .chapter-title-num {
+    display: block;
+    font-size: 14px;
+    color: var(--gold-deep);
+    font-weight: 500;
+    margin-bottom: 6px;
+    letter-spacing: 0.08em;
+    font-style: italic;
+  }
+  .chapter-title::before,
+  .chapter-title::after {
+    content: '◈';
+    color: var(--gold);
+    font-size: 14px;
+    margin: 0 0.6em;
+    vertical-align: 0.2em;
+  }
+
+  /* ============ BODY PROSE ============ */
+  p {
+    font-size: 17px;
+    line-height: 2.05;
+    text-align: justify;
+    margin: 0 0 18px;
+    color: var(--ink);
+    text-justify: inter-word;
+  }
+
+  /* The "rubricated" key word — red ink for the elevated terms. */
+  .red {
+    color: var(--shangarf);
+    font-weight: 600;
+  }
+  /* Lapis blue accent — used sparingly in real manuscripts for
+     proper names of figures. */
+  .blue {
+    color: var(--lapis);
+    font-weight: 600;
+  }
+
+  /* The "opener" — the elevated first phrase of a paragraph. In
+     classical manuscripts the first letter or word would be done in
+     red, sometimes oversized. */
+  .opener {
+    color: var(--shangarf);
+    font-weight: 700;
+  }
+
+  /* ============ VERSE COUPLET (bayt) ============ */
+  /* Saadi-style books interleave rhymed verse couplets between
+     prose sections. Two hemistichs (mesra), centered, set apart
+     from the body. */
+  .bayt {
+    margin: 28px 0 24px;
+    text-align: center;
+    font-size: 17px;
+    line-height: 2.2;
+    color: var(--lapis);
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  .bayt .mesra {
+    display: inline-block;
+    min-width: 45%;
+    padding: 0 18px;
+  }
+  .bayt .mesra:first-child {
+    border-left: 1px solid var(--gold);
+  }
+
+  /* ============ TABLE OF CONTENTS ============ */
+  .fihrist {
+    margin: 30px auto 36px;
+    max-width: 480px;
+    padding: 22px 28px;
+    background: rgba(180,153,104,0.08);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 1px var(--paper);
+  }
+  .fihrist-title {
+    text-align: center;
+    color: var(--shangarf);
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 14px;
+  }
+  .fihrist ol {
+    list-style: none;
+    counter-reset: chapter;
+    padding: 0;
+    margin: 0;
+  }
+  .fihrist li {
+    counter-increment: chapter;
+    display: flex;
+    align-items: baseline;
+    margin: 0 0 8px;
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .fihrist li::before {
+    content: counter(chapter, persian) " ـ ";
+    color: var(--shangarf);
+    font-weight: 600;
+    margin-left: 4px;
+  }
+  .fihrist a {
+    color: inherit;
+    text-decoration: none;
+    flex: 1;
+    border-bottom: 1px dotted rgba(140,100,60,0.4);
+    padding-bottom: 2px;
+  }
+  .fihrist a:hover { color: var(--shangarf); }
+
+  /* ============ KHATIME (colophon) ============ */
+  .khatime {
+    margin-top: 56px;
+    text-align: center;
+    padding: 30px 30px 18px;
+    border-top: 2px double var(--gold);
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 2.0;
+  }
+  .khatime-mark {
+    color: var(--gold);
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  /* ============ FOLIO NUMBER ============ */
+  .folio-number {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    color: var(--gold-deep);
+    letter-spacing: 0.15em;
+    font-style: italic;
+  }
+  /* Catchword (پاژنا) — first word of the next section, traditionally
+     written at bottom-left of every page. We use it decoratively. */
+  .catchword {
+    position: absolute;
+    bottom: 30px;
+    right: 38px;
+    font-size: 13px;
+    color: var(--gold-deep);
+    font-style: italic;
+    opacity: 0.7;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 600px) {
+    body { padding: 16px 8px 40px; }
+    .folio { padding: 28px 14px 60px; }
+    .folio-inner { padding: 14px 16px 0; }
+    .folio::before { inset: 8px; }
+    .folio::after { inset: 12px; border-width: 3px; }
+    .book-title { font-size: 32px; }
+    p { font-size: 15px; line-height: 1.95; }
+    .chapter-title { font-size: 19px; }
+    .basmala { font-size: 16px; }
+    .bayt { font-size: 15px; line-height: 2.0; }
+    .bayt .mesra { display: block; padding: 4px 0; min-width: 0; }
+    .bayt .mesra:first-child { border: none; border-bottom: 1px solid var(--gold); padding-bottom: 8px; margin-bottom: 8px; }
+    .fihrist { padding: 18px 20px; }
+    .fihrist li { font-size: 14px; }
+    .catchword, .folio-number { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<article class="codex" lang="fa">
+  <div class="folio">
+
+    <div class="folio-inner">
+
+      <!-- ===========================================================
+           SARLAWH — illuminated headpiece
+           =========================================================== -->
+      <header class="sarlawh">
+
+        <!-- Stylised W-shaped illumination, in the lavender/blue/gold
+             of a real Persian manuscript headpiece. Drawn as SVG so
+             it scales cleanly. -->
+        <svg class="sarlawh-illumination" viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- gold ground -->
+          <defs>
+            <linearGradient id="goldGround" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#d4b783"/>
+              <stop offset="1" stop-color="#a78650"/>
+            </linearGradient>
+            <radialGradient id="petalLapis" cx="0.5" cy="0.5">
+              <stop offset="0" stop-color="#3d6a9c"/>
+              <stop offset="1" stop-color="#1f3a5c"/>
+            </radialGradient>
+            <radialGradient id="petalLavender" cx="0.5" cy="0.5">
+              <stop offset="0" stop-color="#9b7fa8"/>
+              <stop offset="1" stop-color="#65486f"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Outer arched shape (the W-form sarlawh) -->
+          <path d="M 10,100 L 10,40 Q 10,20 30,20 L 180,20 Q 200,20 200,8 L 220,8 Q 220,20 240,20 L 390,20 Q 410,20 410,40 L 410,100 Z"
+                fill="url(#goldGround)" stroke="#5a3a18" stroke-width="1.5"/>
+
+          <!-- Inner darker field of vegetal pattern -->
+          <path d="M 18,98 L 18,42 Q 18,28 32,28 L 188,28 L 200,16 L 220,16 L 232,28 L 388,28 Q 402,28 402,42 L 402,98 Z"
+                fill="#2c4f7a"/>
+
+          <!-- Decorative arabesque medallions -->
+          <!-- Central rosette -->
+          <g transform="translate(210, 60)">
+            <circle r="22" fill="#b89968" stroke="#5a3a18" stroke-width="0.8"/>
+            <circle r="16" fill="#9c2a2a"/>
+            <g fill="url(#petalLavender)">
+              <ellipse cx="0" cy="-10" rx="3" ry="6"/>
+              <ellipse cx="9.5" cy="-3" rx="3" ry="6" transform="rotate(72 0 0) translate(0 -10)"/>
+              <ellipse cx="0" cy="0" rx="3" ry="6" transform="rotate(144 0 0) translate(0 -10)"/>
+              <ellipse cx="0" cy="0" rx="3" ry="6" transform="rotate(216 0 0) translate(0 -10)"/>
+              <ellipse cx="0" cy="0" rx="3" ry="6" transform="rotate(288 0 0) translate(0 -10)"/>
+            </g>
+            <circle r="3.5" fill="#d4b783"/>
+          </g>
+
+          <!-- Side medallions -->
+          <g transform="translate(90, 60)">
+            <circle r="14" fill="none" stroke="#b89968" stroke-width="1"/>
+            <circle r="9" fill="url(#petalLapis)" stroke="#b89968" stroke-width="0.6"/>
+            <circle r="3" fill="#d4b783"/>
+          </g>
+          <g transform="translate(330, 60)">
+            <circle r="14" fill="none" stroke="#b89968" stroke-width="1"/>
+            <circle r="9" fill="url(#petalLapis)" stroke="#b89968" stroke-width="0.6"/>
+            <circle r="3" fill="#d4b783"/>
+          </g>
+
+          <!-- Vegetal scrollwork (simplified) -->
+          <g fill="none" stroke="#b89968" stroke-width="0.8" opacity="0.85">
+            <!-- left side scrolls -->
+            <path d="M 30,55 Q 50,40 65,55 Q 75,70 60,80 Q 45,85 35,75"/>
+            <path d="M 30,80 Q 45,90 65,82"/>
+            <!-- right side scrolls (mirror) -->
+            <path d="M 390,55 Q 370,40 355,55 Q 345,70 360,80 Q 375,85 385,75"/>
+            <path d="M 390,80 Q 375,90 355,82"/>
+            <!-- center spurs -->
+            <path d="M 145,52 Q 165,45 175,60 Q 170,72 155,68"/>
+            <path d="M 275,52 Q 255,45 245,60 Q 250,72 265,68"/>
+          </g>
+
+          <!-- Tiny gold dots for sparkle (typical of illumination) -->
+          <g fill="#d4b783">
+            <circle cx="50" cy="38" r="1"/>
+            <circle cx="80" cy="42" r="1"/>
+            <circle cx="120" cy="45" r="1"/>
+            <circle cx="160" cy="38" r="1"/>
+            <circle cx="370" cy="38" r="1"/>
+            <circle cx="340" cy="42" r="1"/>
+            <circle cx="300" cy="45" r="1"/>
+            <circle cx="260" cy="38" r="1"/>
+            <circle cx="50" cy="92" r="1"/>
+            <circle cx="100" cy="92" r="1"/>
+            <circle cx="320" cy="92" r="1"/>
+            <circle cx="370" cy="92" r="1"/>
+          </g>
+
+          <!-- Top finial (the small triangular bump above the arch) -->
+          <path d="M 195,15 L 200,4 L 220,4 L 225,15 Z" fill="url(#goldGround)" stroke="#5a3a18" stroke-width="1"/>
+          <circle cx="210" cy="9" r="2.5" fill="#9c2a2a"/>
+        </svg>
+
+        <p class="basmala">به نام آن که نام او سرآغاز هر دفتر است</p>
+        <h1 class="book-title">دفتر تذکره</h1>
+        <p class="book-subtitle">در شرح آنچه در صحیفه‌ی نگاخته نقش بسته،<br>و آنچه از پس پرده ناپیداست</p>
+        <p class="book-author">به قلم خادم این کافه</p>
+      </header>
+
+      <!-- ===========================================================
+           DIBACHE — preface in classical saj' style
+           =========================================================== -->
+      <section class="chapter">
+        <h2 class="chapter-title">
+          <span class="chapter-title-num">دیباچه</span>
+          سرآغاز سخن
+        </h2>
+
+        <p>
+          <span class="opener">سپاس</span> آن قلمزن نخستین را که خامه را در دست انسان نهاد، و چشم را به دیدن آراست و دل را به فهم. درود بر آنکه از خاک، گُل برآورد، و از قهوه، نگاهی برانگیخت که جان را جلا می‌دهد و خاطر را جلایی نو.
+        </p>
+
+        <p>
+          و اما بعد، ای میهمان گرامی، این دفتر که در پیشِ نظر گشاده شده، کتابی است <span class="red">از خاطره و قهوه</span>، از نقش و نگار، از شب و روز، و از آن خواب‌هایی که در فنجان نهفته‌اند. هر برگ آن را بارها سُتردیم و از نو نگاشتیم؛ هر گوشه‌اش به دستی تراشیده شد، و هر چرخی به اندیشه‌ای سنجیده.
+        </p>
+
+        <div class="bayt">
+          <span class="mesra">قهوه‌ای کز عشق آید بر زبان</span>
+          <span class="mesra">معنیِ آن چاشنیِ هفت آسمان</span>
+        </div>
+
+        <p>
+          آنچه می‌بینی، نه تنها فهرستِ نوشیدنی است، بلکه دفتری است از کوششِ صبورانه که در آن هیچ نقطه‌ای بی‌قصد ننشسته، و هیچ سایه‌ای بی‌حساب نیفتاده. اگر نگاه کنی، خورشید را در حرکت می‌بینی؛ اگر بمانی، ماه را که بر می‌خیزد. اگر گوش بسپاری، صدای قلمی را می‌شنوی که نام را می‌نگارد.
+        </p>
+
+        <p>
+          پس بنشین، و چند صفحه‌ای از این دفتر را با ما ورق بزن.
+        </p>
+      </section>
+
+      <!-- ===========================================================
+           FIHRIST — table of contents
+           =========================================================== -->
+      <section class="chapter">
+        <div class="fihrist">
+          <h3 class="fihrist-title">فهرستِ ابواب</h3>
+          <ol>
+            <li><a href="#bab-yek">در بیانِ نشانِ کافه و معنیِ آن</a></li>
+            <li><a href="#bab-do">در گردشِ افلاک و سیرِ مهر و ماه</a></li>
+            <li><a href="#bab-se">در شرحِ دوازده برجِ آسمان</a></li>
+            <li><a href="#bab-chahar">در آن قلمِ سحرآمیز که نام می‌نگارد</a></li>
+            <li><a href="#bab-panj">در حکایاتِ هفت‌گانه‌ی شاهنامه</a></li>
+            <li><a href="#bab-shesh">در نقش‌هایی که چشم نمی‌بیند</a></li>
+          </ol>
+        </div>
+      </section>
+
+      <div class="divider">
+        <svg viewBox="0 0 280 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="0" y1="12" x2="100" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <line x1="180" y1="12" x2="280" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <g transform="translate(140,12)" fill="#b89968">
+            <path d="M -28,0 L -22,-4 L -16,0 L -22,4 Z"/>
+            <circle cx="-8" cy="0" r="2.5"/>
+            <circle cx="0" cy="0" r="4" fill="#9c2a2a"/>
+            <circle cx="0" cy="0" r="2" fill="#d4b783"/>
+            <circle cx="8" cy="0" r="2.5"/>
+            <path d="M 16,0 L 22,-4 L 28,0 L 22,4 Z"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ===========================================================
+           BAB 1 — THE MARK
+           =========================================================== -->
+      <section class="chapter" id="bab-yek">
+        <h2 class="chapter-title">
+          <span class="chapter-title-num">بابِ نخستین</span>
+          در بیانِ نشانِ کافه
+        </h2>
+
+        <p>
+          <span class="opener">بدان</span> که هر کاری را نشانی است، و هر نشان را معنایی. نشانِ این کافه — فنجانی که <span class="red">سه دانه‌ی قهوه</span> بر فراز آن آرمیده — از همان طرحِ اصلی صاحبِ خانه برگرفته شد، نه آنکه از پی او دوباره کشیده شود. هنر در آن بود که فنجان را از تصویرِ اصلی به تنهایی بیرون آوریم، و در پس‌زمینه‌ای هم‌رنگ بنشانیم، تا چنان نماید که از همین کاغذِ کرمی روییده است.
+        </p>
+
+        <p>
+          و اما <span class="red">سه دانه</span> را به قلمی دیگر کشیدیم؛ زیرا اگر آن‌ها نیز از تصویرِ بسته بودند، نمی‌توانستند یکایک بر فنجان فرود آیند. پس فنجان از <span class="blue">عکسِ کهنه</span> آمد، و دانه‌ها از قلمِ نقاش — تا هر یک را روان و رهایی باشد، و هر کدام در زمانِ خویش بر زبانه‌ی فنجان فرومی‌رود.
+        </p>
+
+        <div class="bayt">
+          <span class="mesra">دانه‌ای از آسمان افتد به جام</span>
+          <span class="mesra">جام را ز آن دانه می‌گوید سلام</span>
+        </div>
+
+        <p>
+          نامِ کافه — <span class="red">«نگاخته»</span> — را نیز از همان طرحِ اصلی برگرفتیم. خطِ فارسی آن، با همان زخمه‌های قلمِ سازنده‌ی نخستین، در پایِ فنجان نشست. این که نقطه‌ی «ف» بارها بریده می‌شد و باید پنج پیکسل بالاتر می‌گرفتیم — این خود حکایتی است از آن صبری که در ساختنِ نشانه‌ها لازم آید.
+        </p>
+      </section>
+
+      <div class="divider">
+        <svg viewBox="0 0 280 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="0" y1="12" x2="100" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <line x1="180" y1="12" x2="280" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <g transform="translate(140,12)" fill="#b89968">
+            <path d="M -28,0 L -22,-4 L -16,0 L -22,4 Z"/>
+            <circle cx="-8" cy="0" r="2.5"/>
+            <circle cx="0" cy="0" r="4" fill="#9c2a2a"/>
+            <circle cx="0" cy="0" r="2" fill="#d4b783"/>
+            <circle cx="8" cy="0" r="2.5"/>
+            <path d="M 16,0 L 22,-4 L 28,0 L 22,4 Z"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ===========================================================
+           BAB 2 — CELESTIAL
+           =========================================================== -->
+      <section class="chapter" id="bab-do">
+        <h2 class="chapter-title">
+          <span class="chapter-title-num">بابِ دوم</span>
+          در گردشِ افلاک
+        </h2>
+
+        <p>
+          <span class="opener">پس</span> از آنکه نشان از پیشِ چشم برگرفته شد، آسمان نمایان می‌شود — و در آن، <span class="red">مهرِ زرین</span> یا <span class="red">ماهِ سیمین</span>، بر حسب آنکه چه ساعتی از روز باشد. این آسمان نه نقشی است ثابت بر دیوار، که زنده است: خورشید در راه است، از مشرق به مغرب می‌رود، فرومی‌نشیند، و آنگاه ماه از پیِ او سر برمی‌آورد.
+        </p>
+
+        <p>
+          در آغازِ هر بازدید، رسمی نهاده‌ایم که آن را <span class="red">«گردشِ کوتاه»</span> خوانده‌ایم. در این گردش، شانزده ساعت از یک شبانه‌روز را در هشت ثانیه فشرده‌ایم — تا بیننده در زمانی کوتاه شاهدِ یک شفق و یک شام باشد، گویی روزی را در یک نظر گذرانده. آنگاه آسمان بر ساعتِ راستینِ تهران می‌نشیند، و چنان می‌ماند تا برگه را برگردانی.
+        </p>
+
+        <div class="bayt">
+          <span class="mesra">مهر آید و رود از پیِ ماه</span>
+          <span class="mesra">گردنده فلک در دلِ نگاه</span>
+        </div>
+
+        <p>
+          ساختنِ این گردش <span class="red">آسان نبود</span>. چه، هرگاه چرخِ زمان از مرزی می‌گذشت، ماه به ناگه از سویِ راست به سویِ چپ پرواز می‌کرد — گویی از نو زاده می‌شود — و این بیننده را از خواب می‌پراند. ما بارها در این مشکل افتادیم و بارها از آن بیرون آمدیم، تا آنکه قاعده‌ای نهادیم: ماه را در ساعاتِ روز، آن دم که خود ناپیداست، ساکن نگه داشتیم. چنان که نه از آسمان رفته باشد، نه از سویِ دیگر آمده، بلکه گویی <span class="blue">در گوشه‌ای آرمیده</span> و انتظارِ شب می‌کشد.
+        </p>
+
+        <p>
+          و چون شام فرامی‌رسد، خورشید آرام به افقِ مغرب می‌رسد، رنگش از زر به نارنج می‌گراید، و در همان حال ماه از پسِ کوه بیرون می‌آید. این لحظه — که نام آن را <span class="red">«دم گرگ‌ومیش»</span> نهاده‌اند — بر این صفحه نیز با کوششِ بسیار ساخته شده، تا هر دو همزمان در آسمان حاضر باشند، و گذارِ یکی به دیگری چنان نرم باشد که چشم را سُست نکند.
+        </p>
+      </section>
+
+      <div class="divider">
+        <svg viewBox="0 0 280 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="0" y1="12" x2="100" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <line x1="180" y1="12" x2="280" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <g transform="translate(140,12)" fill="#b89968">
+            <path d="M -28,0 L -22,-4 L -16,0 L -22,4 Z"/>
+            <circle cx="-8" cy="0" r="2.5"/>
+            <circle cx="0" cy="0" r="4" fill="#9c2a2a"/>
+            <circle cx="0" cy="0" r="2" fill="#d4b783"/>
+            <circle cx="8" cy="0" r="2.5"/>
+            <path d="M 16,0 L 22,-4 L 28,0 L 22,4 Z"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ===========================================================
+           BAB 3 — THE ZODIAC SYSTEM (expanded)
+           =========================================================== -->
+      <section class="chapter" id="bab-se">
+        <h2 class="chapter-title">
+          <span class="chapter-title-num">بابِ سوم</span>
+          در دوازده برجِ آسمان
+        </h2>
+
+        <p>
+          <span class="opener">بدان</span> ای میهمان که در حواشیِ این صفحه، چنان که در کتب کهنِ نجوم نقش می‌بستند، <span class="red">دوازده برجِ آسمانی</span> پراکنده‌اند. این دوازده — حَمَل و ثَور و جوزا و سرطان و اَسد و سُنبله و میزان و عقرب و قوس و جَدْی و دلو و حوت — هر یک به نوبت در گوشه‌ای از این کاغذ آرمیده‌اند، گویی هر کدام منزلگاهی از فلکِ خویش را برگزیده باشند.
+        </p>
+
+        <p>
+          و این برج‌ها را سه حالت است:
+        </p>
+
+        <p>
+          <span class="red">حالتِ نخست:</span> در اوقاتِ آرام، هر برج چونان ستاره‌ای کم‌فروغ بر جایِ خود می‌درخشد. این درخشش نه ثابت است، که هر یک با نَفسِ خویش می‌تپد و نور می‌پراکند، چنان که قلب در سینه می‌زند.
+        </p>
+
+        <p>
+          <span class="red">حالتِ دوم:</span> هر چند گاه یک بار، یک برج از سکونِ خویش برمی‌خیزد و در جلوه می‌آید — بزرگ می‌شود، در فضا شناور می‌گردد، و اوصافِ خود را به نمایش می‌گذارد. این را <span class="blue">«تکنوازی»</span> خوانده‌ایم؛ هر برج در زمانی که نوبتِ او باشد، در میدان قرار می‌گیرد، و آنگاه بازمی‌گردد و در کنجِ خویش می‌نشیند.
+        </p>
+
+        <p>
+          <span class="red">حالتِ سوم:</span> آنگاه که بیننده مدتی بر یک صفحه ساکن باشد و دستِ او از کار بازایستد، آسمان نمی‌گذارد که سکوت بپاید. در این هنگام، <span class="red">گردونه‌ای</span> در میانه‌ی صفحه پدید می‌آید، و دوازده برج از کرانه‌های خود بیرون می‌آیند، گردِ آن گردونه می‌چرخند، و بازی‌ای کوتاه ترتیب می‌دهند. چون بیننده دوباره به حرکت آید، گردونه می‌رود و برج‌ها به منزل‌های خود بازمی‌گردند.
+        </p>
+
+        <div class="bayt">
+          <span class="mesra">دوازده اخترِ گردنده در راه</span>
+          <span class="mesra">هر یک نشستی دارد به افقِ نگاه</span>
+        </div>
+
+        <p>
+          روز و شب نیز بر این برج‌ها اثر دارد: در روشنایی، خطوطِ ایشان نازک‌تر می‌شود — چون کم‌فروغ شدنِ ستاره‌گان در پرتوِ خورشید — و در شب، پرتوِ ایشان فزون می‌گردد. آنکه نیک بنگرد، تفاوت را می‌بیند.
+        </p>
+      </section>
+
+      <div class="divider">
+        <svg viewBox="0 0 280 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="0" y1="12" x2="100" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <line x1="180" y1="12" x2="280" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <g transform="translate(140,12)" fill="#b89968">
+            <path d="M -28,0 L -22,-4 L -16,0 L -22,4 Z"/>
+            <circle cx="-8" cy="0" r="2.5"/>
+            <circle cx="0" cy="0" r="4" fill="#9c2a2a"/>
+            <circle cx="0" cy="0" r="2" fill="#d4b783"/>
+            <circle cx="8" cy="0" r="2.5"/>
+            <path d="M 16,0 L 22,-4 L 28,0 L 22,4 Z"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ===========================================================
+           BAB 4 — THE MAGICAL PEN
+           =========================================================== -->
+      <section class="chapter" id="bab-chahar">
+        <h2 class="chapter-title">
+          <span class="chapter-title-num">بابِ چهارم</span>
+          در آن قلمِ سحرآمیز
+        </h2>
+
+        <p>
+          <span class="opener">از</span> همه‌ی شگفتی‌های این صفحه، شاید زیباتر از همه آن <span class="red">قلمِ پرنده</span> باشد که نامِ کافه را با دستِ خود می‌نگارد. تو چون به آغازِ صفحه می‌رسی، می‌بینی که عنوان هنوز نوشته نشده — صفحه سپید است، و نام در پشتِ پرده. آنگاه قلمی از سویِ راست بیرون می‌آید، با پری که در هوا می‌رقصد، و حرف به حرف نام را بر کاغذ می‌گذارد.
+        </p>
+
+        <p>
+          این قلم — که در زبانِ ما <span class="blue">«قلم‌پر»</span> نامیده شد — تنها قلم نیست؛ <span class="red">روحی در نوک‌اش</span> نهاده شده. این روح، که از همان جوهرِ نگاشتن بیرون می‌تراود، در پسِ نوک قلم در حرکت است، و چون قلم به پایان می‌رسد، آن روح در یک لحظه پراکنده می‌شود — همچون شعله‌ای که خاموش می‌گردد.
+        </p>
+
+        <div class="bayt">
+          <span class="mesra">قلمی کز جانِ خود نقشی نهاد</span>
+          <span class="mesra">حرف به حرف از خود به ما هدیه داد</span>
+        </div>
+
+        <p>
+          اما زیباتر از این، آن است که قلم تنها <span class="red">آن بخش از نام را که نوشته شده</span> به ما نشان می‌دهد. چنان که نگارنده‌ی آدمی، حرفی را که هنوز نکشیده، نمی‌توان دید. پس برای آنکه این کار راست آید، در پسِ پرده، خادمی نامرئی است که موضع نوک‌قلم را در هر دم می‌سنجد، و بر اساسِ آن، عنوان را تا آن نقطه برمی‌گشاید. هر آنچه پشتِ سرِ قلم است — پدیدار؛ هر آنچه پیشِ روی قلم است — هنوز نهان.
+        </p>
+
+        <p>
+          ساختنِ این کار، خود بحثی طولانی است. می‌بایست قلم را در هیچ سر و گوشه‌ی صفحه از زمین بریده نباشد، می‌بایست حرکتِ آن چنان باشد که بیننده باور کند انسانی در آن سو نشسته و می‌نویسد. ما این را با <span class="blue">شش ضربه‌ی متوالی</span> نوشتیم — هر ضربه‌ای از نقطه‌ای آغاز می‌شود و در نقطه‌ای دیگر می‌نشیند، و میانِ آن‌ها قلم با شتابی متفاوت در پرواز است.
+        </p>
+      </section>
+
+      <div class="divider">
+        <svg viewBox="0 0 280 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="0" y1="12" x2="100" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <line x1="180" y1="12" x2="280" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <g transform="translate(140,12)" fill="#b89968">
+            <path d="M -28,0 L -22,-4 L -16,0 L -22,4 Z"/>
+            <circle cx="-8" cy="0" r="2.5"/>
+            <circle cx="0" cy="0" r="4" fill="#9c2a2a"/>
+            <circle cx="0" cy="0" r="2" fill="#d4b783"/>
+            <circle cx="8" cy="0" r="2.5"/>
+            <path d="M 16,0 L 22,-4 L 28,0 L 22,4 Z"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ===========================================================
+           BAB 5 — THE LEGENDS (replaces bilingual chapter)
+           =========================================================== -->
+      <section class="chapter" id="bab-panj">
+        <h2 class="chapter-title">
+          <span class="chapter-title-num">بابِ پنجم</span>
+          در حکایاتِ هفت‌گانه
+        </h2>
+
+        <p>
+          <span class="opener">هر</span> دسته از خوراک و نوشیدنیِ این کافه را داستانی از <span class="red">شاهنامه</span> پشتیبان شد. چه، خوردن و آشامیدن نه تنها سیراب کردنِ تن است، بلکه پیوندی است با گذشته‌ی این سرزمین، با آنانی که پیش از ما بودند و دلیری‌ها و دلداری‌ها کردند. پس بر هر فهرست، نقشی نهادیم از یکی از حکایاتِ نامور، و آن نقش را اگر چشم بدان دوزی، آرام در پسِ متن نمایان می‌شود.
+        </p>
+
+        <p>
+          و اینک شرحِ هر یک:
+        </p>
+
+        <p>
+          <span class="red">قهوه</span> را <span class="blue">کاوهِ آهنگر</span> پشتیبان است. آن آهنگری که چرمِ پیش‌بندِ خود را به نیزه بست و آن را پرچمِ آزادی کرد، تا ضحاکِ ماردوش را از تخت پایین کشد. آتشِ کوره‌ی او و حرارتِ نوشیدنیِ ما از یک جنس است؛ هر دو از زمین می‌آیند، هر دو در دستِ آدمی به نوری بدل می‌شوند که تاریکی را می‌شکافد.
+        </p>
+
+        <p>
+          <span class="red">نوشیدنیِ گرم</span> را <span class="blue">ضحاکِ ماردوش</span> پشتیبان است. آن شاهی که شیطان بر دوشش بوسه زد و دو مار از کتفِ او رویید، و این مارها جز از مغزِ جوانان آرام نمی‌گرفتند. نوشیدنیِ گرم را ضحاک از بهرِ آرامش می‌نوشید، اما ما برای گرم کردنِ شب‌های سرد. یک نوشیدنی، دو روایت.
+        </p>
+
+        <p>
+          <span class="red">نوشیدنیِ سرد</span> را <span class="blue">خسرو و شیرین</span> پشتیبان است. آن دو دلداده که پیوندِ ایشان از خنکیِ چشمه‌ای آغاز شد که شیرین در آن آب‌تنی می‌کرد، و خسرو از سویِ راه بدان رسید. شَبدیز، اسبِ سیاهِ خسرو، نیز در این داستان جایی دارد. هر چه سرد و گوارا باشد، در سایه‌ی این عشق نشسته است.
+        </p>
+
+        <div class="bayt">
+          <span class="mesra">آب از چشمه‌ای سرد و خنک</span>
+          <span class="mesra">یاد آرد ز عشقی صادق و یک</span>
+        </div>
+
+        <p>
+          <span class="red">صبحانه</span> را <span class="blue">سیمرغ و زال</span> پشتیبان است. آن طفلِ سپیدمویِ که پدر از پذیرفتنش رویگردان بود، و سیمرغ — آن مرغِ افسانه‌ایِ کوهِ البرز — او را به آشیانه‌ی خود برد و بپروراند. صبحانه نیز همین است: غذای آغازِ روز، که جان را زنده می‌کند و توان را می‌رساند، چنان که سیمرغ زال را پروراند تا قهرمانِ ایران شود.
+        </p>
+
+        <p>
+          <span class="red">غذای اصلی</span> را <span class="blue">رستم و سهراب</span> پشتیبان است. آن نبردِ تلخ که پدر فرزند را نشناخت و در میدانِ رزم به جان او آمد، و چون پی برد، دیر شده بود. این فهرست، گرامی‌ترین و سنگین‌ترینِ غذاهاست — همچنان که این داستان، سنگین‌ترین داستانِ شاهنامه است.
+        </p>
+
+        <p>
+          <span class="red">پیش‌غذا</span> را <span class="blue">رخش</span> پشتیبان است؛ همان اسبِ وفادارِ رستم که بارها جانِ او را خرید و بارها از آتش و آب گذشت. پیش‌غذا چونان رخش است: بی‌او شاید بتوان بود، اما با او، راه آسان‌تر و هم‌نشینی شیرین‌تر است.
+        </p>
+
+        <p>
+          و آخرین، <span class="red">کیک و کوکی</span> را <span class="blue">دربارِ ضحاک</span> پشتیبان است — همان شاه که بر تختِ خود نشسته بود و مارهای کتفش را با خوراکِ شاهانه می‌پروراند. شیرینی نیز چنین است: از ته‌مانده‌ی روزْ شیرین‌ترین لحظه را می‌سازد، و چون به ضحاکی که در درون هر یک از ماست رسد، آرام‌اش می‌کند.
+        </p>
+
+        <p>
+          هر یک از این نقش‌ها، در پسِ منویِ خویش، چونان <span class="red">سایه‌ای خوش‌رنگ</span> نمایان می‌شود — تا نه آنچنان پررنگ باشد که خواندنِ نام‌ها را دشوار کند، و نه آن‌قدر کم‌رنگ که هرگز دیده نشود. در روز کم‌فروغ‌تر است، و در شب پررنگ‌تر — تا با گردشِ افلاکِ بالا هماهنگ بماند.
+        </p>
+      </section>
+
+      <div class="divider">
+        <svg viewBox="0 0 280 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="0" y1="12" x2="100" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <line x1="180" y1="12" x2="280" y2="12" stroke="#8c6f3d" stroke-width="0.8"/>
+          <g transform="translate(140,12)" fill="#b89968">
+            <path d="M -28,0 L -22,-4 L -16,0 L -22,4 Z"/>
+            <circle cx="-8" cy="0" r="2.5"/>
+            <circle cx="0" cy="0" r="4" fill="#9c2a2a"/>
+            <circle cx="0" cy="0" r="2" fill="#d4b783"/>
+            <circle cx="8" cy="0" r="2.5"/>
+            <path d="M 16,0 L 22,-4 L 28,0 L 22,4 Z"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ===========================================================
+           BAB 6 — INVISIBLE THINGS
+           =========================================================== -->
+      <section class="chapter" id="bab-shesh">
+        <h2 class="chapter-title">
+          <span class="chapter-title-num">بابِ ششم</span>
+          در نقش‌هایی که چشم نمی‌بیند
+        </h2>
+
+        <p>
+          <span class="opener">بسیاری</span> از کارهای ما در جایی است که نگاه به آن نمی‌افتد. در همان لحظه‌ای که نشانِ کافه در آغاز نمایان است، در پسِ پرده‌ی کرمی <span class="red">یکصد و پنجاه ستاره</span> در حالِ چشمک‌زدن‌اند، خورشید آرام در گردش است، و ذرات نوری زاده می‌شوند — همگی نهان.
+        </p>
+
+        <p>
+          آنگاه قاعده‌ای نهادیم که این همه را، تا آن دم که نشان از پیشِ چشم نرود، در سکون نگه دارد. این تنها به جهتِ بهره‌ی <span class="blue">باطریِ دستگاهِ بیننده</span> نیست؛ بلکه برای آن است که چون پرده برخیزد، آسمان زنده شود، نه آنکه پیش از حضورِ بیننده تنها شبی را گذرانده باشد.
+        </p>
+
+        <div class="bayt">
+          <span class="mesra">آنچه پنهان است نیز در شور است</span>
+          <span class="mesra">گوش اگر باشد، صدا در دور است</span>
+        </div>
+
+        <p>
+          و اما در پشتِ متنِ اصلی، <span class="red">سه لایه‌ی نقاشی</span> در گردش‌اند. لایه‌ی نخست از همه نزدیک‌تر، با هر چرخشِ چشمِ بیننده، تندتر می‌رود. لایه‌ی دوم، آرام‌تر؛ و لایه‌ی سوم، چون افقی دور، بسیار آرام. این هنر را در زبانِ غربیان <span class="blue">«پارالاکس»</span> خوانند، و معنایش آن است که چشم را به دیدنِ ژرفا فریب دهد، در آنجا که ژرفایی نیست.
+        </p>
+
+        <p>
+          از دیگر چیزها، <span class="red">جرقه‌های زرین</span> است که چون بیننده دست بر یک قیمت می‌زند، از آن نقطه برمی‌خیزند و در فضا پراکنده می‌شوند. این جرقه‌ها همان‌اند که در ادبیاتِ کهن «نشانِ برکت» می‌خواندند — اشاره‌ای کوچک که چیزی برگزیده شده، و این انتخاب، خود لحظه‌ای است شایسته‌ی نشانه.
+        </p>
+
+        <p>
+          آخرین چیزی که شایدت شگفت بیاید، آن است که <span class="red">رنگِ آسمان</span> در پسِ همه‌ی این صفحه، بر حسبِ ساعتِ راستینِ روز تغییر می‌کند. در نیم‌روز روشن است و در شب تیره، در شفق نارنجی است و در شام بنفش. اگر صبح بیایی، آسمانی می‌بینی که ساعتی پیش، بنفش بود؛ و اگر شب، آسمانی که ساعتی پیش، فیروزه‌ای.
+        </p>
+      </section>
+
+      <!-- ===========================================================
+           KHATIME — colophon
+           =========================================================== -->
+      <section class="khatime">
+        <div class="khatime-mark">۞</div>
+        <p>
+          <span class="red">خاتمه</span><br>
+          این دفتر را در دیارِ <span class="blue">سرگشته</span> به پایان آوردیم. هر زیبایی که در این صفحات یافتی، از آنِ صاحبِ کافه است که نشانِ خویش را با چنان دقتی ساخت که شایسته‌ی کلیدی باشد بر این همه در. هر کاستی، از آنِ ماست که در نگاشتن می‌کوشیم.
+        </p>
+        <p>
+          و آن قهوه‌ای که در فنجانِ نگاخته می‌نشیند — آن از خودِ زمین است، و سپاسِ ما از آن به نامِ آن کسی که زمین را آراست.
+        </p>
+        <p style="margin-top: 22px; font-size: 14px; color: var(--gold-deep); letter-spacing: 0.05em;">
+          ❋ ❀ ❋
+        </p>
+        <p style="margin-top: 14px; font-size: 13px; color: var(--gold-deep); font-style: italic;">
+          تَمَّت بِالخَیر
+        </p>
+      </section>
+
+    </div><!-- folio-inner -->
+
+    <div class="folio-number">— برگِ ۱ —</div>
+    <div class="catchword">پایان</div>
+
+  </div><!-- folio -->
+</article>
+
+</body>
+</html>

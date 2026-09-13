@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Negakhteh — Lite Mode Tester</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px 16px 40px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f4ebd9;
+    color: #1a1410;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 0.3rem; color: #8a3217; }
+  .subtitle { color: #5a4628; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+  .section {
+    background: #fff;
+    border: 1px solid #d8c89c;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  }
+  .section h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+    color: #1d3557;
+  }
+  .section p {
+    margin: 0 0 0.8rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #3d2e22;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    flex: 1 1 auto;
+    min-width: 140px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: block;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg, #8a3217, #b8451f);
+    color: #f4ebd9;
+    box-shadow: 0 2px 8px rgba(138, 50, 23, 0.3);
+  }
+  .btn-secondary {
+    background: linear-gradient(135deg, #1d3557, #2c4f7a);
+    color: #f4ebd9;
+    box-shadow: 0 2px 8px rgba(29, 53, 87, 0.3);
+  }
+  .btn-tertiary {
+    background: #ede2c5;
+    color: #1a1410;
+    border: 1px solid #d8c89c;
+  }
+
+  .status {
+    background: #f9f5e9;
+    border-left: 4px solid #b89968;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #2a1f14;
+    word-break: break-word;
+  }
+  .status .label { color: #8c6f3d; font-weight: 600; }
+  .status .value { color: #1d3557; }
+  .status .yes { color: #1e6e6e; font-weight: 600; }
+  .status .no { color: #5a4628; }
+  .status .warn { color: #8a3217; font-weight: 600; }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .pill-yes { background: #1e6e6e; color: white; }
+  .pill-no { background: #ede2c5; color: #5a4628; border: 1px solid #d8c89c; }
+
+  .hint {
+    font-size: 0.78rem;
+    color: #5a4628;
+    margin-top: 0.6rem;
+    line-height: 1.5;
+  }
+  code {
+    background: #ede2c5;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+  }
+
+  details {
+    margin-top: 0.8rem;
+    border-top: 1px dashed #d8c89c;
+    padding-top: 0.8rem;
+  }
+  summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1d3557;
+    user-select: none;
+  }
+  summary:hover { color: #2c4f7a; }
+
+  .signal-list {
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.82rem;
+  }
+  .signal-list li {
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    background: #f9f5e9;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .signal-list .sig-name { color: #2a1f14; }
+  .signal-list .sig-val { font-family: monospace; font-size: 0.78rem; color: #5a4628; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Negakhteh — Lite Mode Tester</h1>
+  <p class="subtitle">Quickly check how the menu site behaves on this device.</p>
+
+  <!-- ============ STATUS ============ -->
+  <div class="section">
+    <h2>This device</h2>
+    <p>What auto-detection picks for the device you're currently using:</p>
+    <div class="status" id="device-status">checking…</div>
+    <details>
+      <summary>Show all detection signals</summary>
+      <ul class="signal-list" id="signal-list"></ul>
+    </details>
+  </div>
+
+  <!-- ============ ACTIONS ============ -->
+  <div class="section">
+    <h2>Open the menu</h2>
+    <p>Three ways to view the actual site:</p>
+    <div class="btn-row">
+      <a class="btn btn-tertiary" href="index.html">Auto-detect</a>
+      <a class="btn btn-primary"  href="index.html?lite=0">Force NORMAL</a>
+      <a class="btn btn-secondary" href="index.html?lite=1">Force LITE</a>
+    </div>
+    <p class="hint">
+      <strong>Auto-detect</strong> — what real visitors would get on this device.<br>
+      <strong>Force NORMAL</strong> — full visuals (frosted glass, twinkling stars, clouds).<br>
+      <strong>Force LITE</strong> — heavy effects disabled (faster on weaker phones).
+    </p>
+  </div>
+
+  <!-- ============ COMPARE ============ -->
+  <div class="section">
+    <h2>What to look for</h2>
+    <p style="margin-bottom: 0.4rem;"><strong>Normal mode:</strong></p>
+    <ul style="margin: 0 0 0.8rem; padding-inline-start: 1.2rem; font-size: 0.88rem; color: #3d2e22; line-height: 1.6;">
+      <li>Menu cards have frosted-glass blur</li>
+      <li>Background stars twinkle</li>
+      <li>Clouds drift across the sky</li>
+      <li>Legend paintings have a sepia tone</li>
+    </ul>
+    <p style="margin-bottom: 0.4rem;"><strong>Lite mode:</strong></p>
+    <ul style="margin: 0; padding-inline-start: 1.2rem; font-size: 0.88rem; color: #3d2e22; line-height: 1.6;">
+      <li>Menu cards have solid cream background (no blur)</li>
+      <li>Stars are still visible but not animated</li>
+      <li>Clouds are frozen in place</li>
+      <li>Paintings show in normal color, just faded</li>
+    </ul>
+  </div>
+
+  <!-- ============ RESET ============ -->
+  <div class="section">
+    <h2>Reset preference</h2>
+    <p>If you've forced a mode and want to clear it (so the site auto-detects again on next visit):</p>
+    <div class="btn-row">
+      <button class="btn btn-tertiary" id="clear-btn">Clear saved override</button>
+    </div>
+    <p class="hint" id="clear-status"></p>
+  </div>
+
+  <!-- ============ ABOUT PAGE ============ -->
+  <div class="section">
+    <h2>About page</h2>
+    <p>The Persian "Book of Secrets" page:</p>
+    <div class="btn-row">
+      <a class="btn btn-tertiary" href="about.html">Open about.html</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =============================================================
+// Mirror the EXACT same detection logic as index.html, then
+// display what the result would be for the current device.
+// =============================================================
+(function() {
+  var statusEl = document.getElementById('device-status');
+  var signalList = document.getElementById('signal-list');
+
+  // Run all the static signal checks
+  var signals = [];
+  var lite = false;
+
+  // Check override first
+  var override = null;
+  try {
+    var params = new URLSearchParams(location.search);
+    override = params.get('lite');
+    if (override !== '1' && override !== '0') {
+      override = localStorage.getItem('negakhteh-lite');
+    }
+  } catch(e) {}
+
+  // Reduced motion
+  var rmotion = false;
+  try { rmotion = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e) {}
+  signals.push({ name: 'prefers-reduced-motion', value: rmotion ? 'reduce' : 'no-preference', fires: rmotion });
+  if (rmotion) lite = true;
+
+  // Reduced data
+  var rdata = false;
+  try { rdata = matchMedia('(prefers-reduced-data: reduce)').matches; } catch(e) {}
+  signals.push({ name: 'prefers-reduced-data', value: rdata ? 'reduce' : 'no-preference', fires: rdata });
+  if (rdata) lite = true;
+
+  // Device memory
+  var mem = navigator.deviceMemory;
+  var memFires = (typeof mem === 'number' && mem < 4);
+  signals.push({
+    name: 'navigator.deviceMemory',
+    value: typeof mem === 'number' ? mem + ' GB' : 'unknown',
+    fires: memFires
+  });
+  if (memFires) lite = true;
+
+  // Hardware concurrency
+  var cores = navigator.hardwareConcurrency;
+  var cpuFires = ((cores || 8) <= 4 && (mem || 8) <= 4);
+  signals.push({
+    name: 'navigator.hardwareConcurrency',
+    value: cores != null ? cores + ' cores' : 'unknown',
+    fires: cpuFires
+  });
+  if (cpuFires) lite = true;
+
+  // Network
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  var netType = conn && conn.effectiveType ? conn.effectiveType : 'unknown';
+  var netFires = conn && /^(slow-2g|2g|3g)$/.test(netType);
+  signals.push({
+    name: 'connection.effectiveType',
+    value: netType,
+    fires: netFires
+  });
+  if (netFires) lite = true;
+
+  // Save data
+  var saveData = !!(conn && conn.saveData);
+  signals.push({
+    name: 'connection.saveData',
+    value: saveData ? 'true' : 'false',
+    fires: saveData
+  });
+  if (saveData) lite = true;
+
+  // Render signals
+  signalList.innerHTML = signals.map(function(s) {
+    var pill = s.fires
+      ? '<span class="pill pill-yes">FIRES</span>'
+      : '<span class="pill pill-no">ok</span>';
+    return '<li><span class="sig-name">' + s.name + '</span>' +
+           '<span class="sig-val">' + s.value + pill + '</span></li>';
+  }).join('');
+
+  // Render verdict
+  var verdict, source;
+  if (override === '1') {
+    verdict = 'LITE MODE'; source = 'forced via URL/localStorage override';
+  } else if (override === '0') {
+    verdict = 'NORMAL MODE'; source = 'forced via URL/localStorage override';
+  } else if (lite) {
+    verdict = 'LITE MODE'; source = 'auto-detected from signals above';
+  } else {
+    verdict = 'NORMAL MODE'; source = 'no signals fired, full visuals enabled';
+  }
+
+  var verdictColor = verdict === 'LITE MODE' ? 'warn' : 'yes';
+  var saved = '';
+  try { saved = localStorage.getItem('negakhteh-lite'); } catch(e) {}
+
+  statusEl.innerHTML =
+    '<div><span class="label">verdict:</span> <span class="' + verdictColor + '">' + verdict + '</span></div>' +
+    '<div><span class="label">source:</span> <span class="value">' + source + '</span></div>' +
+    '<div><span class="label">saved override:</span> <span class="value">' + (saved ? saved : '(none)') + '</span></div>' +
+    '<div><span class="label">user agent:</span> <span class="value">' + navigator.userAgent.slice(0, 80) + (navigator.userAgent.length > 80 ? '…' : '') + '</span></div>';
+})();
+
+// Clear button
+document.getElementById('clear-btn').addEventListener('click', function() {
+  try {
+    localStorage.removeItem('negakhteh-lite');
+    document.getElementById('clear-status').innerHTML =
+      '<strong style="color:#1e6e6e">Cleared.</strong> Reloading…';
+    setTimeout(function() { location.reload(); }, 600);
+  } catch(e) {
+    document.getElementById('clear-status').innerHTML =
+      '<strong style="color:#8a3217">localStorage not available in this browser.</strong>';
+  }
+});
+</script>
+
+</body>
+</html>

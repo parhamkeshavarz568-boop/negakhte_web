@@ -1,0 +1,70 @@
+# ============ NEGAKHTEH CAFE — APACHE/CPANEL CONFIG ============
+# This file controls how the web server delivers your site.
+# Drop it in the same folder as index.html.
+
+# ----- CACHE HEADERS -----
+# Tell browsers to cache static assets for a long time. The same user
+# visiting the page a second time downloads almost nothing — fonts and
+# images come straight from their browser cache. Massive speedup for
+# returning customers.
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # Fonts and images rarely change — cache for 1 year
+  ExpiresByType font/woff2              "access plus 1 year"
+  ExpiresByType image/webp              "access plus 1 year"
+  ExpiresByType image/png               "access plus 1 year"
+  ExpiresByType image/jpeg              "access plus 1 year"
+  ExpiresByType image/svg+xml           "access plus 1 year"
+
+  # HTML changes when you update the menu — cache for 1 hour only
+  ExpiresByType text/html               "access plus 1 hour"
+
+  # CSS/JS would have the same 1-hour rule (but our CSS/JS is inline in HTML)
+  ExpiresByType text/css                "access plus 1 hour"
+  ExpiresByType application/javascript  "access plus 1 hour"
+</IfModule>
+
+# Add explicit Cache-Control headers (more reliable than just Expires)
+<IfModule mod_headers.c>
+  <FilesMatch "\.(woff2|webp|png|jpe?g|svg|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=3600, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ----- COMPRESSION -----
+# Gzip the HTML/CSS/JS as it's sent. WebP and WOFF2 are already
+# compressed so we skip them. This typically cuts HTML transfer
+# size in HALF on top of our minification.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE text/javascript
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ----- MIME TYPES -----
+# Make sure the server announces WebP and WOFF2 correctly. Some shared
+# hosts have outdated MIME tables that send these as 'application/octet-stream',
+# which makes browsers refuse to use them.
+<IfModule mod_mime.c>
+  AddType image/webp     .webp
+  AddType font/woff2     .woff2
+</IfModule>
+
+# ----- CHARSET -----
+# Persian/Arabic content needs UTF-8 declared at the server level too,
+# not just the <meta charset> in HTML. Some shared hosts otherwise
+# send pages as ISO-8859-1 which mangles the text.
+AddDefaultCharset UTF-8
+
+# ----- SECURITY (modest hardening, no functional impact) -----
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
