@@ -481,6 +481,72 @@ bdi{unicode-bidi:isolate}
 }
 .board-all:hover{background:var(--paper);color:var(--board);border-color:var(--paper)}
 
+:root{--ix-ink:var(--ink)}
+.board-band{--ix-ink:var(--paper)}
+
+.ixchart{display:block;width:100%;height:150px;margin-top:var(--s2);overflow:visible}
+.ix-scale{
+  display:flex;justify-content:space-between;gap:var(--s2);
+  font-size:var(--t-label);letter-spacing:.06em;color:var(--chalk);
+  font-variant-numeric:tabular-nums;padding-top:var(--s1);
+  border-top:1px solid var(--rule-board);margin-top:var(--s1);
+}
+.ix-scale .ix-range{color:var(--paper)}
+@media (max-width:520px){ .ix-scale .ix-range{display:none} }
+
+.figure-block.ix .fb-value{font-variant-numeric:tabular-nums}
+.figure-block.ix .fb-name{max-width:46ch}
+
+.breadth{margin-bottom:var(--s2)}
+.breadth ul{
+  list-style:none;display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid var(--rule-board);
+}
+.breadth li{
+  padding:var(--s2) 0;display:flex;flex-direction:column;gap:var(--s1);
+}
+.breadth li + li{border-inline-start:1px solid var(--rule-board);padding-inline-start:var(--s2)}
+.breadth b{
+  font-family:var(--face-display);font-weight:400;font-size:var(--t-head);
+  line-height:1.1;font-variant-numeric:tabular-nums;color:var(--paper);
+}
+.breadth .is-up b{color:var(--rise-b)}
+.breadth .is-down b{color:var(--fall-b)}
+.breadth span{
+  font-size:var(--t-label);letter-spacing:.06em;color:var(--chalk);
+}
+
+.quote{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
+  background:var(--rule-board);margin-top:var(--s2);
+  border-block:1px solid var(--rule-board);
+}
+.quote > div{
+  background:var(--board);padding:var(--s1) 0;
+  display:flex;flex-direction:column;gap:2px;padding-inline-end:var(--s2);
+}
+.quote .q-label{
+  font-size:var(--t-label);letter-spacing:.06em;color:var(--chalk);
+}
+.quote .q-val{
+  color:var(--paper);font-weight:800;font-variant-numeric:tabular-nums;
+}
+@media (min-width:600px){ .quote{grid-template-columns:repeat(5,1fr)} }
+
+.board .th-sort{
+  background:none;border:0;padding:0;cursor:pointer;font:inherit;color:inherit;
+  letter-spacing:inherit;display:inline-flex;align-items:center;gap:var(--s1);
+  min-height:24px;
+}
+.board .th-sort:hover{color:var(--ink)}
+.board-band .th-sort:hover{color:var(--paper)}
+.board th[aria-sort="ascending"] .th-arrow::after{content:"▲"}
+.board th[aria-sort="descending"] .th-arrow::after{content:"▼"}
+.board th[aria-sort] .th-arrow{font-size:9px;opacity:.85}
+.board th[aria-sort="ascending"],.board th[aria-sort="descending"]{color:var(--ink)}
+
+.board-foot.feeds a{font-weight:800}
+
 .board-page .board th,.board-page .board td{border-bottom-color:var(--rule)}
 .board-page .board thead th{color:var(--ink-2);border-bottom-color:var(--ink-2)}
 .board-page .board .c-name{color:var(--ink)}
@@ -779,7 +845,8 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .tiles{margin-block:var(--s3);grid-template-columns:1fr}
 .tile{padding:var(--s2);display:flex;flex-direction:column;gap:var(--s1)}
 .t-label{font-size:var(--t-label);font-weight:400;letter-spacing:.06em;color:var(--ink-2)}
-.t-name{color:var(--ink);min-height:44px;display:flex;align-items:center}
+
+.t-name{color:var(--ink);min-height:44px;display:block;padding-block:10px}
 .t-name:hover{text-decoration:underline;text-underline-offset:3px}
 .t-value{
   font-family:var(--face-display);font-weight:400;font-size:var(--t-head);
@@ -865,6 +932,7 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .cta{display:flex;gap:var(--s1);flex-wrap:wrap;margin-top:var(--s3)}
 .cta a{
   min-height:52px;display:flex;align-items:center;justify-content:center;
+  gap:var(--s1);   
   padding:0 var(--s3);font-weight:800;text-align:center;
   flex:1 1 200px;border-radius:var(--r);border:1px solid transparent;
 }
@@ -924,7 +992,13 @@ main > .wrap > .section-title + *{margin-block-start:0}
 }
 
 .hchart .hc-x{direction:rtl}
-.hchart .hc-hit{cursor:default}
+.hchart .hc-hit,.ixchart .hc-hit{cursor:default}
+
+.board-band .hist-details summary{color:var(--paper)}
+.board-band .spec caption{color:var(--paper)}
+.board-band .spec th{color:var(--chalk)}
+.board-band .spec td{color:var(--paper)}
+.board-band .spec th,.board-band .spec td{border-bottom-color:var(--rule-board)}
 .hist-details{margin-top:var(--s2)}
 .hist-details summary{
   cursor:pointer;color:var(--ink);font-weight:800;min-height:44px;

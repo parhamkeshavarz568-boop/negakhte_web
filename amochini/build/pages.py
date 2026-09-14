@@ -8,7 +8,59 @@ import json as _json, os as _os
 import prices as PR
 
 # Filled in by build.py once the history is loaded.
-PRICE_META = dict(observations=0, tracked=0, skus=0, latest=None)
+PRICE_META = dict(observations=0, tracked=0, skus=0, latest=None,
+                  index={}, index_series=[], breadth={}, synthetic=False)
+
+
+def _synth_note():
+    """One sentence, in the board's existing footnote, when the history on
+    disk was seeded rather than observed.
+
+    Deliberately a sentence and not a banner — the owner asked for the banner
+    to go and he was right, a red bar across every page is not the way to say
+    this. But the site's whole argument is that its numbers are dated and
+    true, so the one place it shows movement it did not observe has to say so.
+    It disappears by itself the moment build/data/SYNTHETIC is removed.
+    """
+    if not PRICE_META.get("synthetic"):
+        return ""
+    return (" قیمت امروز هر کالا واقعی است؛ نمودار و درصد تغییر تا تکمیل "
+            "ثبت روزانه، نمونه‌ای است.")
+
+
+def dataset_ld(ix):
+    """schema.org Dataset for the published feeds.
+
+    This describes the FEED FILES, which exist and are real. It carries no
+    price series of its own: the only price schema.org gets from this site is
+    the current Offer on each product page, and that figure is the true
+    catalogue price. Nothing here tells a search engine that a price moved.
+    """
+    d = {
+        "@context": "https://schema.org", "@type": "Dataset",
+        "name": "قیمت روز قطعات ترمز خودروهای چینی",
+        "description": ("قیمت روز و سابقه قیمت لنت ترمز، دیسک چرخ و کاسه چرخ "
+                        "خودروهای چینی، با تاریخ هر ثبت."),
+        "url": BASE + "/prices/",
+        "inLanguage": "fa-IR",
+        "license": "https://creativecommons.org/licenses/by/4.0/",
+        "creator": {"@id": BASE + "/#org"},
+        "isAccessibleForFree": True,
+        "distribution": [
+            {"@type": "DataDownload", "encodingFormat": "application/json",
+             "contentUrl": BASE + "/prices.json"},
+            {"@type": "DataDownload", "encodingFormat": "text/csv",
+             "contentUrl": BASE + "/prices.csv"},
+        ],
+    }
+    if ix.get("base_date"):
+        d["temporalCoverage"] = f"{ix['base_date']}/{PRICE_META['latest']}"
+    if PRICE_META.get("synthetic"):
+        # Said in the machine-readable layer too, not only to human readers.
+        d["disambiguatingDescription"] = (
+            "Historical observations are illustrative pending real daily "
+            "recording; the most recent price of each product is actual.")
+    return d
 
 # Which renditions actually exist on disk, written by build.py from the files
 # make_images.py produced. Loaded LAZILY: build.py regenerates the manifest
@@ -433,6 +485,41 @@ def faq_ld(qa):
                            for q, a in qa]}
 
 
+def quote_block(p):
+    """The quote line: last, week's change, range since tracking began, and
+    how many observations stand behind it.
+
+    This is what an instrument page carries on any exchange, and it is the
+    part that turns "a price" into "a price with a provenance". Every figure
+    here is derived from the observation record — nothing is asserted that the
+    record does not contain, so a product with one observation shows the
+    observation count and nothing else.
+    """
+    st = p.get("price") or {}
+    if not st.get("points"):
+        return ""
+    def cell(label, value):
+        return (f'<div><span class="q-label">{e(label)}</span>'
+                f'<span class="q-val">{value}</span></div>')
+    cells = []
+    if st.get("points", 0) >= 2:
+        pct = st.get("change_pct", 0.0)
+        arrow = "▲" if pct > 0 else "▼" if pct < 0 else "="
+        cls = "is-up" if pct > 0 else "is-down" if pct < 0 else "is-flat"
+        n = ("کمتر از ۰٫۱" if abs(pct) < 0.05
+             else to_fa_digits(f"{abs(pct):.1f}").replace(".", "\u066B"))
+        cells.append(cell(f'تغییر {to_fa_digits(st.get("span_days") or 0)} روز',
+                          f'<span class="chip-price {cls}">'
+                          f'<span aria-hidden="true">{arrow}</span> '
+                          f'<bdi>{n}٪</bdi></span>'))
+        cells.append(cell("کمترین", money(st["low"], unit=False)))
+        cells.append(cell("بیشترین", money(st["high"], unit=False)))
+        cells.append(cell("از تاریخ",
+                          to_fa_digits(PR.jalali_str(st["first_date"]))))
+    cells.append(cell("تعداد ثبت", to_fa_digits(st["points"])))
+    return f'<div class="quote">{"".join(cells)}</div>'
+
+
 def price_history_block(p):
     """The per-product price story. Empty until two observations exist."""
     st = p.get("price") or {}
@@ -520,6 +607,7 @@ def product_page(p, all_p):
         {price_block(p, big=True)}
         <div class="price-row">{price_chip(p)}</div>
       </div>
+      {quote_block(p)}
       <div class="cta">
         <a class="call" href="tel:{e(CONTACT["phone_tel"])}">تماس و سفارش {bdi(CONTACT["phone_display"])}</a>
         <a class="wa" href="https://wa.me/{e(wa)}?text={e("سلام، درباره " + p["title"] + " (" + p["sku"] + ") سوال داشتم.")}"
@@ -859,12 +947,18 @@ def stat_band(all_p, groups):
     and it is the cheapest credibility on the page."""
     meta = PRICE_META
     stamp = (to_fa_digits(PR.jalali_str(meta["latest"])) if meta["latest"] else "—")
+    ix = meta.get("index") or {}
     cells = [
         (to_fa_digits(len(all_p)), "کالا در انبار"),
         (to_fa_digits(len(groups)), "برند خودرو"),
         (to_fa_digits(meta["observations"]), "قیمت ثبت‌شده"),
         (stamp, "آخرین بروزرسانی"),
     ]
+    if ix.get("latest"):
+        # The index leads: it is the one number that describes the whole
+        # catalogue rather than a count of it.
+        cells.insert(0, (to_fa_digits(f"{ix['latest']:.1f}").replace(".", "\u066B"),
+                         "شاخص قیمت"))
     return ('<section class="stat-band"><div class="wrap"><ul>'
             + "".join(f'<li><b>{e(v)}</b><span>{e(k)}</span></li>'
                       for v, k in cells)
@@ -1135,20 +1229,73 @@ def home(all_p, groups):
 {footer()}'''
 
 
+def index_block(*, on_board=True):
+    """The index: level, change, base, and the chart. The most exchange-like
+    thing on the site, and the only place --t-figure appears on this page."""
+    ix = PRICE_META.get("index") or {}
+    ser = PRICE_META.get("index_series") or []
+    if not ser:
+        return ""
+    lvl = to_fa_digits(f"{ix['latest']:.2f}").replace(".", "\u066B")
+    since = ix.get("since_base_pct")
+    chg = ix.get("change_pct")
+    def pct(v):
+        if v is None:
+            return ""
+        arrow = "▲" if v > 0 else "▼" if v < 0 else "="
+        cls = "is-up" if v > 0 else "is-down" if v < 0 else "is-flat"
+        n = to_fa_digits(f"{abs(v):.2f}").replace(".", "\u066B")
+        return (f'<span class="chip-price {cls}">'
+                f'<span aria-hidden="true">{arrow}</span> <bdi>{n}٪</bdi></span>')
+    base = to_fa_digits(PR.jalali_str(ix["base_date"]))
+    return f'''<div class="figure-block ix">
+    <span class="fb-label">شاخص قیمت قطعات ترمز</span>
+    <span class="fb-value">{lvl}</span>
+    <span class="fb-delta">{pct(chg)}</span>
+    <span class="fb-name">پایه {e(base)} برابر ۱۰۰ —
+      {pct(since)} از آن زمان، میانگین {to_fa_digits(ix["members"])} کالا</span>
+  </div>'''
+
+
+def breadth_strip():
+    """How many rose, fell and held in the latest week. The other number every
+    exchange board carries, and the one that says the index is an average of
+    real movement rather than a single line."""
+    b = PRICE_META.get("breadth") or {}
+    if not b.get("total"):
+        return ""
+    span = ""
+    if b.get("date") and b.get("prev"):
+        span = (f'{to_fa_digits(PR.jalali_str(b["prev"], with_year=False))}'
+                f' تا {to_fa_digits(PR.jalali_str(b["date"], with_year=False))}')
+    cells = [("گران‌تر", b["up"], "is-up", "▲"),
+             ("ارزان‌تر", b["down"], "is-down", "▼"),
+             ("بدون تغییر", b["flat"], "is-flat", "=")]
+    lis = "".join(
+        f'<li class="{cls}"><b><span aria-hidden="true">{ar}</span> '
+        f'{to_fa_digits(n)}</b><span>{e(lbl)}</span></li>'
+        for lbl, n, cls, ar in cells)
+    return (f'<div class="breadth"><p class="bb-th">تغییرات هفته {e(span)}</p>'
+            f'<ul>{lis}</ul></div>')
+
+
 def price_index(products):
-    """The price board — the page the whole site is really about.
+    """The exchange page.
 
     130 rows of numbers is a TABLE, not a chart. Past roughly seven classes
     that all carry meaning, more colour stops helping and a table starts: the
-    reader wants to find their part and read its number, and scan for what
-    moved. The only colour here is the direction of each delta, and it always
-    travels with an arrow and a word.
+    reader wants to find their part, read its number, and scan for what moved.
+    The only colour is the direction of each delta, and it always travels with
+    an arrow and a word.
+
+    Above the table sits what makes this a board rather than a price list: the
+    index level, the week's breadth, and the index chart.
     """
     url = "/prices/"
     meta = PRICE_META
     tracked = meta["tracked"]
-    title = f"قیمت روز قطعات ترمز خودروهای چینی | {SITE['brand_suffix']}"
-    desc = ("قیمت روز لنت ترمز، دیسک چرخ و کاسه چرخ خودروهای چینی — "
+    title = f"شاخص و قیمت روز قطعات ترمز خودروهای چینی | {SITE['brand_suffix']}"
+    desc = ("شاخص قیمت و قیمت روز لنت ترمز، دیسک چرخ و کاسه چرخ خودروهای چینی — "
             f"{to_fa_digits(len(products))} کالا با تاریخ آخرین تغییر قیمت.")
     cr = [("/", "خانه"), (None, "قیمت روز")]
 
@@ -1163,9 +1310,15 @@ def price_index(products):
     rows = ""
     for p in sorted(priced, key=lambda p: (p["category"], p["brand"], p["model"])):
         st = p["price"]
+        d = st.get("direction", "none")
+        # data-* carry machine-sortable values so the column sort in site.js
+        # never has to parse Persian digits back into numbers
+        pct = st.get("change_pct")
         rows += (
             f'<tr data-cat="{e(p["category"])}" data-brand="{e(p["brand"])}" '
-            f'data-dir="{e(st.get("direction","none"))}" '
+            f'data-dir="{e(d)}" data-price="{p["price_irr"]}" '
+            f'data-pct="{pct if pct is not None else ""}" '
+            f'data-name="{e(p["title"])}" '
             f'data-search="{e(p["search"])}">'
             f'<td class="c-name"><a href="{e(p["url"])}">{latin_bdi(p["title"])}</a></td>'
             f'<td class="c-sku">{bdi(p["sku"])}</td>'
@@ -1177,12 +1330,11 @@ def price_index(products):
             f'{to_fa_digits(PR.jalali_str(st["latest_date"], with_year=False)) if st.get("latest_date") else "—"}'
             f'</td></tr>')
 
-    # Stat tiles only where a real delta exists; otherwise the honest state.
     if tracked:
         up = [p for p in movers if p["price"]["direction"] == "up"][:1]
         down = [p for p in movers if p["price"]["direction"] == "down"][:1]
         tiles = ""
-        for lbl, sel in (("بیشترین افزایش", up), ("بیشترین کاهش", down)):
+        for lbl, sel in (("بیشترین افزایش هفته", up), ("بیشترین کاهش هفته", down)):
             if not sel:
                 continue
             p = sel[0]
@@ -1191,9 +1343,10 @@ def price_index(products):
                       f'<span class="t-value">{money(p["price_irr"])}</span>'
                       f'<span class="t-delta">{price_chip(p)}</span>'
                       f'{PR.sparkline(p["price"]["history"])}</div>')
-        tiles += (f'<div class="tile"><span class="t-label">کالاهای دارای تغییر قیمت</span>'
+        tiles += (f'<div class="tile"><span class="t-label">کالاهای دارای سابقه قیمت</span>'
                   f'<span class="t-value">{to_fa_digits(tracked)}</span>'
-                  f'<span class="t-label">از {to_fa_digits(len(priced))} کالای قیمت‌دار</span></div>')
+                  f'<span class="t-label">از {to_fa_digits(len(priced))} کالای قیمت‌دار — '
+                  f'{to_fa_digits(meta["observations"])} قیمت ثبت‌شده</span></div>')
         board_note = ""
     else:
         tiles = ""
@@ -1201,12 +1354,20 @@ def price_index(products):
             '<p class="board-note"><b>ثبت قیمت‌ها از امروز آغاز شده است.</b> '
             'نمودار تغییر قیمت و درصد افزایش یا کاهش، از دومین ثبت قیمت به بعد '
             'برای هر کالا نمایش داده می‌شود. تا آن زمان تنها قیمت روز و تاریخ '
-            'ثبت آن نشان داده می‌شود — نموداری از داده‌ای که وجود ندارد ساخته نمی‌شود.</p>')
+            'ثبت آن نشان داده می‌شود — نموداری از داده‌ای که وجود ندارد ساخته نمی‌شود.')
 
+    ix = meta.get("index") or {}
+    ix_series = meta.get("index_series") or []
+    # The chart's points are hover tooltips, not tab stops, so the keyboard
+    # and screen-reader route to the same numbers is this table.
+    ix_details = (f'<details class="hist-details ix-details">'
+                  f'<summary>نمایش جدول شاخص</summary>'
+                  f'{PR.index_table(ix_series)}</details>') if ix_series else ""
     jsonld = [crumbs_ld(cr), org_ld(),
               {"@context": "https://schema.org", "@type": "CollectionPage",
                "name": title, "url": BASE + url, "inLanguage": "fa-IR",
-               "description": desc, "publisher": {"@id": BASE + "/#org"}}]
+               "description": desc, "publisher": {"@id": BASE + "/#org"}},
+              dataset_ld(ix)]
 
     brand_opts = "".join(
         f'<option value="{e(b)}">{e(BRANDS[b]["fa"])}</option>'
@@ -1218,18 +1379,24 @@ def price_index(products):
 {header(url)}
 {crumbs(cr)}
 <main id="main">
-<section class="board-band page-head"><div class="wrap">
-  <h1>قیمت روز قطعات ترمز</h1>
-  <p>قیمت هر کالا در هر بار تغییر ثبت می‌شود، پس می‌توانید ببینید قیمت چه زمانی
-     و چه مقدار تغییر کرده است.</p>
-  <p class="meta">آخرین بروزرسانی: {stamp}
-     — {to_fa_digits(meta["observations"])} قیمت ثبت‌شده برای
-     {to_fa_digits(meta["skus"])} کالا</p>
-</div></section>
+<section class="board-band bb-split" aria-labelledby="ix-h">
+  <div class="wrap">
+    <div class="bb-lede">
+      <h1 id="ix-h">شاخص قیمت قطعات ترمز</h1>
+      <p class="sub">قیمت هر کالا در هر بار تغییر ثبت می‌شود، و شاخص میانگین
+        حرکت همه آن‌ها را نشان می‌دهد.</p>
+      <p class="stamp">آخرین بروزرسانی {stamp}</p>
+      {index_block()}
+    </div>
+    <div class="bb-table">
+      {breadth_strip()}
+      {PR.index_chart(ix_series)}
+      {PR.index_scale(ix_series)}
+      {ix_details}
+    </div>
+  </div>
+</section>
 
-<!-- The full index keeps its table on paper: 130 rows of reversed-out text is
-     not readable, and the band above already carries the signature. The
-     .board-page class resets the contextual chart palette to the light one. -->
 <div class="wrap board-page">
   {f'<div class="tiles lattice">{tiles}</div>' if tiles else ''}
   {board_note}
@@ -1254,14 +1421,14 @@ def price_index(products):
   </div>
 
   <div class="board-scroll">
-    <table class="board" id="board">
-      <caption class="sr-only">جدول قیمت روز قطعات ترمز</caption>
+    <table class="board sortable" id="board">
+      <caption class="sr-only">جدول قیمت روز قطعات ترمز — برای مرتب‌سازی روی عنوان ستون کلیک کنید</caption>
       <thead>
         <tr>
-          <th scope="col">کالا</th>
+          <th scope="col" data-sort="name">کالا</th>
           <th scope="col" class="h-sku">کد</th>
-          <th scope="col">قیمت (تومان)</th>
-          <th scope="col">تغییر</th>
+          <th scope="col" data-sort="price">قیمت (تومان)</th>
+          <th scope="col" data-sort="pct">تغییر</th>
           <th scope="col" class="h-spark">روند</th>
           <th scope="col">تاریخ ثبت</th>
         </tr>
@@ -1273,7 +1440,11 @@ def price_index(products):
 
   <p class="board-foot">قیمت‌ها به تومان و شامل مالیات بر ارزش افزوده است.
      برای تأیید قیمت نهایی و موجودی، پیش از سفارش
-     <a href="/contact/">تماس بگیرید</a>.</p>
+     <a href="/contact/">تماس بگیرید</a>.{_synth_note()}</p>
+
+  <p class="board-foot feeds">داده‌های این جدول به صورت فایل نیز در دسترس است:
+     <a href="/prices.json">prices.json</a> ·
+     <a href="/prices.csv">prices.csv</a></p>
 </div>
 </main>
 {footer()}'''

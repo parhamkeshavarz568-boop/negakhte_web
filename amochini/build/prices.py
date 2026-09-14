@@ -164,9 +164,15 @@ def history_chart(series, *, up_bad=True, w=520, h=150):
     for i, (x, y, d, v) in enumerate(pts):
         last = i == len(pts) - 1
         dots += (
+            # A hover tooltip, not a tab stop. These circles render at
+            # 16-30px depending on the chart's width, under the WCAG 2.5.8
+            # 24px minimum, and twelve of them per chart put twelve tiny
+            # stops in the tab order. The keyboard and screen-reader route to
+            # this data is the full observation table below the chart, which
+            # is a real <table> — an equivalent control that meets the size
+            # requirement, which is what 2.5.8 asks for.
             f'<circle class="hc-hit" cx="{x:.1f}" cy="{y:.1f}" r="11" '
-            f'fill="transparent" tabindex="0" role="img" '
-            f'aria-label="{jalali_str(d)}: {toman(v)} تومان">'
+            f'fill="transparent" aria-hidden="true">'
             f'<title>{jalali_str(d)} — {toman(v)} تومان</title></circle>')
         if last:
             dots += (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4.5" fill="{tone}" '
@@ -221,3 +227,200 @@ def history_table(series):
     return (f'<table class="spec hist-table"><caption>تاریخچه قیمت (تومان)</caption>'
             f'<thead><tr><th scope="col">تاریخ</th><th scope="col">قیمت</th>'
             f'<th scope="col">تغییر</th></tr></thead><tbody>{rows}</tbody></table>')
+
+
+# ==========================================================================
+# THE INDEX
+# An exchange has an index. This one is an equal-weighted price index across
+# every priced SKU we hold observations for, base 100 at the first date in the
+# record.
+#
+# Equal-weighted, not value-weighted, and the reason is honesty: a
+# value-weighted basket needs sales volumes, we have none, and inventing
+# weights would make the index a guess dressed as a measurement. Equal weight
+# needs nothing but the prices, and it answers the question a parts buyer
+# actually has — "have brake parts got more expensive?" — without pretending
+# to know what sells.
+#
+# Carry-forward: a SKU's price on a date is its most recent observation on or
+# before that date. That is the standard treatment for an irregular series and
+# it is what makes a board of 116 SKUs with different recording dates
+# comparable.
+# ==========================================================================
+
+def _as_of(series, date):
+    """The last observed price on or before `date`, or None."""
+    val = None
+    for d, p in series:
+        if d <= date:
+            val = p
+        else:
+            break
+    return val
+
+
+def index_series(history, *, base_ratio=0.9):
+    """{sku: [[date, rial], ...]} -> (series, meta).
+
+    `series` is [[date, index_value], ...] with the base date at 100.0.
+    Returns ([], {}) when there is nothing to index.
+    """
+    if not history:
+        return [], {}
+    dates = sorted({d for s in history.values() for d, _p in s})
+    if not dates:
+        return [], {}
+    # The base is the first date on which at least `base_ratio` of the SKUs
+    # already have a price. Starting at a date where only a handful are
+    # recorded would let the index jump on coverage rather than on price.
+    n = len(history)
+    base = None
+    for d in dates:
+        have = sum(1 for s in history.values() if _as_of(s, d) is not None)
+        if have >= n * base_ratio:
+            base = d
+            break
+    if base is None:
+        return [], {}
+    basket = {k: _as_of(s, base) for k, s in history.items()}
+    basket = {k: v for k, v in basket.items() if v}
+    if not basket:
+        return [], {}
+
+    series = []
+    for d in [x for x in dates if x >= base]:
+        rel = []
+        for k, b in basket.items():
+            cur = _as_of(history[k], d)
+            if cur:
+                rel.append(cur / b)
+        if rel:
+            series.append([d, round(100.0 * sum(rel) / len(rel), 2)])
+
+    meta = dict(base_date=base, members=len(basket),
+                latest=series[-1][1] if series else 100.0,
+                first=series[0][1] if series else 100.0)
+    if len(series) > 1:
+        meta["change"] = round(series[-1][1] - series[-2][1], 2)
+        meta["change_pct"] = round(
+            (series[-1][1] - series[-2][1]) / series[-2][1] * 100, 2)
+        meta["since_base_pct"] = round(series[-1][1] - 100.0, 2)
+        meta["prev_date"] = series[-2][0]
+    return series, meta
+
+
+def breadth(history, date=None, prev=None):
+    """How many SKUs rose, fell and held between two dates — market breadth,
+    the other number every exchange board carries."""
+    dates = sorted({d for s in history.values() for d, _p in s})
+    if len(dates) < 2:
+        return dict(up=0, down=0, flat=0, total=len(history))
+    date = date or dates[-1]
+    prev = prev or dates[dates.index(date) - 1]
+    up = down = flat = 0
+    for s in history.values():
+        a, b = _as_of(s, prev), _as_of(s, date)
+        if a is None or b is None:
+            continue
+        if b > a:
+            up += 1
+        elif b < a:
+            down += 1
+        else:
+            flat += 1
+    return dict(up=up, down=down, flat=flat, total=up + down + flat,
+                date=date, prev=prev)
+
+
+def index_chart(series, *, w=1000, h=200):
+    """The index chart: shape only, no text.
+
+    Deliberately label-free. The chart is full-bleed inside a column that runs
+    from ~350px on a phone to ~570px on a desktop, and an SVG scaled from a
+    1000-unit viewBox squashes any text inside it to 6-7px — readable in the
+    source, unreadable on screen, and no font-size in SVG can opt out of the
+    viewBox scale. The numbers therefore live in real HTML beside the chart
+    (index_scale below), where they are real type at a real size.
+
+    Drawn in --ix-ink, contextual like the other chart tokens, and never in a
+    direction colour: an index is not good or bad news, it is the level.
+    """
+    if len(series) < 2:
+        return ""
+    vals = [v for _d, v in series]
+    lo, hi = min(vals), max(vals)
+    span = (hi - lo) or 1
+    pad = 6
+    n = len(vals) - 1
+    pts = []
+    for i, (d, v) in enumerate(series):
+        x = pad + (w - 2 * pad) * (i / n)
+        y = pad + (h - 2 * pad) * (1 - (v - lo) / span)
+        pts.append((x, y, d, v))
+    line = " ".join(f"{'M' if i == 0 else 'L'}{x:.1f} {y:.1f}"
+                    for i, (x, y, _d, _v) in enumerate(pts))
+    area = (f"M{pts[0][0]:.1f} {h:.1f} "
+            + " ".join(f"L{x:.1f} {y:.1f}" for x, y, _d, _v in pts)
+            + f" L{pts[-1][0]:.1f} {h:.1f} Z")
+
+    def fa(x):
+        return "".join("۰۱۲۳۴۵۶۷۸۹"[int(c)] if c.isdigit() else c for c in str(x))
+
+    dots = ""
+    for i, (x, y, d, v) in enumerate(pts):
+        num = fa(f"{v:.2f}").replace(".", "\u066B")
+        # see the note in history_chart: hover tooltip, not a tab stop
+        dots += (f'<circle class="hc-hit" cx="{x:.1f}" cy="{y:.1f}" r="14" '
+                 f'fill="transparent" aria-hidden="true">'
+                 f'<title>{jalali_str(d)} — شاخص {num}</title></circle>')
+        if i == len(pts) - 1:
+            dots += (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" '
+                     f'fill="var(--ix-ink)" stroke="var(--ground)" '
+                     f'stroke-width="2"/>')
+    return (f'<svg class="ixchart" viewBox="0 0 {w} {h}" role="group" '
+            f'aria-label="نمودار شاخص قیمت" preserveAspectRatio="none">'
+            f'<path d="{area}" fill="var(--ix-ink)" fill-opacity="0.12" stroke="none"/>'
+            f'<path d="{line}" fill="none" stroke="var(--ix-ink)" stroke-width="2" '
+            f'stroke-linecap="round" stroke-linejoin="round" '
+            f'vector-effect="non-scaling-stroke"/>'
+            f'{dots}</svg>')
+
+
+def index_scale(series):
+    """The chart's axis, as HTML. Real text at a real size — see index_chart."""
+    if len(series) < 2:
+        return ""
+    vals = [v for _d, v in series]
+
+    def fa(x):
+        return "".join("۰۱۲۳۴۵۶۷۸۹"[int(c)] if c.isdigit() else c for c in str(x))
+
+    def num(v):
+        return fa(f"{v:.2f}").replace(".", "\u066B")
+    return (f'<div class="ix-scale">'
+            f'<span>{fa(jalali_str(series[0][0], with_year=False))}</span>'
+            f'<span class="ix-range">کمترین {num(min(vals))} — '
+            f'بیشترین {num(max(vals))}</span>'
+            f'<span>{fa(jalali_str(series[-1][0], with_year=False))}</span>'
+            f'</div>')
+
+
+def index_table(series):
+    """The index series as a real table — the accessible equivalent of the
+    chart, and the reason the chart's points are not tab stops."""
+    if len(series) < 2:
+        return ""
+    def fa(x):
+        return "".join("۰۱۲۳۴۵۶۷۸۹"[int(c)] if c.isdigit() else c for c in str(x))
+    rows = ""
+    prev = None
+    for d, v in series:
+        chg = "—" if prev is None else fa(f"{v - prev:+.2f}").replace(".", "\u066B")
+        rows += (f'<tr><td>{fa(jalali_str(d))}</td>'
+                 f'<td>{fa(f"{v:.2f}").replace(".", chr(0x066B))}</td>'
+                 f'<td>{chg}</td></tr>')
+        prev = v
+    return (f'<table class="spec hist-table"><caption>سابقه شاخص</caption>'
+            f'<thead><tr><th scope="col">تاریخ</th><th scope="col">شاخص</th>'
+            f'<th scope="col">تغییر</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table>')

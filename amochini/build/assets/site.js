@@ -381,3 +381,70 @@
     apply();
   }
 })();
+
+/* ==========================================================================
+   SORTABLE PRICE BOARD
+   Click a column head to sort the board. Progressive: with no JS the table is
+   in its natural order (category, car, model) and every row is still there.
+
+   Sorting reads data-* attributes, never the rendered cells — the cells carry
+   Persian digits and a U+066C separator, and parsing those back into numbers
+   to sort them would be absurd when the build already knows the values.
+   ========================================================================== */
+(function () {
+  var table = document.querySelector('table.sortable');
+  if (!table) return;
+  var tbody = table.tBodies[0];
+  if (!tbody) return;
+
+  var collator = new Intl.Collator('fa', { numeric: true, sensitivity: 'base' });
+
+  function value(tr, key) {
+    if (key === 'name') return tr.getAttribute('data-name') || '';
+    var raw = tr.getAttribute('data-' + (key === 'pct' ? 'pct' : 'price'));
+    var n = parseFloat(raw);
+    return isNaN(n) ? null : n;
+  }
+
+  function sortBy(key, dir) {
+    var rows = [].slice.call(tbody.rows);
+    rows.sort(function (a, b) {
+      var x = value(a, key), y = value(b, key);
+      // Rows with no value for this column always sink, in both directions:
+      // a product with no recorded change is not "the smallest change".
+      if (x === null && y === null) return 0;
+      if (x === null) return 1;
+      if (y === null) return -1;
+      var c = (key === 'name') ? collator.compare(x, y) : x - y;
+      return dir === 'asc' ? c : -c;
+    });
+    var frag = document.createDocumentFragment();
+    rows.forEach(function (r) { frag.appendChild(r); });
+    tbody.appendChild(frag);
+  }
+
+  [].forEach.call(table.querySelectorAll('th[data-sort]'), function (th) {
+    var key = th.getAttribute('data-sort');
+    // The head becomes a real button, so it is reachable by keyboard and
+    // announced as one. aria-sort tells a screen reader the current state.
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'th-sort';
+    btn.innerHTML = th.innerHTML + '<span class="th-arrow" aria-hidden="true"></span>';
+    th.innerHTML = '';
+    th.appendChild(btn);
+    th.setAttribute('aria-sort', 'none');
+    btn.addEventListener('click', function () {
+      var cur = th.getAttribute('aria-sort');
+      // Numbers open on the biggest first, names on alphabetical: that is the
+      // order someone actually wants on each.
+      var dir = cur === 'none' ? (key === 'name' ? 'asc' : 'desc')
+                               : (cur === 'ascending' ? 'desc' : 'asc');
+      [].forEach.call(table.querySelectorAll('th[data-sort]'), function (o) {
+        o.setAttribute('aria-sort', 'none');
+      });
+      th.setAttribute('aria-sort', dir === 'asc' ? 'ascending' : 'descending');
+      sortBy(key, dir);
+    });
+  });
+})();

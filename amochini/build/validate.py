@@ -305,7 +305,7 @@ def main():
     for a in ["assets/css/site.css", "assets/js/site.js",
               "assets/fonts/vazirmatn-subset.woff2", "robots.txt", "sitemap.xml",
               "search-index.json", "site.webmanifest", ".htaccess",
-              "favicon.svg", "favicon.ico", "apple-touch-icon.png",
+              "favicon-32.png", "favicon.ico", "apple-touch-icon.png",
               "icon-192.png", "icon-512.png", "404.html"]:
         if not os.path.isfile(os.path.join(OUT, a)):
             errors.append(f"MISSING ASSET: {a}")

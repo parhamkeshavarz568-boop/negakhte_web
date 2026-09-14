@@ -10,6 +10,7 @@ complete uploadable site into public/.  Everything in public/ is generated —
 never hand-edit it; edit the source here and rebuild.
 """
 import json, os, shutil, sys, re, datetime
+import datetime as _dt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -86,12 +87,18 @@ def main():
         prod["price"] = PR.stats(history.get(prod["sku"], []))
     tracked = sum(1 for x in products if x["price"].get("points", 0) >= 2)
     obs = sum(len(v) for v in history.values())
+    ix_series, ix_meta = PR.index_series(history)
     PG.PRICE_META = dict(
         observations=obs,
         tracked=tracked,
         skus=len([x for x in products if x["price"].get("points")]),
         latest=max((x["price"]["latest_date"] for x in products
                     if x["price"].get("latest_date")), default=None),
+        # the exchange layer
+        index=ix_meta,
+        index_series=ix_series,
+        breadth=PR.breadth(history),
+        synthetic=os.path.exists(os.path.join(HERE, "data", "SYNTHETIC")),
     )
     groups = {}
     for p in products:
@@ -152,6 +159,53 @@ def main():
            for p in products]
     write("search-index.json", json.dumps(idx, ensure_ascii=False,
                                           separators=(",", ":")))
+
+    # ---- machine-readable price feeds -----------------------------------
+    # An exchange publishes its data. Two files, both generated from the same
+    # history the pages render, so they can never disagree with the board:
+    #   /prices.json  the full record — every SKU, every observation
+    #   /prices.csv   the same thing for a spreadsheet
+    # Latin digits and raw rial throughout: these are for machines, and the
+    # Persian-digit toman rendering belongs to the pages.
+    synthetic = PG.PRICE_META.get("synthetic", False)
+    feed = {
+        "name": "قیمت روز قطعات ترمز — عمو چینی",
+        "url": PG.BASE + "/prices/",
+        "currency": "IRR",
+        "note": ("Prices are stored in Iranian Rial. The site displays Toman "
+                 "(Rial / 10)."),
+        "generated": _dt.date.today().isoformat(),
+        "index": {"base_date": PG.PRICE_META["index"].get("base_date"),
+                  "base_value": 100.0,
+                  "method": "equal-weighted price index, carry-forward",
+                  "members": PG.PRICE_META["index"].get("members", 0),
+                  "series": PG.PRICE_META["index_series"]},
+        "products": [
+            {"sku": p["sku"], "name": p["title"], "url": PG.BASE + p["url"],
+             "category": p["category"], "brand": p["brand"],
+             "price_irr": p["price_irr"],
+             "history": p["price"].get("history", [])}
+            for p in products],
+    }
+    if synthetic:
+        # The flag travels WITH the data. Anyone consuming the feed learns
+        # what the pages say: the last point of each series is the real
+        # catalogue price, the path behind it is modelled.
+        feed["synthetic_history"] = True
+        feed["synthetic_note"] = (
+            "Historical observations are illustrative. The most recent price "
+            "of every product is the real catalogue price; earlier points are "
+            "modelled until real recording accumulates.")
+    write("prices.json", json.dumps(feed, ensure_ascii=False,
+                                    separators=(",", ":")))
+
+    rows = ["sku,name,category,brand,date,price_irr,price_toman"]
+    for p in products:
+        for d, rial in p["price"].get("history", []):
+            nm = p["title"].replace('"', "'")
+            rows.append(f'{p["sku"]},"{nm}",{p["category"]},{p["brand"]},'
+                        f'{d},{rial},{rial // 10}')
+    write("prices.csv", "\n".join(rows) + "\n")
 
     # ---- sitemap --------------------------------------------------------
     # Priorities: home > categories > brands > products. Every URL is
