@@ -302,19 +302,28 @@ def crumbs_ld(items):
 
 
 def trust_slots():
-    rows = []
-    if TRUST["enamad_code"]:
-        rows.append(TRUST["enamad_code"])
-    else:
-        rows.append('<div class="slot">جای نماد<br>اعتماد الکترونیکی</div>')
-    if TRUST["samandehi_code"]:
-        rows.append(TRUST["samandehi_code"])
-    else:
-        rows.append('<div class="slot">جای نشان<br>ساماندهی</div>')
-    return "\n        ".join(rows)
+    """The eNamad and Samandehi badges — the real embed code or nothing.
+
+    They used to render dashed "badge goes here" boxes when the codes were
+    empty. That was a note to ourselves printed on the live site: a visitor
+    reads two empty dotted rectangles as a half-finished page, which costs
+    more trust than the missing badges do. The reminder lives where reminders
+    belong — validate.py reports both as LAUNCH BLOCKERS on every build, and
+    docs/LAUNCH.md has them as item one. Paste the codes into site_config.py
+    and the real badges appear here.
+    """
+    return "\n        ".join(
+        c for c in (TRUST["enamad_code"], TRUST["samandehi_code"]) if c)
 
 
 def footer():
+    # The whole نمادها column disappears with the badges. A heading with an
+    # empty box under it reads as a half-finished page, which costs more trust
+    # than the absent badges do. validate.py still reports both as LAUNCH
+    # BLOCKERS on every build, which is where that reminder belongs.
+    slots = trust_slots()
+    trust_block = (f'<h2>نمادها</h2>\n      <div class="trust">{slots}</div>'
+                   f'\n      <h2 class="mt">پرداخت</h2>') if slots else ""
     quick = "".join(f'<li><a href="{e(u)}">{e(t)}</a></li>' for u, t in NAV[1:])
     socials = social_links()
     social_block = (f'<h2>ما را دنبال کنید</h2>\n      <div class="social">{socials}</div>'
@@ -373,16 +382,13 @@ def footer():
 
     <div>
       {social_block}
-      <h2 style="margin-top:34px">دسترسی سریع</h2>
+      <h2 class="mt">دسترسی سریع</h2>
       <ul class="quick">{quick}</ul>
     </div>
 
     <div>
-      <h2>نمادها</h2>
-      <div class="trust">
-        {trust_slots()}
-      </div>
-      <h2 style="margin-top:30px">پرداخت</h2>
+      {trust_block if trust_block else ""}
+      {"" if trust_block else "<h2>پرداخت</h2>"}
       <div class="pay"><span>شتاب</span><span>سامان</span><span>ملت</span></div>
     </div>
   </div>

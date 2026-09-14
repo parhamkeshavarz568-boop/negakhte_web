@@ -424,3 +424,27 @@ def index_table(series):
             f'<thead><tr><th scope="col">تاریخ</th><th scope="col">شاخص</th>'
             f'<th scope="col">تغییر</th></tr></thead>'
             f'<tbody>{rows}</tbody></table>')
+
+
+def brand_trend(products):
+    """A brand's own price direction: its products as one equal-weighted
+    basket, the same construction as the site index but over a subset.
+
+    Answers "are parts for my car getting more expensive?", which is the
+    question a brand page exists to answer and the one thing a list of car
+    names could not tell you.
+
+    Returns {} when the brand has no product with two observations — no trend
+    exists, so none is claimed.
+    """
+    hist = {p["sku"]: p["price"]["history"]
+            for p in products
+            if p.get("price", {}).get("history")}
+    series, meta = index_series(hist, base_ratio=0.5)
+    if len(series) < 2:
+        return {}
+    vals = [v for _d, v in series]
+    return dict(series=series,
+                change_pct=round((vals[-1] - vals[-2]) / vals[-2] * 100, 2),
+                since_base_pct=round(vals[-1] - 100.0, 2),
+                members=meta.get("members", 0))

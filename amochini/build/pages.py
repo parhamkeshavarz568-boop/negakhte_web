@@ -852,16 +852,83 @@ def brand_page(slug, prods, all_p):
 {footer()}'''
 
 
+def _base_monogram(en):
+    if en.isupper() and len(en) <= 4:
+        return en
+    parts = [w for w in en.replace("-", " ").split() if w]
+    if len(parts) > 1:
+        return "".join(w[0] for w in parts[:2]).upper()
+    return en[:2].upper()
+
+
+def _build_monograms():
+    """Short marks for every car, guaranteed unique.
+
+    Half these names are already initialisms (MVM, JAC, KMC, FAW) and go
+    through whole; the rest give up their initials. Collisions are then
+    lengthened one letter at a time — Chery and Changan both reduced to "CH",
+    which makes two different cars wear the same mark and is worse than no
+    mark at all.
+    """
+    out = {}
+    for slug in BRANDS:
+        en = BRANDS[slug].get("en") or slug
+        m = _base_monogram(en)
+        letters = "".join(c for c in en if c.isalnum()).upper()
+        n = len(m)
+        while m in out.values() and n < len(letters):
+            n += 1
+            m = letters[:n]
+        out[slug] = m
+    return out
+
+
+MONOGRAMS = _build_monograms()
+
+
+def monogram(slug):
+    return MONOGRAMS.get(slug, slug[:2].upper())
+
+
+def brand_card(slug, items):
+    """One car in the list: mark, name, part count, and which way its prices
+    are moving.
+
+    The direction is the point. A list of car names is a menu; a list of car
+    names carrying a price direction is a market, and it answers the question
+    the page exists for — "are parts for my car getting more expensive?"
+    """
+    t = PR.brand_trend(items)
+    trend = ""
+    if t:
+        pct = t["change_pct"]
+        arrow = "▲" if pct > 0 else "▼" if pct < 0 else "="
+        cls = "is-up" if pct > 0 else "is-down" if pct < 0 else "is-flat"
+        n = ("کمتر از ۰٫۱" if abs(pct) < 0.05
+             else to_fa_digits(f"{abs(pct):.1f}").replace(".", "\u066B"))
+        # the mini-index is a ratio around 100, so scale it into the integer
+        # range the sparkline expects; only its shape is used
+        spark = PR.sparkline([(d, int(v * 1000)) for d, v in t["series"]])
+        trend = (f'<span class="chip-price {cls}" '
+                 f'title="تغییر میانگین قیمت قطعات این خودرو در هفته گذشته">'
+                 f'<span aria-hidden="true">{arrow}</span> <bdi>{n}٪</bdi></span>'
+                 f'{spark}')
+    return (f'<a href="/brands/{e(slug)}/">'
+            f'<span class="b-mark" aria-hidden="true">{e(monogram(slug))}</span>'
+            f'<span class="b-body">'
+            f'<span class="b-name">{e(BRANDS[slug]["fa"])}</span>'
+            f'<small>{to_fa_digits(len(items))} کالا</small></span>'
+            f'<span class="b-foot">{trend}</span></a>')
+
+
 def brands_index(groups):
     url = "/brands/"
     title = f"قطعات ترمز بر اساس خودرو | {SITE['brand_suffix']}"
     desc = ("انتخاب لنت ترمز، دیسک چرخ و کاسه چرخ بر اساس برند خودرو: "
             + "، ".join(BRANDS[s]["fa"] for s in list(groups)[:10]) + " و بیشتر.")
     cr = [("/", "خانه"), (None, "خودروها")]
-    cards = "".join(
-        f'<a href="/brands/{e(s)}/">{e(BRANDS[s]["fa"])}'
-        f'<small>{to_fa_digits(len(v))} کالا</small></a>'
-        for s, v in sorted(groups.items(), key=lambda kv: -len(kv[1])))
+    cards = "".join(brand_card(s, v)
+                    for s, v in sorted(groups.items(), key=lambda kv: -len(kv[1])))
     jsonld = [crumbs_ld(cr), org_ld(),
               {"@context": "https://schema.org", "@type": "CollectionPage",
                "name": title, "url": BASE + url, "inLanguage": "fa-IR"}]
@@ -958,7 +1025,7 @@ def stat_band(all_p, groups):
         # catalogue rather than a count of it.
         cells.insert(0, (to_fa_digits(f"{ix['latest']:.1f}").replace(".", "\u066B"),
                          "شاخص قیمت"))
-    return ('<section class="stat-band"><div class="wrap"><ul>'
+    return ('<section class="stat-band"><div class="wrap"><ul class="lattice">'
             + "".join(f'<li><b>{e(v)}</b><span>{e(k)}</span></li>'
                       for v, k in cells)
             + "</ul></div></section>")
@@ -1221,7 +1288,7 @@ def home(all_p, groups):
   <p class="linkrow"><a href="/brake-discs/">همه دیسک‌های چرخ</a></p>
 
   <h2 class="section-title"><span class="st-text"><b>خرید</b> بر اساس خودرو</span></h2>
-  <div class="brandgrid lattice">{"".join(f'<a href="/brands/{e(s)}/">{e(BRANDS[s]["fa"])}<small>{to_fa_digits(len(v))} کالا</small></a>' for s, v in sorted(groups.items(), key=lambda kv: -len(kv[1])))}</div>
+  <div class="brandgrid lattice">{"".join(brand_card(s, v) for s, v in sorted(groups.items(), key=lambda kv: -len(kv[1])))}</div>
 
   {faq_block(qa)}
 </div>

@@ -262,9 +262,20 @@ def main():
         "نمونه، خیابان نمونه": "street address is still the draft placeholder",
         "۱۲۳۴۵۶۷۸": "phone number is still the draft placeholder",
         "info@example": "email is still a placeholder",
-        "جای نماد": "e-Namad badge slot is empty",
-        "جای نشان": "Samandehi badge slot is empty",
     }
+    # The two badges are checked in the CONFIG, not in the rendered pages.
+    # They used to be detected by finding a "badge goes here" placeholder in
+    # the HTML — so when those placeholders were removed from the footer (they
+    # read as a half-finished page to a visitor), the blocker silently stopped
+    # firing while the codes were still empty. A launch blocker that can be
+    # switched off by a styling change is not a launch blocker.
+    from site_config import TRUST
+    if not TRUST.get("enamad_code"):
+        blockers.append("e-Namad code is empty in site_config.TRUST — an "
+                        "Iranian commercial site without اینماد is one most "
+                        "buyers will not phone")
+    if not TRUST.get("samandehi_code"):
+        blockers.append("Samandehi code is empty in site_config.TRUST")
     seen_ph = {}
     for url, path in docs:
         s_ = open(path, encoding="utf-8").read()
