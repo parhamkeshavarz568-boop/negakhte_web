@@ -6,20 +6,67 @@ from layout import (e, ld, money, bdi, head, header, footer, crumbs, crumbs_ld,
                     BASE, sameas, SVG)
 import json as _json, os as _os
 
-# Which widths actually exist on disk for each image, written by build.py.
-# Templates ask for a size and get the closest one that exists, so a
-# 400px-only source is never requested at 700px (which would 404).
-_IMG = _json.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
-                                     "data", "images.json"), encoding="utf-8"))
+# Which renditions actually exist on disk, written by build.py from the files
+# make_images.py produced. Loaded LAZILY: build.py regenerates the manifest
+# during its run, so caching it at import time would pin the previous build's
+# version and let a template reference a file that no longer exists.
+_IMG_CACHE = {}
+
+
+def _img_meta():
+    if not _IMG_CACHE:
+        path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                             "data", "images.json")
+        _IMG_CACHE.update(_json.load(open(path, encoding="utf-8")))
+    return _IMG_CACHE
 
 
 def img_w(name, want):
     """Largest available width <= want, else the smallest available."""
-    sizes = _IMG.get(name)
+    sizes = _img_meta().get(name, {}).get("widths")
     if not sizes:
         return want
     ok = [s for s in sizes if s <= want]
     return max(ok) if ok else min(sizes)
+
+
+def picture(name, *, alt, box, sizes=None, eager=False, cls=""):
+    """A three-format <picture>.
+
+    AVIF -> WebP -> JPEG, in that order: the browser takes the first type it
+    supports. WebP is not redundant — it is the layer that serves the older
+    Android WebView tail still common in Iran, which AVIF misses.
+
+    `box` is the rendered CSS width of the largest instance, measured in a real
+    browser (see docs/MEASUREMENTS.md). Renditions offered are those at or
+    below 2x that, so a 108px thumbnail never ships a 400px file.
+
+    `eager` must be True for anything in the first viewport: loading="lazy" on
+    an above-the-fold image defers its request until after layout and directly
+    delays LCP.
+    """
+    meta = _img_meta().get(name, {})
+    widths = meta.get("widths") or [box]
+    formats = meta.get("formats") or ["jpg"]
+    use = [w for w in widths if w <= box * 2] or [min(widths)]
+    fallback = max(use)
+    ar = meta.get("ar", 1.0)
+    srcset = lambda ext: ", ".join(
+        f"/assets/img/{name}-{w}.{ext} {w}w" for w in use)
+    src = []
+    for ext, mime in (("avif", "image/avif"), ("webp", "image/webp")):
+        if ext in formats:
+            src.append(f'<source type="{mime}" srcset="{srcset(ext)}"'
+                       + (f' sizes="{sizes}"' if sizes else "") + ">")
+    load = ('loading="eager" fetchpriority="high"' if eager
+            else 'loading="lazy" decoding="async"')
+    return (f'<picture{f" class={cls}" if cls else ""}>'
+            + "".join(src)
+            + f'<img src="/assets/img/{name}-{fallback}.jpg" alt="{e(alt)}"'
+            + (f' srcset="{srcset("jpg")}"' if len(use) > 1 else "")
+            + (f' sizes="{sizes}"' if sizes else "")
+            + f' width="{fallback}" height="{round(fallback*ar)}" {load}>'
+            + "</picture>")
 
 AXLE_FA = {"front": "جلو", "rear": "عقب"}
 CAT_ORDER = ["brake-pads", "brake-discs", "brake-drums"]
@@ -205,7 +252,7 @@ def price_block(p, big=False):
     return f'<div class="price">{toman}</div>'
 
 
-def card(p):
+def card(p, eager=False):
     b = BRANDS[p["brand"]]
     badge = ""
     if not p["in_stock"]:
@@ -220,11 +267,9 @@ def card(p):
          data-price="{p["price_irr"] if p["price_irr"] is not None else ""}"
          data-title="{e(p["title"])}" data-search="{e(p["search"])}">
   <div class="ph">{badge}
-    <picture>
-      <source type="image/webp" srcset="/assets/img/{img}-400.webp">
-      <img src="/assets/img/{img}-400.jpg" alt="{e(p["title"])}"
-           width="400" height="400" loading="lazy" decoding="async">
-    </picture>
+    {picture(img, alt=p["title"], box=300,
+             sizes="(min-width:1000px) 283px, (min-width:700px) 245px, 45vw",
+             eager=eager)}
   </div>
   <div class="body">
     <h3><a href="{e(p["url"])}">{e(p["title"])}</a></h3>
@@ -349,10 +394,6 @@ def product_page(p, all_p):
     rel = related(p, all_p)
     rel_html = "".join(card(x) for x in rel)
 
-    big = img_w(p["image"], 700)
-    small = img_w(p["image"], 400)
-    parts = sorted({small, big})
-    srcset_w = ", ".join(f"/assets/img/{p['image']}-{w}.webp {w}w" for w in parts)
 
     jsonld = [product_ld(p), crumbs_ld(cr), faq_ld(qa), org_ld()]
 
@@ -365,11 +406,8 @@ def product_page(p, all_p):
 <div class="wrap">
   <div class="product">
     <div class="gallery">
-      <picture>
-        <source type="image/webp" srcset="{srcset_w}">
-        <img src="/assets/img/{p['image']}-{big}.jpg" alt="{e(p['title'])}"
-             width="{big}" height="{big}" fetchpriority="high" decoding="async">
-      </picture>
+      {picture(p["image"], alt=p["title"], box=380,
+               sizes="(min-width:760px) 380px, 92vw", eager=True)}
     </div>
 
     <div class="info">
@@ -662,11 +700,8 @@ def home(all_p, groups):
         <a href="/{e(c)}/" class="all">نمایش همه ›</a>
       </div>
       <div class="thumb">
-        <picture>
-          <source type="image/webp" srcset="/assets/img/{cat_imgs[c]}-400.webp">
-          <img src="/assets/img/{cat_imgs[c]}-400.jpg" alt="{e(cc["fa"])}"
-               width="400" height="400" loading="lazy" decoding="async">
-        </picture>
+        {picture(cat_imgs[c], alt=cc["fa"], box=108, sizes="108px",
+                 eager=(c == CAT_ORDER[0]))}
       </div>
     </article>'''
 
@@ -678,6 +713,7 @@ def home(all_p, groups):
                        for c in CAT_ORDER)
 
     featured = [p for p in all_p if p["in_stock"]][:8]
+    # first row is above the fold on desktop -> eager
     qa = [
         ("چطور قطعه مناسب خودروی چینی‌ام را پیدا کنم؟",
          "از جستجوگر بالای صفحه، برند خودرو و نوع قطعه را انتخاب کنید. اگر مدل "
@@ -693,19 +729,12 @@ def home(all_p, groups):
     jsonld = [org_ld(), website_ld(), faq_ld(qa),
               itemlist_ld(featured, "پرفروش‌ترین قطعات ترمز", "/")]
 
-    return f'''{head(title=title, description=desc, canonical=url, jsonld=jsonld,
-                     preload_hero=True)}
+    return f'''{head(title=title, description=desc, canonical=url, jsonld=jsonld)}
 {header("/")}
 <main id="main">
 <section class="hero">
   <div class="art">
-    <picture>
-      <source type="image/webp"
-              srcset="/assets/img/hero-bg-640.webp 640w, /assets/img/hero-bg-1024.webp 1024w, /assets/img/hero-bg-1500.webp 1500w"
-              sizes="100vw">
-      <img src="/assets/img/hero-bg-1024.jpg" alt="" width="1500" height="844"
-           fetchpriority="high" decoding="async">
-    </picture>
+    {picture("hero-bg", alt="", box=1500, sizes="100vw", eager=True)}
   </div>
   <div class="inner">
     <h1>قطعات ترمز خودروهای چینی، با قیمت روز</h1>
@@ -730,7 +759,7 @@ def home(all_p, groups):
 
 <div class="wrap shop">
   <h2 class="section-title"><b>پرفروش‌ترین</b> قطعات</h2>
-  <div class="grid-products">{"".join(card(p) for p in featured)}</div>
+  <div class="grid-products">{"".join(card(p, eager=i < 4) for i, p in enumerate(featured))}</div>
   <p style="text-align:center;margin-top:26px">
     <a class="more-btn" href="/brake-discs/">مشاهده همه محصولات</a>
   </p>

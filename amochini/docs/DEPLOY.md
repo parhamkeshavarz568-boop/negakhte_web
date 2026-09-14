@@ -138,24 +138,27 @@ The site ships with **zero third-party requests**. No CDN font, no analytics, no
 tag manager. That is deliberate: from inside Iran a blocked third-party request
 does not fail fast, it *hangs*, and the page waits for it.
 
-Measured, gzipped, as the server sends it:
+Measured in headless Chromium at DPR 2, over the wire
+(`PORT=8901 python3 build/measure_weight.py`):
 
-| | cold first visit | repeat visit |
-|---|---|---|
-| HTML (home) | 5.8 KB | 5.8 KB |
-| CSS | 5.0 KB | cached |
-| JS (deferred) | 3.0 KB | cached |
-| Font — subset variable WOFF2, weights 100–900 | 68.3 KB | cached |
-| Hero image — WebP, 640w on mobile | 27.9 KB | cached |
-| **Above-the-fold total** | **110 KB** | **5.8 KB** |
+| page | mobile | desktop | repeat visit |
+|---|---|---|---|
+| home | **107 KB** | 141 KB | ~6 KB |
+| category (50 products) | 80 KB | 80 KB | ~10 KB |
+| product | 76 KB | 106 KB | ~6 KB |
+| brand | 77 KB | 77 KB | ~7 KB |
 
-Plus 60 KB of lazy-loaded category thumbnails below the fold. Product pages are
-lighter still — 5.8 KB of HTML and no hero.
+The font is the largest asset at 57 KB — one variable WOFF2 covering weights
+100–900 for the whole Persian alphabet plus ASCII — and it is cached for a
+year, so it is paid once per visitor. Images are AVIF with WebP and JPEG
+fallbacks; AVIF is 64% smaller than JPEG across the set.
 
-For comparison, the original single-page draft was **474 KB of HTML** (324 KB
-gzipped) on *every* page view, because the images were base64-inlined and
-therefore uncacheable. The font is now the largest single asset, and it is
-cached for a year.
+For comparison the original single-page draft was **474 KB of HTML** (324 KB
+gzipped) on *every* view, because the images were base64-inlined and therefore
+uncacheable, plus 255 KB of font across five requests to jsDelivr.
+
+`build/measure_weight.py` fails if any page exceeds 150 KB. Full method:
+[MEASUREMENTS.md](MEASUREMENTS.md).
 
 If you later add analytics, put it in `ANALYTICS` in `build/site_config.py` and
 load it `async`. Test the site afterwards on a real Iranian connection — a

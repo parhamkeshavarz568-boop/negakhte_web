@@ -9,18 +9,39 @@ Almost all of it lives in **one file**: `build/site_config.py`. Edit that, run
 
 ---
 
+## 0. Brand and phone — already corrected, please confirm
+
+Two things I changed rather than left blank, because research found the real
+values and the draft's were wrong:
+
+- **The business is عمو چینی** ("Uncle Chinese" — which is what *amochini*
+  spells out), with the slogan «با عمو چینی همه قطعات پیدا میشه». The uploaded
+  draft was branded **یدک‌رسان** — a different company name entirely, carried
+  over from whatever template it started from. Publishing that would have
+  silently rebranded the business. `validate.py` now fails the build if either
+  the old name or a wrong spelling reappears.
+- **Phone `09122650076`** is the number the live amochini.ir publishes; it
+  appears in Google's cached description of the site. It is now in the header,
+  footer, every product page's call and WhatsApp buttons, and the store's
+  structured data. **It came from the search index, not from you — confirm it
+  is current.**
+
+Also worth confirming: the old homepage claimed **100,000+ parts**. The
+catalogue here is 130 SKUs. I did not repeat the claim anywhere. If it is true
+of the physical shop, it is worth saying so explicitly on the About page.
+
 ## 1. BLOCKING — the site should not go live without these
 
 | What | Where | Why it blocks |
 |---|---|---|
-| **Shop phone number** | `CONTACT["phone_display"]` and `["phone_tel"]` | It is the *only* way to order. There is no checkout. The draft's `۰۲۱–۱۲۳۴۵۶۷۸` is fake. Appears on all 153 pages, in `tel:` links, and in the store's structured data. |
-| **Mobile / WhatsApp number** | `CONTACT["mobile_*"]`, `CONTACT["whatsapp"]` | Every product page has a "سفارش در واتساپ" button pointing at it. |
-| **Street address** | `CONTACT["street"]`, `["city"]`, `["region"]`, `["postal_code"]` | Currently «نشانی نمونه، خیابان نمونه، پلاک ۰۰». Goes into `AutoPartsStore` structured data and drives local-pack eligibility. A fake address can get a Google Business Profile suspended. |
-| **Email** | `CONTACT["email"]` | Set to `info@amochini.ir` — **confirm this mailbox actually exists** before publishing it. |
-| **Currency check** | `COMMERCE["display_divisor"]` | See §4 below. Getting this wrong shows every price off by 10×. |
+| **Street address** | `CONTACT["street"]`, `["city"]`, `["region"]`, `["postal_code"]` | Still «نشانی نمونه، خیابان نمونه، پلاک ۰۰». Goes into `AutoPartsStore` structured data and gates local-pack eligibility. A fake address can get a Google Business Profile suspended. |
+| **e-Namad + ساماندهی badges** | `TRUST` | Iranian online shops are expected to display these, and many buyers will not order without them. A labelled empty slot renders in the footer meanwhile, so the layout is already right. |
+| **Email** | `CONTACT["email"]` | Set to `info@amochini.ir` — **confirm the mailbox exists** before publishing it. |
+| **Currency check** | `COMMERCE["display_divisor"]` | See §4. Getting this wrong shows every price off by 10×. |
+| **TLS certificate** | host, then `SCHEME` in `site_config.py` | The site ships as `http://` on purpose. See §8. |
 
-`phone_tel` and `mobile_tel` must be **E.164**: `+98` then the number without the
-leading zero. `۰۲۱ ۸۸۱۲۳۴۵۶` → `+982188123456`.
+`phone_tel` and `mobile_tel` must be **E.164**: `+98` then the number without
+its leading zero. `۰۹۱۲۲۶۵۰۰۷۶` → `+989122650076`.
 
 ---
 
@@ -28,8 +49,6 @@ leading zero. `۰۲۱ ۸۸۱۲۳۴۵۶` → `+982188123456`.
 
 | What | Where | Why |
 |---|---|---|
-| **e-Namad (نماد اعتماد الکترونیکی)** | `TRUST["enamad_code"]` | Iranian online shops are expected to display it; many buyers will not order without it. Paste the whole `<a>…</a>` snippet e-Namad gives you. A labelled empty slot renders in the footer until you do, so the layout is already correct. |
-| **Samandehi (ساماندهی)** | `TRUST["samandehi_code"]` | Same. |
 | **Instagram / Telegram handles** | `SOCIAL` | The draft linked Facebook, Twitter and Google+. Google+ shut down in 2019; Facebook and Twitter are filtered in Iran — all three were dead links and I removed them. Any handle left empty is simply not rendered, so no broken icons. |
 | **Shop coordinates** | `CONTACT["latitude"]`, `["longitude"]` | Left as `None` on purpose: the code omits `geo` from structured data rather than publishing a wrong pin. Fill in from Google Maps / Neshan and they appear. |
 | **Real product photos** | `public/assets/img/` | See §3. |
@@ -38,11 +57,12 @@ leading zero. `۰۲۱ ۸۸۱۲۳۴۵۶` → `+982188123456`.
 
 ## 3. Product photography — the biggest content gap
 
-The source data has **two** images for **130** products:
+130 products share **four** stock images:
 
-- all 77 brake discs share three generic disc photos (plain / drilled / slotted)
-- all 50 brake pads share **one** photo
-- the 3 brake drums currently borrow the disc photo
+- the 77 brake discs share three (plain / drilled / slotted — which at least
+  correspond to the real TRA-X and XTRA variants)
+- all 50 brake pads share **one**
+- the 3 brake drums borrow the disc photo
 
 The third home-page category card was labelled **چراغ** (headlight) with a
 headlight photo, but its filter pointed at **کاسه چرخ** (brake drums) and there
@@ -116,3 +136,45 @@ carry **no `Offer`** in their structured data — a fabricated price would be a
 structured-data violation. They are still in the sitemap at lower priority so
 they can rank for their model name. Add prices in
 `build/data/products.source.json` → rebuild, and they become normal products.
+
+
+## 8. Why the site ships as `http://`
+
+This is deliberate and it is reversible in one line, but read it before
+changing it.
+
+The only URL Google currently has indexed for this domain is
+`http://amochini.ir/`, and every product image on the live WordPress site is
+served over plain http — so there is probably no certificate installed today.
+
+`.ir` domains are genuinely awkward to certificate: **Sectigo, which is
+cPanel's default AutoSSL provider, refuses to issue for `.ir`.** Let's Encrypt
+does issue. If the site force-redirects to https and no certificate exists,
+every request fails — for visitors and for Googlebot — with nothing to tell
+you why.
+
+So: `SCHEME = "http"` in `build/site_config.py`, and the https redirect block
+at the bottom of `.htaccess` ships commented out with the enable sequence
+written next to it.
+
+**To turn HTTPS on:**
+
+1. Install a certificate — cPanel → *SSL/TLS Status* → AutoSSL with the
+   provider switched to **Let's Encrypt**, or run `acme.sh`.
+2. From **outside Iran**: `curl -I https://amochini.ir/` must return 200 with
+   a valid chain.
+3. Set `SCHEME = "https"` and rebuild. Every canonical, `og:url`, JSON-LD
+   `@id` and sitemap entry flips together.
+4. Uncomment section 8 of `.htaccess`.
+
+Doing step 4 without 1–3 is what takes the site down.
+
+## 9. One more thing to confirm — is the host Apache?
+
+`.htaccess` carries all the redirects, caching, compression and security
+headers. **nginx ignores `.htaccess` entirely and silently.** If this host runs
+nginx, every rule is a no-op and nothing will warn you — the WordPress
+redirects simply won't happen.
+
+LiteSpeed (very common on Iranian cPanel hosting) reads `.htaccess` fine. Ask
+the host, or check for a `Server:` header before relying on it.

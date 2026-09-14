@@ -41,6 +41,26 @@ def page(url, content):
 
 
 def main():
+    # Image manifest, derived from what make_images.py actually produced, so a
+    # template can never reference a rendition that does not exist on disk.
+    imgdir = os.path.join(OUT, "assets", "img")
+    man = {}
+    for f in os.listdir(imgdir):
+        m = re.match(r"(.+)-(\d+)\.(avif|webp|jpg)$", f)
+        if not m:
+            continue
+        d = man.setdefault(m.group(1), {"widths": set(), "formats": set()})
+        d["widths"].add(int(m.group(2)))
+        d["formats"].add(m.group(3))
+    from PIL import Image as _Im
+    for name, d in man.items():
+        w = max(d["widths"])
+        with _Im.open(os.path.join(imgdir, f"{name}-{w}.jpg")) as im:
+            d["ar"] = im.size[1] / im.size[0]
+        d["widths"] = sorted(d["widths"])
+        d["formats"] = sorted(d["formats"])
+    json.dump(man, open(os.path.join(HERE, "data", "images.json"), "w"), indent=1)
+
     products = json.load(open(os.path.join(HERE, "data", "products.json"),
                                encoding="utf-8"))
     groups = {}

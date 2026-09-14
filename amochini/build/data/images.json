@@ -1,28 +1,90 @@
 {
- "cat-brake-discs": [
-  400
- ],
- "cat-brake-pads": [
-  400
- ],
- "cat-headlight": [
-  400
- ],
- "disc-drilled": [
-  400,
-  700
- ],
- "disc-plain": [
-  400,
-  700
- ],
- "disc-slotted": [
-  400,
-  700
- ],
- "hero-bg": [
-  640,
-  1024,
-  1500
- ]
+ "cat-headlight": {
+  "widths": [
+   108,
+   216
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
+ "hero-bg": {
+  "widths": [
+   640,
+   1024,
+   1500
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 0.5626666666666666
+ },
+ "cat-brake-pads": {
+  "widths": [
+   108,
+   216
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
+ "disc-plain": {
+  "widths": [
+   400,
+   600,
+   700
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
+ "disc-drilled": {
+  "widths": [
+   400,
+   600,
+   700
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
+ "disc-slotted": {
+  "widths": [
+   400,
+   600,
+   700
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
+ "cat-brake-discs": {
+  "widths": [
+   108,
+   216
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ }
 }

@@ -192,24 +192,27 @@ RewriteEngine On
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType font/woff2             "access plus 1 year"
+  ExpiresByType image/avif             "access plus 1 year"
   ExpiresByType image/webp             "access plus 1 year"
   ExpiresByType image/jpeg             "access plus 1 year"
   ExpiresByType image/png              "access plus 1 year"
   ExpiresByType image/svg+xml          "access plus 1 year"
   ExpiresByType text/css               "access plus 1 month"
   ExpiresByType application/javascript "access plus 1 month"
-  ExpiresByType text/html              "access plus 1 hour"
+  ExpiresByType text/html              "access plus 0 seconds"
   ExpiresByType application/json       "access plus 1 day"
 </IfModule>
 <IfModule mod_headers.c>
-  <FilesMatch "\.(woff2|webp|jpe?g|png|svg|ico)$">
+  <FilesMatch "\.(woff2|avif|webp|jpe?g|png|svg|ico)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
   <FilesMatch "\.(css|js)$">
     Header set Cache-Control "public, max-age=2592000"
   </FilesMatch>
   <FilesMatch "\.html$">
-    Header set Cache-Control "public, max-age=3600, must-revalidate"
+    # max-age=0 + must-revalidate: the pages carry prices, so a stale copy is
+    # worse than a conditional request. Revalidation is a 304, not a re-download.
+    Header set Cache-Control "public, max-age=0, must-revalidate"
   </FilesMatch>
 </IfModule>
 
@@ -219,6 +222,7 @@ RewriteEngine On
 #    application/octet-stream, which makes browsers silently refuse them.
 # ============================================================================
 <IfModule mod_mime.c>
+  AddType image/avif                  .avif
   AddType image/webp                  .webp
   AddType font/woff2                  .woff2
   AddType application/manifest+json   .webmanifest

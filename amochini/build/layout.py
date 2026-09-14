@@ -101,7 +101,7 @@ def sameas():
 
 # --------------------------------------------------------------- head/foot
 def head(*, title, description, canonical, jsonld=(), og_image=None,
-         og_type="website", robots=None, preload_hero=False, extra=""):
+         og_type="website", robots=None, extra=""):
     """Build the <head>. `canonical` is a site-root-relative path like /about/."""
     url = BASE + canonical
     img = og_image or "/assets/img/hero-bg-1024.jpg"
@@ -141,12 +141,10 @@ def head(*, title, description, canonical, jsonld=(), og_image=None,
         'type="font/woff2" crossorigin>',
         '<link rel="stylesheet" href="/assets/css/site.css">',
     ]
-    if preload_hero:
-        parts.append(
-            '<link rel="preload" as="image" href="/assets/img/hero-bg-1024.webp" '
-            'imagesrcset="/assets/img/hero-bg-640.webp 640w, '
-            '/assets/img/hero-bg-1024.webp 1024w, /assets/img/hero-bg-1500.webp 1500w" '
-            'imagesizes="100vw" fetchpriority="high">')
+    # No hero <link rel=preload>: the hero is negotiated across AVIF/WebP/JPEG
+    # by <picture>, and a preload can only name one format — naming the wrong
+    # one buys a wasted download. fetchpriority="high" on the <img> is the
+    # correct signal and it respects the negotiation.
     for block in jsonld:
         parts.append(ld(block))
     if ANALYTICS["head_html"]:

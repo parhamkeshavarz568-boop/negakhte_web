@@ -15,11 +15,26 @@
       url(/assets/fonts/vazirmatn-subset.woff2) format('woff2');
   font-weight:100 900;
   font-style:normal;
-  font-display:swap;
-  /* match Tahoma's metrics so the swap doesn't shift layout (CLS) */
-  ascent-override:102.5%;
-  descent-override:53.7%;
-  line-gap-override:0%;
+  font-display:swap;   /* never `optional`: Persian in a fallback face is
+                          legible, invisible text is not */
+}
+
+/* Metric-matched fallback faces.
+   Vazirmatn's default line box is 156% of font-size (ascent 2100 + descent
+   1100 over 2048 unitsPerEm) against Tahoma's 121% — a 35-point gap, so a
+   font swap reflows every block of text on the page. These synthetic faces
+   override the LOCAL fallback's metrics to match Vazirmatn, which is what
+   removes the shift; overriding them on Vazirmatn itself would only change
+   Vazirmatn. size-adjust is the one doing most of the work. */
+@font-face{
+  font-family:'Vazirmatn fallback';
+  src:local('Tahoma');
+  ascent-override:102.32%; descent-override:53.59%; size-adjust:100.22%;
+}
+@font-face{
+  font-family:'Vazirmatn fallback';
+  src:local('Noto Naskh Arabic'),local('NotoNaskhArabic-Regular');
+  ascent-override:108.54%; descent-override:56.86%; size-adjust:94.47%;
 }
 
 :root{
@@ -41,10 +56,13 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
-  font-family:Vazirmatn,Tahoma,system-ui,sans-serif;
+  font-family:Vazirmatn,'Vazirmatn fallback',Tahoma,system-ui,sans-serif;
   background:var(--page);
   color:var(--text);
-  font-weight:300;
+  /* 400, not 300: at 15px Persian on the budget Android LCDs common in Iran,
+     Vazirmatn Light is too thin to read comfortably. Costs zero bytes with a
+     variable font. */
+  font-weight:400;
   line-height:1.9;
   font-size:15px;
   -webkit-text-size-adjust:100%;
@@ -205,7 +223,9 @@ bdi{unicode-bidi:isolate}
 .card .badge{position:absolute;inset-block-start:8px;inset-inline-start:8px;background:var(--warn);color:#fff;font-size:11px;padding:3px 9px;z-index:2}
 .card .badge.v{background:#1a1a1a}
 .card .body{padding:14px;display:flex;flex-direction:column;flex:1}
-.card h3{font-size:14px;font-weight:450;color:#222;line-height:1.7;min-height:3.4em}
+/* 3.8em: the common two-line Persian product name needs it, and a
+   short name must not let the price row float up and misalign the grid. */
+.card h3{font-size:14px;font-weight:450;color:#222;line-height:1.7;min-height:3.8em}
 .card h3 a::after{content:"";position:absolute;inset:0;z-index:1}   /* whole card clickable */
 .card .sku{font-size:12px;color:var(--muted);margin-top:4px}
 .card .tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
