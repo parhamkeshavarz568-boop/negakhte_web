@@ -26,6 +26,12 @@ values and the draft's were wrong:
   structured data. **It came from the search index, not from you — confirm it
   is current.**
 
+**ASMCO** is recorded as the part manufacturer for all 130 SKUs, and the site
+carries the wording «عرضه‌کننده قطعات ASMCO» that you chose. If you later hold
+a formal agency agreement and want the stronger «توزیع‌کننده اصلی» or
+«نماینده رسمی», change `SUPPLIER["claim_fa"]` in `build/site_config.py` — it
+renders on all 153 pages, so it should be wording the business can stand behind.
+
 Also worth confirming: the old homepage claimed **100,000+ parts**. The
 catalogue here is 130 SKUs. I did not repeat the claim anywhere. If it is true
 of the physical shop, it is worth saying so explicitly on the About page.

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Page bodies. Each function returns a full HTML document."""
 from normalize import to_fa_digits, BRANDS, CATEGORIES, VARIANTS, AXLES
-from site_config import SITE, CONTACT, COMMERCE, SOCIAL
+from site_config import SITE, CONTACT, COMMERCE, SOCIAL, SUPPLIER
 from layout import (e, ld, money, bdi, head, header, footer, crumbs, crumbs_ld,
                     BASE, sameas, SVG)
 import json as _json, os as _os
@@ -159,13 +159,12 @@ def product_ld(p):
         "url": BASE + p["url"],
         "image": [BASE + f"/assets/img/{p['image']}-{img_w(p['image'], 700)}.jpg"],
         "description": product_description(p, plain=True),
-        # NOTE: `brand` is deliberately NOT the car make. The `b` field in the
-        # source data is the vehicle it fits (ام‌وی‌ام, جک...), not who
-        # manufactured the part. Emitting "brand": "MVM" on a brake disc
-        # asserts MVM made it, which is false and is exactly the misleading
-        # markup that earns a structured-data manual action. The car make is
-        # expressed through isAccessoryOrSparePartFor instead.
-        # TRA-X / XTRA *are* genuine product lines, so those get a brand.
+        # `brand` is the PART MANUFACTURER (ASMCO), never the car make. The
+        # catalogue's own "brand" field is the vehicle the part fits — emitting
+        # "brand": "MVM" on a brake disc would assert MVM made it, which is
+        # false and is exactly the misleading markup that earns a manual
+        # action. The car is expressed through isAccessoryOrSparePartFor.
+        "brand": {"@type": "Brand", "name": SUPPLIER["part_brand"]},
         "isAccessoryOrSparePartFor": {
             "@type": "Vehicle",
             "name": f"{b['fa']} {p['model']}".strip(),
@@ -178,8 +177,11 @@ def product_ld(p):
              "value": f"{b['fa']} {p['model']}".strip()},
         ],
     }
+    # TRA-X and XTRA are ASMCO product LINES, not brands of their own.
     if p["variant"] != "base":
-        node["brand"] = {"@type": "Brand", "name": VARIANTS[p["variant"]]["code"]}
+        node["additionalProperty"].append(
+            {"@type": "PropertyValue", "name": "سری محصول",
+             "value": VARIANTS[p["variant"]]["code"]})
     # No `mpn` and no `gtin`: we do not have manufacturer part numbers, and
     # repeating our own SKU as an MPN would be a fabricated identifier.
     # No `aggregateRating`: there are zero reviews, and inventing one is a
@@ -382,17 +384,20 @@ def product_page(p, all_p):
     stock_txt = "موجود در انبار" if p["in_stock"] else "ناموجود / استعلام موجودی"
 
     spec_rows = [
+        ("برند", SUPPLIER["part_brand"]),
         ("دسته‌بندی", cat["fa"]),
         ("خودرو", f"{b['fa']}{model}".strip()),
         ("محور", axle),
         ("مدل محصول", v["fa"]),
         ("کد کالا", p["sku"]),
     ]
-    spec = "".join(f"<tr><th scope=\"row\">{e(k)}</th><td>{bdi(val) if k=='کد کالا' else e(val)}</td></tr>"
-                   for k, val in spec_rows)
+    LATIN_CELLS = {"کد کالا", "برند"}
+    spec = "".join(
+        f'<tr><th scope="row">{e(k)}</th>'
+        f'<td>{bdi(val) if k in LATIN_CELLS else e(val)}</td></tr>'
+        for k, val in spec_rows)
 
-    rel = related(p, all_p)
-    rel_html = "".join(card(x) for x in rel)
+    rel = related(p, all_p, n=12)
 
 
     jsonld = [product_ld(p), crumbs_ld(cr), faq_ld(qa), org_ld()]
@@ -412,7 +417,7 @@ def product_page(p, all_p):
 
     <div class="info">
       <h1>{e(p["title"])}</h1>
-      <p class="sub">کد کالا: {bdi(p["sku"])} — {e(v["fa"])}</p>
+      <p class="sub">{bdi(SUPPLIER["part_brand"])} · کد کالا: {bdi(p["sku"])} — {e(v["fa"])}</p>
 
       <div class="price-box">
         {price_block(p, big=True)}
@@ -440,9 +445,9 @@ def product_page(p, all_p):
   {faq_block(qa)}
 </div>
 
-<div class="wrap related">
-  <h2>قطعات مرتبط برای {e(b["fa"])}{e(model)}</h2>
-  <div class="grid-products">{rel_html}</div>
+<div class="wrap">
+  {slider(rel, title_html=f"<b>قطعات مرتبط</b> برای {e(b['fa'])}{e(model)}",
+          label="قطعات مرتبط", slug="rel")}
 </div>
 </main>
 {footer()}'''
@@ -680,6 +685,46 @@ def brands_index(groups):
 {footer()}'''
 
 
+def slider(prods, *, title_html, label, slug="s1", eager_first=0):
+    """A scroll-snap product carousel.
+
+    Deliberately built on native scrolling rather than a JS slider:
+
+      * every product is real HTML in the document, so crawlers see all of
+        them whether or not the script runs;
+      * with JS off it is still a usable horizontal scroller, and on touch it
+        is a native swipe with real momentum — no library can match that feel;
+      * `scroll-snap-type` does the paging in CSS, so there is no rAF loop and
+        nothing to jank.
+
+    The script only adds the arrows, the progress bar and the keyboard
+    shortcuts on top.
+    """
+    cards = "".join(card(p, eager=i < eager_first) for i, p in enumerate(prods))
+    return f'''<section class="slider" id="{e(slug)}"
+         aria-roledescription="carousel" aria-label="{e(label)}">
+  <div class="slider-head">
+    <h2 class="section-title">{title_html}
+      <span class="count">{to_fa_digits(len(prods))} کالا</span></h2>
+    <div class="slider-nav" data-for="{e(slug)}" hidden>
+      <button type="button" class="s-btn s-prev" aria-label="قطعات قبلی" aria-controls="{e(slug)}-track">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <button type="button" class="s-btn s-next" aria-label="قطعات بعدی" aria-controls="{e(slug)}-track">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="slider-track" id="{e(slug)}-track" tabindex="0"
+       role="group" aria-label="{e(label)} — برای جابه‌جایی بکشید یا از کلیدهای جهت‌دار استفاده کنید">
+    {cards}
+  </div>
+
+  <div class="slider-rail" aria-hidden="true" hidden><span class="slider-fill"></span></div>
+</section>'''
+
+
 # --------------------------------------------------------------------- home
 def home(all_p, groups):
     url = "/"
@@ -716,8 +761,21 @@ def home(all_p, groups):
     cat_opts = "".join(f'<option value="{e(c)}">{e(CATEGORIES[c]["fa"])}</option>'
                        for c in CAT_ORDER)
 
-    featured = [p for p in all_p if p["in_stock"]][:8]
-    # first row is above the fold on desktop -> eager
+    # A slider can hold more than a grid row can, so show a real selection:
+    # the priced, in-stock items spread across all three categories rather
+    # than the first eight rows of the catalogue (which were all drums/discs).
+    def _spread(items, n):
+        by_cat, out = {}, []
+        for x in items:
+            by_cat.setdefault(x["category"], []).append(x)
+        while len(out) < n and any(by_cat.values()):
+            for c in CAT_ORDER:
+                if by_cat.get(c):
+                    out.append(by_cat[c].pop(0))
+                    if len(out) == n:
+                        break
+        return out
+    featured = _spread([p for p in all_p if p["in_stock"]], 15)
     qa = [
         ("چطور قطعه مناسب خودروی چینی‌ام را پیدا کنم؟",
          "از جستجوگر بالای صفحه، برند خودرو و نوع قطعه را انتخاب کنید. اگر مدل "
@@ -761,10 +819,10 @@ def home(all_p, groups):
   <section class="cats">{cats_html}</section>
 </div>
 
-<div class="wrap shop">
-  <h2 class="section-title"><b>پرفروش‌ترین</b> قطعات</h2>
-  <div class="grid-products">{"".join(card(p, eager=i < 4) for i, p in enumerate(featured))}</div>
-  <p style="text-align:center;margin-top:26px">
+<div class="wrap">
+  {slider(featured, title_html="<b>پرفروش‌ترین</b> قطعات",
+          label="پرفروش‌ترین قطعات ترمز", slug="top", eager_first=3)}
+  <p style="text-align:center">
     <a class="more-btn" href="/brake-discs/">مشاهده همه محصولات</a>
   </p>
 </div>
@@ -809,9 +867,11 @@ def about():
   مدل، سال ساخت و محور (جلو یا عقب) را بگویید — یا شماره شاسی را بفرستید تا
   تطابق را بررسی کنیم. این کار رایگان است و از یک خرید اشتباه جلوگیری می‌کند.</p>
 
-  <h2>اصالت کالا</h2>
-  <p>کالاها با تضمین اصالت عرضه می‌شوند. در صورت مغایرت، کالا طبق شرایط بازگشت
-  تا {to_fa_digits(COMMERCE["return_days"])} روز قابل مرجوع است.</p>
+  <h2>قطعات ASMCO</h2>
+  <p>{e(SUPPLIER["claim_fa"])} هستیم. تمام قطعات این فروشگاه — لنت ترمز،
+  دیسک چرخ و کاسه چرخ — با برند <bdi>ASMCO</bdi> عرضه می‌شوند.</p>
+  <p>در صورت مغایرت، کالا طبق شرایط بازگشت تا
+  {to_fa_digits(COMMERCE["return_days"])} روز قابل مرجوع است.</p>
 
   <h2>سفارش</h2>
   <p>سفارش‌ها تلفنی و از طریق واتساپ ثبت می‌شوند. برای استعلام قیمت روز و

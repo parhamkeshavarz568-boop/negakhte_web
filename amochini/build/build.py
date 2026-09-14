@@ -157,6 +157,18 @@ Disallow: /?s=
 Sitemap: {BASE}/sitemap.xml
 """)
 
+    # ---- speculation rules ----------------------------------------------
+    # Instant navigation: Chrome prerenders a same-origin page once the user
+    # hovers a link for ~200ms ("moderate"), so the click renders an
+    # already-built page. Delivered as an external file referenced by a
+    # Speculation-Rules HTTP header rather than an inline
+    # <script type="speculationrules">, so the Content-Security-Policy can
+    # stay at a strict script-src 'self' with no hash or 'unsafe-inline'.
+    # Safe here because every page is static and there is no analytics to
+    # double-count on a prerender.
+    shutil.copy(os.path.join(HERE, "templates", "speculation-rules.json"),
+                os.path.join(OUT, "speculation-rules.json"))
+
     # ---- .htaccess ------------------------------------------------------
     tpl = open(os.path.join(HERE, "templates", "htaccess.tpl"),
                encoding="utf-8").read()

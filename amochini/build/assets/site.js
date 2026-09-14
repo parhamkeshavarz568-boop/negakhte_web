@@ -153,6 +153,100 @@
     });
   }
 
+  /* ---------- product slider ---------------------------------------------
+     The track is a native scroll-snap container; this only adds the arrows,
+     the progress rail and keyboard paging.
+
+     RTL is the whole difficulty here. In a dir=rtl scroller the WHATWG
+     behaviour (Chrome 85+, Firefox, Safari 15.2+) is that scrollLeft starts
+     at 0 at the RIGHT edge and goes NEGATIVE moving left. Older WebKit went
+     from a positive max down to 0 instead. Rather than sniff, we measure:
+     `maxScroll` is derived from scrollWidth, and positions are normalised
+     through Math.abs, so both conventions land on the same 0..1 progress. */
+  [].forEach.call(document.querySelectorAll('.slider'), function (root) {
+    var track = root.querySelector('.slider-track');
+    var nav   = root.querySelector('.slider-nav');
+    var rail  = root.querySelector('.slider-rail');
+    var fill  = root.querySelector('.slider-fill');
+    if (!track) return;
+
+    var prev = root.querySelector('.s-prev');
+    var next = root.querySelector('.s-next');
+
+    function maxScroll() { return track.scrollWidth - track.clientWidth; }
+    function pos() { return Math.abs(track.scrollLeft); }
+
+    // One "page" is a whole viewport of cards minus a sliver, so the user
+    // keeps a visual anchor between pages instead of jumping blind.
+    function step() {
+      var card = track.querySelector('.card');
+      var w = card ? card.getBoundingClientRect().width + 16 : 240;
+      return Math.max(w, Math.floor(track.clientWidth / w) * w - w * 0.25);
+    }
+
+    // Direction is resolved from the computed style, not assumed, so this
+    // keeps working if the document is ever rendered LTR.
+    var rtl = getComputedStyle(track).direction === 'rtl';
+    function go(forward) {
+      var delta = step() * (forward ? 1 : -1) * (rtl ? -1 : 1);
+      track.scrollBy({ left: delta, behavior: 'smooth' });
+    }
+
+    function update() {
+      var max = maxScroll();
+      var overflowing = max > 2;
+      if (nav) nav.hidden = !overflowing;
+      if (rail) rail.hidden = !overflowing;
+      if (!overflowing) { root.removeAttribute('data-overflow'); return; }
+
+      var p = pos();
+      var atStart = p <= 2;
+      var atEnd = p >= max - 2;
+      if (prev) prev.disabled = atStart;
+      if (next) next.disabled = atEnd;
+      root.setAttribute('data-overflow',
+        atStart ? 'end' : atEnd ? 'start' : 'both');
+
+      if (fill) {
+        // Width = the share of the track currently on screen.
+        // Offset = how far through the scroll we are, as a share of the
+        // remaining rail. Expressed as inset-inline-start so the browser
+        // flips it for RTL and there is no direction maths here at all.
+        var visible = Math.min(1, track.clientWidth / track.scrollWidth) * 100;
+        var progress = max ? p / max : 0;
+        fill.style.width = visible.toFixed(2) + '%';
+        fill.style.insetInlineStart = (progress * (100 - visible)).toFixed(2) + '%';
+      }
+    }
+
+    if (prev) prev.addEventListener('click', function () { go(false); });
+    if (next) next.addEventListener('click', function () { go(true); });
+
+    // Arrow keys page the track when it has focus. In RTL, ArrowRight is
+    // "back" and ArrowLeft is "forward", matching the reading order.
+    track.addEventListener('keydown', function (ev) {
+      if (ev.key === 'ArrowLeft')  { ev.preventDefault(); go(rtl); }
+      if (ev.key === 'ArrowRight') { ev.preventDefault(); go(!rtl); }
+      if (ev.key === 'Home') { ev.preventDefault(); track.scrollTo({ left: 0, behavior: 'smooth' }); }
+      if (ev.key === 'End')  {
+        ev.preventDefault();
+        track.scrollTo({ left: (rtl ? -1 : 1) * maxScroll(), behavior: 'smooth' });
+      }
+    });
+
+    var raf = 0;
+    track.addEventListener('scroll', function () {
+      if (raf) return;
+      raf = requestAnimationFrame(function () { raf = 0; update(); });
+    }, { passive: true });
+
+    addEventListener('resize', update, { passive: true });
+    // Images settle after layout and change scrollWidth, so re-measure once.
+    if (document.readyState === 'complete') update();
+    else addEventListener('load', update);
+    update();
+  });
+
   /* ---------- category page filtering ------------------------------------
      Operates on the server-rendered cards already in the DOM, so the full
      product list is in the HTML for crawlers whether or not JS runs. */

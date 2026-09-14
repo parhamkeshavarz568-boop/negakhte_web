@@ -84,6 +84,26 @@ SOCIAL = dict(
     eitaa="",          # TODO optional
 )
 
+# ---------------------------------------------------------------- supplier
+# The part manufacturer. Confirmed by the owner: all 130 SKUs are ASMCO, and
+# the business supplies ASMCO parts in Iran.
+#
+# This is the correct value for schema.org `brand` on a Product — the
+# catalogue's own "brand" field is the CAR the part fits, which is a different
+# thing entirely. TRA-X and XTRA are ASMCO product LINES, so they are emitted
+# as a product series property rather than as brands.
+#
+# The wording below is the conservative form the owner chose. Stronger claims
+# ("توزیع‌کننده اصلی", "نماینده رسمی") are legal assertions about an agency
+# relationship — change this only to wording the business can actually stand
+# behind, since it renders on all 153 pages.
+SUPPLIER = dict(
+    part_brand="ASMCO",
+    part_brand_fa="ASMCO",
+    claim_fa="عرضه‌کننده قطعات ASMCO",
+    tagline_fa="قطعات ترمز ASMCO — تضمین اصالت کالا",
+)
+
 # ---------------------------------------------------------------- commerce
 COMMERCE = dict(
     # The source data stores prices in RIAL (the cart in the draft read "۰ ریال",

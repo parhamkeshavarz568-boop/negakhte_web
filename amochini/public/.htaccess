@@ -223,6 +223,15 @@ RewriteEngine On
 #    Some Iranian shared hosts still send WebP and WOFF2 as
 #    application/octet-stream, which makes browsers silently refuse them.
 # ============================================================================
+# Speculation Rules must be served with their own media type, and only this
+# one file — not every .json on the site.
+<Files "speculation-rules.json">
+  ForceType application/speculationrules+json
+  <IfModule mod_headers.c>
+    Header set Cache-Control "public, max-age=86400"
+  </IfModule>
+</Files>
+
 <IfModule mod_mime.c>
   AddType image/avif                  .avif
   AddType image/webp                  .webp
@@ -240,6 +249,9 @@ RewriteEngine On
   # 'unsafe-inline' is present for style-src only (a few layout styles are
   # inline); script-src has no such exception.
   Header set Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'"
+  # Points at /speculation-rules.json (see above). The quotes are part of the
+  # header value — it is a structured-field string, not a bare URL.
+  Header set Speculation-Rules "\"/speculation-rules.json\""
   Header always unset X-Powered-By
   Header unset Server
 </IfModule>
@@ -248,6 +260,12 @@ RewriteEngine On
 <FilesMatch "\.(py|md|log|bak|sql|zip|tpl|conf)$">
   <IfModule mod_authz_core.c>
     Require all denied
+  </IfModule>
+</FilesMatch>
+# ...but the JSON the site itself needs must stay reachable.
+<FilesMatch "^(search-index\.json|site\.webmanifest|speculation-rules\.json)$">
+  <IfModule mod_authz_core.c>
+    Require all granted
   </IfModule>
 </FilesMatch>
 

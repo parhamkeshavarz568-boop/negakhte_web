@@ -133,6 +133,14 @@ bdi{unicode-bidi:isolate}
 }
 .topbar nav{display:flex;gap:22px;flex-wrap:wrap}
 .topbar a:hover,.topbar a:focus-visible{color:var(--yellow)}
+.asmco-badge{
+  display:inline-flex;align-items:center;gap:var(--s2);
+  background:rgba(251,179,22,.14);color:var(--yellow);
+  border:1px solid rgba(251,179,22,.3);
+  padding:2px var(--s3);border-radius:var(--r-pill);
+  font-size:var(--t-xs);font-weight:600;
+}
+.f-claim{color:var(--yellow);font-size:var(--t-sm);font-weight:600;margin:calc(var(--s5) * -1) 0 var(--s5)}
 .topbar .account{display:flex;align-items:center;gap:8px}
 .topbar .account svg{width:20px;height:20px;stroke:#cfcfcf;fill:none;stroke-width:1.6}
 
@@ -662,3 +670,186 @@ footer a:hover{color:var(--yellow)}
   .brandgrid{grid-template-columns:repeat(6,1fr)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* ==========================================================================
+   PRODUCT SLIDER
+   Native scroll-snap carousel. The track is a real scroll container, so with
+   JS off it still scrolls and swipes; the arrows, the rail and the keyboard
+   shortcuts are progressive enhancement on top.
+   ========================================================================== */
+.slider{margin-block:var(--s6) var(--s7);position:relative}
+
+.slider-head{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:var(--s4);flex-wrap:wrap;
+}
+.slider-head .section-title{margin:0 0 var(--s4)}
+
+.slider-nav{display:flex;gap:var(--s2);margin-bottom:var(--s4)}
+.s-btn{
+  width:44px;height:44px;flex:none;display:grid;place-items:center;
+  background:var(--surface);border:1px solid var(--line-strong);
+  border-radius:var(--r-pill);cursor:pointer;box-shadow:var(--e1);
+  transition:background .18s var(--ease), border-color .18s var(--ease),
+             transform .18s var(--ease), box-shadow .18s var(--ease),
+             opacity .18s var(--ease);
+}
+.s-btn svg{width:22px;height:22px;fill:none;stroke:var(--head);stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round}
+.s-btn:hover:not(:disabled){
+  background:var(--yellow);border-color:var(--yellow);
+  transform:translateY(-2px);box-shadow:var(--e-yellow);
+}
+.s-btn:disabled{opacity:.32;cursor:default;box-shadow:none}
+
+/* ---- the track ----
+   `overflow-x:auto` forces overflow-y to auto as well, which would clip the
+   cards' hover lift and could show a stray vertical scrollbar — hence the
+   vertical padding, which gives the transform room to move into. */
+.slider-track{
+  display:flex;gap:var(--s4);
+  overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  padding-block:var(--s2) var(--s4);
+  padding-inline:2px;
+  margin-inline:-2px;
+  scrollbar-width:none;                 /* Firefox */
+  -ms-overflow-style:none;
+  overscroll-behavior-x:contain;        /* don't trigger page back-swipe */
+}
+.slider-track::-webkit-scrollbar{display:none}
+.slider-track:focus-visible{outline:3px solid var(--yellow);outline-offset:4px}
+
+.slider-track > .card{
+  flex:0 0 clamp(210px,68vw,258px);
+  scroll-snap-align:start;
+}
+
+/* Edge fade, so the track reads as continuing past the viewport rather than
+   being cut off. Masked rather than a gradient overlay, so it works over any
+   background and never intercepts a click. */
+@supports (mask-image: linear-gradient(#000,#000)) or (-webkit-mask-image: linear-gradient(#000,#000)){
+  .slider[data-overflow="both"] .slider-track{
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 28px,#000 calc(100% - 28px),transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,#000 28px,#000 calc(100% - 28px),transparent 100%);
+  }
+  .slider[data-overflow="start"] .slider-track{
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 28px,#000 100%);
+    mask-image:linear-gradient(to right,transparent 0,#000 28px,#000 100%);
+  }
+  .slider[data-overflow="end"] .slider-track{
+    -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 28px),transparent 100%);
+    mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 28px),transparent 100%);
+  }
+}
+
+/* ---- progress rail ---- */
+.slider-rail{
+  height:4px;background:var(--line);border-radius:var(--r-pill);
+  overflow:hidden;margin-top:var(--s2);
+}
+.slider-fill{
+  display:block;height:100%;width:22%;
+  background:linear-gradient(90deg,var(--yellow-dark),var(--yellow));
+  border-radius:var(--r-pill);
+  /* positioned rather than transformed: a percentage inset resolves against
+     the rail and the browser flips it for RTL, so the script does no
+     direction arithmetic. */
+  position:relative;inset-inline-start:0;
+  transition:inset-inline-start .18s var(--ease), width .18s var(--ease);
+}
+/* The nav and the rail ship with the `hidden` attribute and site.js reveals
+   them. With no JS they simply never appear, which is better than dead
+   arrows and a stuck progress bar — and it needs no inline script, so the
+   Content-Security-Policy stays at a strict script-src 'self'.
+   The reserved row height stops their arrival shifting the layout. */
+[hidden]{display:none!important}
+.slider-head{min-height:74px}
+
+@media (prefers-reduced-motion:reduce){
+  .slider-track{scroll-behavior:auto}
+}
+@media (min-width:1000px){
+  .slider-track > .card{flex-basis:266px}
+}
+
+/* ==========================================================================
+   MODERN PERFORMANCE + MOTION
+   Everything below is CSS-only and progressively enhanced: each block is
+   either inside @supports or is inert on engines that do not implement it,
+   so nothing here can break the baseline page.
+   ========================================================================== */
+
+/* ---- cross-document view transitions ----
+   Same-origin navigations cross-fade instead of flashing white. Combined with
+   the Speculation-Rules prerender, a click on a product goes straight to a
+   painted page with a smooth transition. Inert where unsupported. */
+@view-transition{navigation:auto}
+
+/* The masthead and menu bar are visually identical between pages, so naming
+   them keeps them planted while the content underneath changes, rather than
+   cross-fading the whole viewport. */
+.masthead{view-transition-name:masthead}
+.menubar{view-transition-name:menubar}
+footer{view-transition-name:sitefooter}
+
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){
+    animation:none!important;
+  }
+}
+
+/* ---- containment ----
+   Each card is an independent layout and paint island, so a hover lift or an
+   image settling cannot invalidate layout for the other 76 cards on a
+   category page. `contain` only — deliberately NOT content-visibility here:
+   the cards are 404-476px tall depending on breakpoint, and a wrong
+   contain-intrinsic-size across 77 of them makes the scrollbar jump on load.
+   Size containment is applied to whole below-fold sections instead. */
+.card,.cat,.brandgrid a{contain:layout paint style}
+
+/* ---- content-visibility: TRIED AND REMOVED ----
+   `content-visibility:auto` with `contain-intrinsic-size:auto 420px` on
+   .features and .faq was measured causing up to 765px of phantom scroll
+   height: the category page reported 12840px on load and collapsed to
+   12075px once scrolled, so the user could scroll into space that stopped
+   existing. The estimate can be tuned per breakpoint, but it silently
+   re-breaks the moment the content changes.
+   The pages are static HTML with no client-side rendering, so skipping the
+   render of a four-item feature row and an FAQ list buys almost nothing —
+   and measured page weight and interaction were unchanged without it.
+   Layout/paint containment on the cards (above) gives the scroll-performance
+   benefit with none of the sizing risk. Do not reintroduce this without
+   re-running the scroll-height check in build/check_layout.py.
+
+/* ---- scroll-driven reveal ----
+   Cards fade and rise as they enter the viewport. Driven by
+   `animation-timeline: view()`, which runs on the compositor — no scroll
+   listener, no JS, no main-thread work at all. `both` fill means anything
+   already past its entry range is simply at the end state, so above-fold
+   content is never left invisible.
+   Excluded inside .slider-track: view() resolves against the nearest
+   scroll container, which there is the horizontal track, and the cards
+   would animate on horizontal scroll instead. */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    .grid-products > .card,
+    .cats > .cat,
+    .features li,
+    .brandgrid > a{
+      animation:reveal-up linear both;
+      animation-timeline:view();
+      animation-range:entry 0% entry 46%;
+    }
+    .slider-track > .card{animation:none}
+  }
+}
+@keyframes reveal-up{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:none}
+}
+
+/* ---- smoother anchor scrolling ----
+   scroll-padding keeps an anchored heading clear of the sticky-ish chrome. */
+html{scroll-padding-block-start:var(--s5)}

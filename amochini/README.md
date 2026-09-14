@@ -54,6 +54,7 @@ build/                      source — edit here
   make_images.py            rebuild the AVIF/WebP/JPEG renditions
   make_redirects.py         WordPress URL export -> 301 rules
   measure_weight.py         real page weight in headless Chromium
+  check_layout.py           CLS/LCP, scroll-height stability, overflow, reveals
   templates/htaccess.tpl    Apache/LiteSpeed config
   assets/                   site.css, site.js
   original/                 the draft this was built from, and image sources
@@ -130,8 +131,13 @@ actually name Great Wall and FAW, and inconsistent برلیان/برلیانس s
 `build_catalog.py` prints every correction it makes; `validate.py` fails if
 the corrupted patterns reappear.
 
-**There are no real product photos.** 130 products share four stock images.
-This is the biggest content gap and the top item in the SEO plan.
+**All 130 products are ASMCO**, and the business supplies ASMCO parts in Iran.
+That matters for the markup: schema.org `brand` is the part manufacturer
+(ASMCO), never the car the part fits, and TRA-X / XTRA are ASMCO product lines
+so they are emitted as a product-series property rather than as brands.
+
+**Product photography is still the biggest content gap.** 130 products share
+four stock images. It is the top item in the SEO plan.
 
 ## Performance
 
@@ -139,9 +145,13 @@ Measured in headless Chromium at DPR 2, over the wire:
 
 | | mobile | desktop |
 |---|---|---|
-| home | 107 KB | 141 KB |
-| product | 76 KB | 106 KB |
+| home | 120 KB | 140 KB |
+| product | 90 KB | 116 KB |
 | repeat visit | ~6–10 KB | ~6–10 KB |
+
+**CLS 0.000** on all 21 page/viewport combinations; LCP 48–176ms off
+localhost. Navigation is prerendered on link hover via Speculation Rules and
+cross-fades via view transitions.
 
 The draft was 474 KB of HTML (324 KB gzipped) on every view. Details and
 method: [docs/MEASUREMENTS.md](docs/MEASUREMENTS.md).

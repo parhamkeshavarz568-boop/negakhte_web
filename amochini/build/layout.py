@@ -2,7 +2,7 @@
 """Shared chrome: <head>, header, nav, footer, and the SEO/JSON-LD helpers."""
 import json, html
 from normalize import to_fa_digits, BRANDS, CATEGORIES
-from site_config import SITE, CONTACT, SOCIAL, COMMERCE, TRUST, ANALYTICS
+from site_config import SITE, CONTACT, SOCIAL, COMMERCE, TRUST, ANALYTICS, SUPPLIER
 
 BASE = SITE["base_url"]
 
@@ -170,6 +170,7 @@ def header(active="/"):
       <a href="/about/">درباره ما</a>
       <a href="/brands/">راهنمای خودروها</a>
     </nav>
+    <span class="asmco-badge">{e(SUPPLIER["claim_fa"])}</span>
     <div class="account">
       <svg viewBox="0 0 24 24" aria-hidden="true">{SVG["phone"]}</svg>
       <span>سفارش تلفنی: <a href="tel:{e(CONTACT["phone_tel"])}">{bdi(CONTACT["phone_display"])}</a></span>
@@ -294,6 +295,7 @@ def footer():
   <div class="wrap cols">
     <div>
       <div class="f-logo">عمو<span>چینی</span></div>
+      <p class="f-claim">{e(SUPPLIER["claim_fa"])}</p>
       <ul class="contact">
         <li>
           <svg viewBox="0 0 24 24" aria-hidden="true">{SVG["pin"]}</svg>
