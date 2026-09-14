@@ -13,7 +13,9 @@ import json, os, shutil, sys, re, datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-OUT = os.path.join(ROOT, "public")
+# PUBLISH_DIR/PRICE_HISTORY let a throwaway preview be built elsewhere with
+# different data. The real site is always public/ + data/price-history.json.
+OUT = os.environ.get("PUBLISH_DIR") or os.path.join(ROOT, "public")
 sys.path.insert(0, HERE)
 
 import pages as PG
@@ -63,6 +65,28 @@ def main():
 
     products = json.load(open(os.path.join(HERE, "data", "products.json"),
                                encoding="utf-8"))
+
+    # ---- attach observed price history -----------------------------------
+    # Kept out of products.json so that file stays a pure catalogue: the
+    # history is an independent, append-only record written by
+    # snapshot_prices.py. Products with no observation get an empty stats
+    # dict, and every template treats that as "no trend exists".
+    import prices as PR
+    histfile = (os.environ.get("PRICE_HISTORY")
+                or os.path.join(HERE, "data", "price-history.json"))
+    history = (json.load(open(histfile, encoding="utf-8"))
+               if os.path.exists(histfile) else {})
+    for prod in products:
+        prod["price"] = PR.stats(history.get(prod["sku"], []))
+    tracked = sum(1 for x in products if x["price"].get("points", 0) >= 2)
+    obs = sum(len(v) for v in history.values())
+    PG.PRICE_META = dict(
+        observations=obs,
+        tracked=tracked,
+        skus=len([x for x in products if x["price"].get("points")]),
+        latest=max((x["price"]["latest_date"] for x in products
+                    if x["price"].get("latest_date")), default=None),
+    )
     groups = {}
     for p in products:
         groups.setdefault(p["brand"], []).append(p)
@@ -99,6 +123,7 @@ def main():
                         page(f"/brands/{slug}/", PG.brand_page(slug, items, products))))
     for p in products:
         written.append((p["url"], page(p["url"], PG.product_page(p, products))))
+    written.append(("/prices/", page("/prices/", PG.price_index(products))))
     written.append(("/about/", page("/about/", PG.about())))
     written.append(("/contact/", page("/contact/", PG.contact())))
     write("404.html", PG.not_found())
@@ -117,6 +142,7 @@ def main():
     for slug in cats:
         prio[f"/{slug}/"] = "0.9"
     prio["/brands/"] = "0.8"
+    prio["/prices/"] = "0.9"          # the differentiator page
     for slug in groups:
         prio[f"/brands/{slug}/"] = "0.7"
     for p in products:

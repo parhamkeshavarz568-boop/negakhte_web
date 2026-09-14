@@ -5,6 +5,10 @@ from site_config import SITE, CONTACT, COMMERCE, SOCIAL, SUPPLIER
 from layout import (e, ld, money, bdi, head, header, footer, crumbs, crumbs_ld,
                     BASE, sameas, SVG)
 import json as _json, os as _os
+import prices as PR
+
+# Filled in by build.py once the history is loaded.
+PRICE_META = dict(observations=0, tracked=0, skus=0, latest=None)
 
 # Which renditions actually exist on disk, written by build.py from the files
 # make_images.py produced. Loaded LAZILY: build.py regenerates the manifest
@@ -254,6 +258,50 @@ def price_block(p, big=False):
     return f'<div class="price">{toman}</div>'
 
 
+def price_chip(p, *, size="sm"):
+    """The delta chip beside a price.
+
+    Direction colour is "is this good for the BUYER" — a price going UP is bad
+    news for someone buying a brake disc, so up wears the warning tone and down
+    wears the good tone. That is the opposite of a stock ticker and it is the
+    right way round here.
+
+    Always icon + text, never colour alone: the status palette is sub-3:1 on a
+    light surface by design and the pairing is the mitigation, so this still
+    reads under full colour-vision deficiency and in forced-colors mode.
+    """
+    st = p.get("price") or {}
+    d = st.get("direction")
+    if d in (None, "none", "new"):
+        # One observation, or none. No trend exists, so none is claimed.
+        if st.get("latest_date"):
+            return (f'<span class="chip-price is-new" title="نخستین قیمت ثبت‌شده">'
+                    f'<span aria-hidden="true">●</span> ثبت‌شده '
+                    f'{e(to_fa_digits(PR.jalali_str(st["latest_date"], with_year=False)))}'
+                    f'</span>')
+        return ""
+    pct = abs(st["change_pct"])
+    # A 0.05% move rounds to "0%", and "▼ 0% decrease" reads as no change at
+    # all — actively misleading. Below the rounding floor, say so explicitly
+    # rather than print a zero.
+    # U+066B ARABIC DECIMAL SEPARATOR, matching the U+066C thousands
+    # separator used for prices. A Latin "." beside Persian digits is wrong.
+    num = ("کمتر از ۰٫۱" if pct < 0.05
+           else to_fa_digits(f"{pct:.1f}".rstrip("0").rstrip("."))
+                 .replace(".", "\u066B"))
+    if d == "flat":
+        return ('<span class="chip-price is-flat">'
+                '<span aria-hidden="true">=</span> بدون تغییر</span>')
+    arrow = "▲" if d == "up" else "▼"
+    word = "افزایش" if d == "up" else "کاهش"
+    cls = "is-up" if d == "up" else "is-down"
+    days = to_fa_digits(st.get("span_days") or 0)
+    return (f'<span class="chip-price {cls}" '
+            f'title="{e(word)} نسبت به {days} روز پیش">'
+            f'<span aria-hidden="true">{arrow}</span> '
+            f'<bdi>{num}٪</bdi> <span class="chip-word">{word}</span></span>')
+
+
 def card(p, eager=False):
     b = BRANDS[p["brand"]]
     badge = ""
@@ -281,6 +329,7 @@ def card(p, eager=False):
       <span>{e(AXLE_FA[p["axle"]])}</span>
     </div>
     {price_block(p)}
+    <div class="card-trend">{price_chip(p)}{PR.sparkline(p.get("price", {}).get("history", []))}</div>
     {cta}
   </div>
 </article>'''
@@ -360,6 +409,29 @@ def faq_ld(qa):
                            for q, a in qa]}
 
 
+def price_history_block(p):
+    """The per-product price story. Empty until two observations exist."""
+    st = p.get("price") or {}
+    if st.get("points", 0) < 2:
+        if not st.get("latest_date"):
+            return ""
+        return (f'<p class="hist-none">قیمت این کالا از '
+                f'{e(to_fa_digits(PR.jalali_str(st["latest_date"])))} ثبت می‌شود. '
+                f'نمودار تغییر قیمت پس از نخستین تغییر نمایش داده خواهد شد.</p>')
+    span = (f'{to_fa_digits(PR.jalali_str(st["first_date"], with_year=False))}'
+            f' تا {to_fa_digits(PR.jalali_str(st["latest_date"], with_year=False))}')
+    return f'''<section class="hist">
+  <h2>روند قیمت</h2>
+  <p class="hist-span">{e(span)} — کمترین {money(st["low"], unit=False)} /
+     بیشترین {money(st["high"], unit=False)} تومان</p>
+  {PR.history_chart(st["history"])}
+  <details class="hist-details">
+    <summary>نمایش جدول تاریخچه قیمت</summary>
+    {PR.history_table(st["history"])}
+  </details>
+</section>'''
+
+
 def product_page(p, all_p):
     b = BRANDS[p["brand"]]
     cat = CATEGORIES[p["category"]]
@@ -421,8 +493,13 @@ def product_page(p, all_p):
 
       <div class="price-box">
         {price_block(p, big=True)}
-        <div class="stock{stock_cls}">{e(stock_txt)}</div>
+        <div class="price-row">
+          <span class="stock{stock_cls}">{e(stock_txt)}</span>
+          {price_chip(p)}
+        </div>
       </div>
+
+      {price_history_block(p)}
 
       <div class="cta">
         <a class="call" href="tel:{e(CONTACT["phone_tel"])}">تماس و سفارش: {bdi(CONTACT["phone_display"])}</a>
@@ -776,6 +853,22 @@ def home(all_p, groups):
                         break
         return out
     featured = _spread([p for p in all_p if p["in_stock"]], 15)
+
+    # A price-board teaser on the home page: whatever moved most recently,
+    # else simply the first priced items. Products and their prices are the
+    # point of this site, so they lead rather than sitting below the fold.
+    priced = [x for x in all_p if x["price_irr"] is not None]
+    movers = sorted([x for x in priced
+                     if x["price"].get("direction") in ("up", "down")],
+                    key=lambda x: -abs(x["price"]["change_pct"]))
+    board_pick = (movers or priced)[:10]
+    board_rows = "".join(
+        f'<tr><td class="c-name"><a href="{e(x["url"])}">{e(x["title"])}</a></td>'
+        f'<td class="c-price"><data value="{x["price_irr"]}">'
+        f'{money(x["price_irr"], unit=False)}</data></td>'
+        f'<td class="c-trend">{price_chip(x)}</td>'
+        f'<td class="c-spark">{PR.sparkline(x["price"].get("history", []))}</td></tr>'
+        for x in board_pick)
     qa = [
         ("چطور قطعه مناسب خودروی چینی‌ام را پیدا کنم؟",
          "از جستجوگر بالای صفحه، برند خودرو و نوع قطعه را انتخاب کنید. اگر مدل "
@@ -828,9 +921,166 @@ def home(all_p, groups):
 </div>
 
 <div class="wrap">
+  <h2 class="section-title"><b>قیمت</b> روز
+    <span class="count">آخرین بروزرسانی: {e(to_fa_digits(PR.jalali_str(PRICE_META["latest"]))) if PRICE_META["latest"] else "—"}</span></h2>
+  <div class="board-scroll">
+    <table class="board">
+      <caption class="sr-only">نمونه‌ای از قیمت روز قطعات</caption>
+      <thead><tr>
+        <th scope="col">کالا</th><th scope="col">قیمت (تومان)</th>
+        <th scope="col">تغییر</th><th scope="col">روند</th>
+      </tr></thead>
+      <tbody>{board_rows}</tbody>
+    </table>
+  </div>
+  <p style="text-align:center;margin-block:var(--s5) var(--s7)">
+    <a class="more-btn" href="/prices/">مشاهده جدول کامل قیمت‌ها</a>
+  </p>
+
   <h2 class="section-title"><b>خرید</b> بر اساس خودرو</h2>
   <div class="brandgrid">{"".join(f'<a href="/brands/{e(s)}/">{e(BRANDS[s]["fa"])}<small>{to_fa_digits(len(v))} کالا</small></a>' for s, v in sorted(groups.items(), key=lambda kv: -len(kv[1])))}</div>
   {faq_block(qa)}
+</div>
+</main>
+{footer()}'''
+
+
+def price_index(products):
+    """The price board — the page the whole site is really about.
+
+    130 rows of numbers is a TABLE, not a chart. Past roughly seven classes
+    that all carry meaning, more colour stops helping and a table starts: the
+    reader wants to find their part and read its number, and scan for what
+    moved. The only colour here is the direction of each delta, and it always
+    travels with an arrow and a word.
+    """
+    url = "/prices/"
+    meta = PRICE_META
+    tracked = meta["tracked"]
+    title = f"قیمت روز قطعات ترمز خودروهای چینی | {SITE['brand_suffix']}"
+    desc = ("قیمت روز لنت ترمز، دیسک چرخ و کاسه چرخ خودروهای چینی — "
+            f"{to_fa_digits(len(products))} کالا با تاریخ آخرین تغییر قیمت.")
+    cr = [("/", "خانه"), (None, "قیمت روز")]
+
+    priced = [p for p in products if p["price_irr"] is not None]
+    movers = sorted([p for p in priced
+                     if p["price"].get("direction") in ("up", "down")],
+                    key=lambda p: -abs(p["price"]["change_pct"]))
+
+    last = meta["latest"]
+    stamp = (to_fa_digits(PR.jalali_str(last)) if last else "—")
+
+    rows = ""
+    for p in sorted(priced, key=lambda p: (p["category"], p["brand"], p["model"])):
+        st = p["price"]
+        rows += (
+            f'<tr data-cat="{e(p["category"])}" data-brand="{e(p["brand"])}" '
+            f'data-dir="{e(st.get("direction","none"))}" '
+            f'data-search="{e(p["search"])}">'
+            f'<td class="c-name"><a href="{e(p["url"])}">{e(p["title"])}</a></td>'
+            f'<td class="c-sku">{bdi(p["sku"])}</td>'
+            f'<td class="c-price"><data value="{p["price_irr"]}">'
+            f'{money(p["price_irr"], unit=False)}</data></td>'
+            f'<td class="c-trend">{price_chip(p)}</td>'
+            f'<td class="c-spark">{PR.sparkline(st.get("history", []))}</td>'
+            f'<td class="c-date">'
+            f'{to_fa_digits(PR.jalali_str(st["latest_date"], with_year=False)) if st.get("latest_date") else "—"}'
+            f'</td></tr>')
+
+    # Stat tiles only where a real delta exists; otherwise the honest state.
+    if tracked:
+        up = [p for p in movers if p["price"]["direction"] == "up"][:1]
+        down = [p for p in movers if p["price"]["direction"] == "down"][:1]
+        tiles = ""
+        for lbl, sel in (("بیشترین افزایش", up), ("بیشترین کاهش", down)):
+            if not sel:
+                continue
+            p = sel[0]
+            tiles += (f'<div class="tile"><span class="t-label">{e(lbl)}</span>'
+                      f'<a class="t-name" href="{e(p["url"])}">{e(p["title"])}</a>'
+                      f'<span class="t-value">{money(p["price_irr"])}</span>'
+                      f'<span class="t-delta">{price_chip(p)}</span>'
+                      f'{PR.sparkline(p["price"]["history"])}</div>')
+        tiles += (f'<div class="tile"><span class="t-label">کالاهای دارای تغییر قیمت</span>'
+                  f'<span class="t-value">{to_fa_digits(tracked)}</span>'
+                  f'<span class="t-label">از {to_fa_digits(len(priced))} کالای قیمت‌دار</span></div>')
+        board_note = ""
+    else:
+        tiles = ""
+        board_note = (
+            '<p class="board-note"><b>ثبت قیمت‌ها از امروز آغاز شده است.</b> '
+            'نمودار تغییر قیمت و درصد افزایش یا کاهش، از دومین ثبت قیمت به بعد '
+            'برای هر کالا نمایش داده می‌شود. تا آن زمان تنها قیمت روز و تاریخ '
+            'ثبت آن نشان داده می‌شود — نموداری از داده‌ای که وجود ندارد ساخته نمی‌شود.</p>')
+
+    jsonld = [crumbs_ld(cr), org_ld(),
+              {"@context": "https://schema.org", "@type": "CollectionPage",
+               "name": title, "url": BASE + url, "inLanguage": "fa-IR",
+               "description": desc, "publisher": {"@id": BASE + "/#org"}}]
+
+    brand_opts = "".join(
+        f'<option value="{e(b)}">{e(BRANDS[b]["fa"])}</option>'
+        for b in sorted({p["brand"] for p in priced}, key=lambda s: BRANDS[s]["fa"]))
+    cat_opts = "".join(f'<option value="{e(c)}">{e(CATEGORIES[c]["fa"])}</option>'
+                       for c in CAT_ORDER)
+
+    return f'''{head(title=title, description=desc, canonical=url, jsonld=jsonld)}
+{header(url)}
+{crumbs(cr)}
+<main id="main">
+<div class="page-head"><div class="wrap">
+  <h1>قیمت روز قطعات ترمز</h1>
+  <p>قیمت هر کالا در هر بار تغییر ثبت می‌شود، پس می‌توانید ببینید قیمت چه زمانی
+     و چه مقدار تغییر کرده است.</p>
+  <p class="meta">آخرین بروزرسانی: {stamp}
+     — {to_fa_digits(meta["observations"])} قیمت ثبت‌شده برای
+     {to_fa_digits(meta["skus"])} کالا</p>
+</div></div>
+
+<div class="wrap">
+  {f'<div class="tiles">{tiles}</div>' if tiles else ''}
+  {board_note}
+
+  <div class="filters board-filters">
+    <div class="row">
+      <label class="sr-only" for="pq">جستجو در جدول قیمت</label>
+      <input type="search" id="pq" placeholder="جستجوی نام کالا، خودرو یا کد" autocomplete="off">
+      <label class="sr-only" for="pc">دسته‌بندی</label>
+      <select id="pc"><option value="">همه دسته‌ها</option>{cat_opts}</select>
+      <label class="sr-only" for="pb">خودرو</label>
+      <select id="pb"><option value="">همه خودروها</option>{brand_opts}</select>
+      <label class="sr-only" for="pd">تغییر قیمت</label>
+      <select id="pd">
+        <option value="">همه تغییرات</option>
+        <option value="up">افزایش‌یافته</option>
+        <option value="down">کاهش‌یافته</option>
+        <option value="flat">بدون تغییر</option>
+      </select>
+    </div>
+    <p class="result-count" id="pcount" role="status" aria-live="polite"></p>
+  </div>
+
+  <div class="board-scroll">
+    <table class="board" id="board">
+      <caption class="sr-only">جدول قیمت روز قطعات ترمز</caption>
+      <thead>
+        <tr>
+          <th scope="col">کالا</th>
+          <th scope="col">کد</th>
+          <th scope="col">قیمت (تومان)</th>
+          <th scope="col">تغییر</th>
+          <th scope="col">روند</th>
+          <th scope="col">تاریخ ثبت</th>
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </table>
+    <p class="empty" id="pempty" hidden>کالایی با این مشخصات پیدا نشد.</p>
+  </div>
+
+  <p class="board-foot">قیمت‌ها به تومان و شامل مالیات بر ارزش افزوده است.
+     برای تأیید قیمت نهایی و موجودی، پیش از سفارش
+     <a href="/contact/">تماس بگیرید</a>.</p>
 </div>
 </main>
 {footer()}'''

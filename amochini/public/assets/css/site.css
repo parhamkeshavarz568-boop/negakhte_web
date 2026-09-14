@@ -849,3 +849,146 @@ footer{view-transition-name:sitefooter}
 /* ---- smoother anchor scrolling ----
    scroll-padding keeps an anchored heading clear of the sticky-ish chrome. */
 html{scroll-padding-block-start:var(--s5)}
+
+/* ==========================================================================
+   PRICE INDEX
+   Direction colour answers "is this good for the BUYER" — a price going up is
+   bad news for someone buying a brake disc, so up wears the warning tone and
+   down wears the good tone. That is the inverse of a stock ticker.
+   Every chip carries an arrow and a word as well as a colour: the status
+   tones sit below 3:1 on a light surface by design, and the icon+label
+   pairing is what makes them readable under colour-vision deficiency and in
+   forced-colors mode.
+   ========================================================================== */
+:root{
+  /* De-emphasis hue for the sparkline body. #b9b2a6 was the first choice and
+     measured 2.10:1 on white — below the 3:1 non-text bar. This clears it on
+     both the card surface and the tinted image well. */
+  --spark-ink:#8a8276;
+
+  /* Diverging pair: RED for a price rise, BLUE for a fall.
+     Not red/green. Red↔green is the single most common colour-vision
+     collision and the pair measured ΔE 5.6 under deuteranopia — below even
+     the 6–8 floor that secondary encoding can rescue. Red↔blue measures
+     ΔE 22.5 (protan) / 28.0 (normal) and passes every check, which is why
+     warm/cool is the recommended diverging pair: the poles read as opposite.
+     Blue is not "good" the way green is, so the arrow and the word carry
+     that meaning — which they have to anyway, colour never being alone. */
+  --up-bg:#fdeceb; --up-ink:#a32218;   /* price rose  — bad for the buyer */
+  --dn-bg:#eaf2fb; --dn-ink:#1a5fa8;   /* price fell  — good for the buyer */
+}
+
+.chip-price{
+  display:inline-flex;align-items:center;gap:var(--s1);
+  font-size:var(--t-xs);font-weight:700;
+  padding:2px var(--s2);border-radius:var(--r-xs);
+  white-space:nowrap;
+}
+.chip-price.is-up  {background:var(--up-bg);color:var(--up-ink)}
+.chip-price.is-down{background:var(--dn-bg);color:var(--dn-ink)}
+.chip-price.is-flat{background:var(--page);color:var(--muted);font-weight:600}
+.chip-price.is-new {background:var(--page);color:var(--muted);font-weight:500}
+.chip-word{font-weight:500}
+@media (max-width:520px){.chip-word{display:none}}   /* arrow + % is enough */
+
+.spark{display:block;flex:none;overflow:visible}
+.card-trend{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--s2);margin-top:var(--s2);min-height:24px;
+}
+
+/* ---- stat tiles ---- */
+.tiles{display:grid;gap:var(--s4);margin-block:var(--s5);grid-template-columns:1fr}
+.tile{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--e1);padding:var(--s4) var(--s5);
+  display:flex;flex-direction:column;gap:var(--s1);
+}
+.t-label{font-size:var(--t-xs);color:var(--muted);font-weight:600}
+.t-name{font-size:var(--t-sm);font-weight:600;color:var(--head);line-height:1.6}
+.t-name:hover{color:var(--gold-ink)}
+/* Proportional figures, not tabular: at display size tabular-nums gives every
+   digit the width of a zero and a big number reads loose. */
+.t-value{font-size:var(--t-2xl);font-weight:800;color:var(--head);line-height:1.2}
+.t-delta{margin-top:var(--s1)}
+
+/* ---- the board ---- */
+.board-note{
+  background:var(--yellow-soft);border:1px solid #f3dfb4;
+  border-inline-start:4px solid var(--yellow);
+  border-radius:var(--r);padding:var(--s4) var(--s5);
+  margin-block:var(--s5);color:var(--text);font-size:var(--t-sm);line-height:1.9;
+}
+.board-note b{color:var(--head)}
+
+.board-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.board{
+  width:100%;border-collapse:separate;border-spacing:0;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;font-size:var(--t-sm);
+  /* tabular figures HERE and only here: a column of prices must align */
+  font-variant-numeric:tabular-nums;
+}
+.board th,.board td{
+  padding:var(--s3) var(--s4);text-align:start;
+  border-bottom:1px solid var(--line);vertical-align:middle;
+}
+.board thead th{
+  background:var(--well);font-weight:700;color:var(--text);
+  font-size:var(--t-xs);position:sticky;top:0;z-index:2;
+  border-bottom:1px solid var(--line-strong);
+  font-variant-numeric:normal;
+}
+.board tbody tr:last-child td{border-bottom:0}
+.board tbody tr:hover{background:var(--yellow-soft)}
+.board .c-name{font-weight:600;color:var(--head);min-width:200px}
+.board .c-name a:hover{color:var(--gold-ink)}
+.board .c-sku{color:var(--muted);font-size:var(--t-xs)}
+.board .c-price{font-weight:800;color:var(--head);font-size:var(--t-md);white-space:nowrap}
+.board .c-date{color:var(--muted);font-size:var(--t-xs);white-space:nowrap}
+.board .c-spark{width:80px}
+.board-foot{color:var(--muted);font-size:var(--t-xs);margin-block:var(--s4) var(--s7);line-height:1.9}
+.board-foot a{color:var(--gold-ink);font-weight:600}
+
+@media (min-width:700px){
+  .tiles{grid-template-columns:repeat(3,1fr)}
+  .board-filters .row{grid-template-columns:2fr 1fr 1fr 1fr}
+}
+@media (max-width:640px){
+  .board .c-sku,.board .c-spark{display:none}   /* keep the row readable */
+}
+
+/* Preview-only banner. Rendered exclusively when PREVIEW_BANNER is set by
+   build/make_preview.py, so it can never appear on the published site. */
+.preview-banner{
+  background:#7a1f16;color:#fff;font-size:var(--t-xs);font-weight:700;
+  padding:var(--s3) var(--s4);text-align:center;line-height:1.7;
+  position:sticky;top:0;z-index:999;
+}
+
+/* ---- per-product price history ---- */
+.price-row{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;margin-top:var(--s3)}
+.hist{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--e1);
+  padding:var(--s5);margin-block:var(--s5);
+}
+.hist h2{font-size:var(--t-lg);font-weight:700;color:var(--head);margin-bottom:var(--s1)}
+.hist-span{color:var(--muted);font-size:var(--t-xs);margin-bottom:var(--s4);font-variant-numeric:tabular-nums}
+.hchart{width:100%;height:150px;display:block;overflow:visible}
+.hchart .hc-y,.hchart .hc-x{
+  font-size:10px;fill:var(--muted);font-weight:600;
+  font-family:Vazirmatn,Tahoma,sans-serif;
+}
+.hchart .hc-hit{cursor:default}
+.hchart .hc-hit:focus-visible{outline:2px solid var(--yellow);outline-offset:1px}
+.hist-details{margin-top:var(--s4)}
+.hist-details summary{
+  cursor:pointer;font-size:var(--t-sm);font-weight:600;color:var(--gold-ink);
+}
+.hist-table{margin-top:var(--s3);font-variant-numeric:tabular-nums}
+.hist-none{
+  background:var(--page);border:1px dashed var(--line-strong);
+  border-radius:var(--r);padding:var(--s4);color:var(--muted);
+  font-size:var(--t-sm);margin-block:var(--s4);line-height:1.9;
+}

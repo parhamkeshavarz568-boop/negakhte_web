@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Shared chrome: <head>, header, nav, footer, and the SEO/JSON-LD helpers."""
-import json, html
+import json, html, os as _os
 from normalize import to_fa_digits, BRANDS, CATEGORIES
 from site_config import SITE, CONTACT, SOCIAL, COMMERCE, TRUST, ANALYTICS, SUPPLIER
 
@@ -48,6 +48,7 @@ def bdi(s):
 # --------------------------------------------------------------- navigation
 NAV = [
     ("/", "صفحه اصلی"),
+    ("/prices/", "قیمت روز"),
     ("/brake-pads/", "لنت ترمز"),
     ("/brake-discs/", "دیسک چرخ"),
     ("/brake-drums/", "کاسه چرخ"),
@@ -160,7 +161,13 @@ def header(active="/"):
     nav = "\n      ".join(
         f'<a href="{e(u)}"{CUR if u == active else ""}>{e(t)}</a>'
         for u, t in NAV)
+    banner = ('<div class="preview-banner" role="status">'
+              '⚠ پیش‌نمایش — تغییرات قیمت در این نسخه <b>نمونه و غیرواقعی</b> '
+              'است و تنها برای نمایش طرح ساخته شده. '
+              'PREVIEW BUILD — PRICE MOVEMENT IS SYNTHETIC, NOT REAL DATA.'
+              '</div>') if _os.environ.get("PREVIEW_BANNER") else ""
     return f'''<body>
+{banner}
 <a class="skip" href="#main">پرش به محتوای اصلی</a>
 
 <div class="topbar">

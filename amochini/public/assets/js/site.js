@@ -247,6 +247,58 @@
     update();
   });
 
+  /* ---------- price board filtering --------------------------------------
+     Operates on the server-rendered <tr> rows already in the document, so the
+     full price table is in the HTML for crawlers and for anyone without JS. */
+  var board = document.getElementById('board');
+  var pq = document.getElementById('pq');
+  if (board && pq) {
+    var rows = [].slice.call(board.tBodies[0].rows).map(function (tr) {
+      return {
+        tr: tr,
+        k: norm(tr.getAttribute('data-search') || tr.textContent),
+        cat: tr.getAttribute('data-cat') || '',
+        brand: tr.getAttribute('data-brand') || '',
+        dir: tr.getAttribute('data-dir') || ''
+      };
+    });
+    var pc = document.getElementById('pc'), pb = document.getElementById('pb'),
+        pd = document.getElementById('pd'), pcount = document.getElementById('pcount'),
+        pempty = document.getElementById('pempty');
+
+    function applyBoard() {
+      var q = expandLetterNames(norm(pq.value)), n = 0;
+      rows.forEach(function (r) {
+        var ok = (!q || r.k.indexOf(q) !== -1) &&
+                 (!pc.value || r.cat === pc.value) &&
+                 (!pb.value || r.brand === pb.value) &&
+                 (!pd.value || r.dir === pd.value);
+        r.tr.hidden = !ok;
+        if (ok) n++;
+      });
+      pcount.textContent = n ? faDigits(n) + ' کالا' : '';
+      pempty.hidden = n !== 0;
+      var qs = [];
+      if (pq.value) qs.push('q=' + encodeURIComponent(pq.value));
+      if (pc.value) qs.push('cat=' + pc.value);
+      if (pb.value) qs.push('brand=' + pb.value);
+      if (pd.value) qs.push('dir=' + pd.value);
+      history.replaceState(null, '', qs.length ? '?' + qs.join('&') : location.pathname);
+    }
+
+    var bp = new URLSearchParams(location.search);
+    if (bp.get('q')) pq.value = bp.get('q');
+    if (bp.get('cat')) pc.value = bp.get('cat');
+    if (bp.get('brand')) pb.value = bp.get('brand');
+    if (bp.get('dir')) pd.value = bp.get('dir');
+
+    [pq, pc, pb, pd].forEach(function (el) {
+      el.addEventListener('input', applyBoard);
+      el.addEventListener('change', applyBoard);
+    });
+    applyBoard();
+  }
+
   /* ---------- category page filtering ------------------------------------
      Operates on the server-rendered cards already in the DOM, so the full
      product list is in the HTML for crawlers whether or not JS runs. */

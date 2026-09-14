@@ -28,7 +28,7 @@ from playwright.sync_api import sync_playwright
 CHROME = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
 PORT = os.environ.get("PORT", "8907")
 BASE = f"http://localhost:{PORT}"
-PAGES = ["/", "/brake-discs/", "/brake-pads/", "/brands/mvm/",
+PAGES = ["/", "/prices/", "/brake-discs/", "/brake-pads/", "/brands/mvm/",
          "/brake-discs/mvm-33x-rear-tra-x/", "/contact/", "/about/"]
 VIEWPORTS = [("mobile", 390, 844), ("tablet", 768, 1024), ("desktop", 1440, 900)]
 
