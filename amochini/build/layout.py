@@ -116,6 +116,11 @@ def head(*, title, description, canonical, jsonld=(), og_image=None,
         f'<meta name="description" content="{e(description)}">',
         f'<link rel="canonical" href="{e(url)}">',
     ]
+    # A preview build is noindexed at the source. It replaces the visible
+    # banner: no clutter while reviewing the design, but a copy that leaks
+    # onto a server still cannot enter the index.
+    if _os.environ.get("PREVIEW_NOINDEX"):
+        robots = "noindex, nofollow"
     if robots:
         parts.append(f'<meta name="robots" content="{e(robots)}">')
     parts += [
@@ -161,13 +166,7 @@ def header(active="/"):
     nav = "\n      ".join(
         f'<a href="{e(u)}"{CUR if u == active else ""}>{e(t)}</a>'
         for u, t in NAV)
-    banner = ('<div class="preview-banner" role="status">'
-              '⚠ پیش‌نمایش — تغییرات قیمت در این نسخه <b>نمونه و غیرواقعی</b> '
-              'است و تنها برای نمایش طرح ساخته شده. '
-              'PREVIEW BUILD — PRICE MOVEMENT IS SYNTHETIC, NOT REAL DATA.'
-              '</div>') if _os.environ.get("PREVIEW_BANNER") else ""
     return f'''<body>
-{banner}
 <a class="skip" href="#main">پرش به محتوای اصلی</a>
 
 <div class="topbar">

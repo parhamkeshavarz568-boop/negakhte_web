@@ -29,13 +29,19 @@ def deterministic_walk(sku, base, weeks=10):
     # A third of SKUs end on a DECREASE, so the preview exercises both
     # directions and the reviewer can see the blue state and the
     # "biggest decrease" tile. Real data will be whatever it is.
-    ends_down = (h[0] % 3 == 0)
-    price = int(base * (0.80 if not ends_down else 1.14))
+    # Iranian parts pricing trends upward, so only about one SKU in seven ends
+    # on a decrease — enough that the blue state and the "biggest decrease"
+    # tile still render for review, without misrepresenting the direction.
+    ends_down = (h[0] % 7 == 0)
+    # ~20% over ten weeks for a riser: aggressive but credible for Iranian
+    # parts pricing. 0.62 produced 30-57% chips, which made the layout review
+    # unrepresentative.
+    price = int(base * (0.82 if not ends_down else 1.07))
     out = []
     for i in range(weeks):
         d = today - datetime.timedelta(days=(weeks - 1 - i) * 7)
         # Iranian parts pricing drifts upward, with occasional corrections.
-        bias = -0.30 if not ends_down else -0.62
+        bias = -0.29 if not ends_down else -0.58
         step = (h[i % len(h)] / 255.0 + bias) * 0.055
         price = max(1000, int(price * (1 + step)))
         if i == weeks - 1:
@@ -60,7 +66,7 @@ def main():
     tmp.close()
 
     env = dict(os.environ, PUBLISH_DIR=OUT, PRICE_HISTORY=tmp.name,
-               PREVIEW_BANNER="1")
+               PREVIEW_NOINDEX="1")
     os.makedirs(OUT, exist_ok=True)
     # assets the preview needs, copied from the real build
     for sub in ("assets", "favicon.svg", "favicon.ico"):
@@ -78,6 +84,12 @@ def main():
     print(f"\nPREVIEW ONLY -> {OUT}")
     print(f"  {pts} synthetic observations across {len(hist)} SKUs")
     print(f"  public/ and build/data/price-history.json were NOT touched")
+    print()
+    print("  !! This build's price movement is SYNTHETIC. It carries")
+    print("     <meta name=robots content=noindex> on every page so it cannot")
+    print("     be indexed if it is ever served by accident. Do not publish it:")
+    print("     to give the site REAL history, backdate actual past prices with")
+    print("        python3 build/snapshot_prices.py --date YYYY-MM-DD")
     return r.returncode
 
 
