@@ -197,3 +197,29 @@ redirects simply won't happen.
 
 LiteSpeed (very common on Iranian cPanel hosting) reads `.htaccess` fine. Ask
 the host, or check for a `Server:` header before relying on it.
+
+---
+
+## Supplied photography — licence not yet confirmed
+
+Five photographs were supplied by the owner and are vendored at
+`build/original/images/supplied/`. One is in use:
+
+| file | used | where |
+|---|---|---|
+| `headlights-amber-on-black.jpg` | **yes** | cropped to `lights-band`, closing the board band (DESIGN.md §14.4) |
+| `headlights-white-bmw.jpg` | no | recognisable BMW front end |
+| `challenger-rear-red-smoke.jpg` | no | Dodge Challenger, DODGE lettering visible |
+| `bmw-m3-daylight.jpg` | no | BMW M3, roundel and grille centre-frame |
+| `challenger-burnout.jpg` | no | Challenger, SRT badge, 735px wide |
+
+**Open item before launch:** the provenance of these files is unknown to the
+build. Commercial use needs a licence that covers it — a stock licence, the
+photographer's permission, or a Creative Commons / Unsplash-style grant. The
+one in use is cropped to two lights in the dark with no car, badge or
+manufacturer's mark visible, which reduces the trademark question to nothing,
+but it does **not** settle the copyright in the photograph itself.
+
+If the licence cannot be confirmed, the band should be replaced. A photograph
+of a real headlight or brake light taken in the shop would do the same job,
+cost nothing, and be unambiguously ours.

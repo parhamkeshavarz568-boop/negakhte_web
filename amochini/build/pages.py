@@ -1040,7 +1040,7 @@ def home(all_p, groups):
 <main id="main">
 {ticker(board_pick)}
 
-<section class="board-band bb-split" aria-labelledby="bb-h">
+<section class="board-band bb-split bb-lit" aria-labelledby="bb-h">
   <div class="wrap">
     <div class="bb-lede">
       <h1 id="bb-h">قیمت روز قطعات ترمز خودروهای چینی</h1>
@@ -1085,6 +1085,11 @@ def home(all_p, groups):
         <button type="submit">جستجوی قطعه</button>
       </form>
     </div>
+  </div>
+
+  <div class="lights" aria-hidden="true">
+    {picture("lights-band", alt="", box=1200, sizes="100vw")}
+    <div class="glows"><span class="glow glow-a"></span><span class="glow glow-b"></span></div>
   </div>
 </section>
 

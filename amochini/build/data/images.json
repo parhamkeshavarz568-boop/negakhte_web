@@ -77,6 +77,19 @@
   ],
   "ar": 1.0
  },
+ "lights-band": {
+  "widths": [
+   640,
+   1024,
+   1200
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 0.16666666666666666
+ },
  "cat-brake-drums": {
   "widths": [
    160,

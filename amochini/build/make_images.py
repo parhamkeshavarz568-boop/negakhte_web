@@ -46,6 +46,13 @@ PLAN = {
     # dark studio photos in the same three-card row, which read as a
     # mismatched set. Still a placeholder — see docs/PLACEHOLDERS.md.
     "cat-brake-drums": [160, 320, 400],
+    # The headlight band that closes the board (DESIGN.md §14.4). A measured
+    # 1200x200 crop of the supplied amber-headlights-on-black photograph: the
+    # bright band sits at y 606-689 of the 900px original, so this window
+    # centres it with a little more black below. 1200 is the honest ceiling —
+    # the source is 1200 wide and upscaling a photograph is fake detail. It is
+    # almost entirely black, so it compresses to a few KB.
+    "lights-band":     [640, 1024, 1200],
     "disc-drilled":    [400, 600, 700],
     "disc-slotted":    [400, 600, 700],
     "disc-plain":      [400, 600, 700],

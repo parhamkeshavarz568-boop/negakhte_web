@@ -296,7 +296,15 @@ A product listing is a **row**, not a card. That single change removes the
 
 ## 9. One motion moment — the tape
 
-**The tape scrolls. Nothing else on this site moves.**
+**The tape scrolls, and the site has one pulse. Nothing else moves.**
+
+Two expressions of one motion idea — the heartbeat — on one keyframe:
+
+- `ticker-slide` — the tape's continuous crawl.
+- `tick-pulse` — a 2.4s breath, used by the tape's dot, the board's date stamp,
+  and the headlight glow (§14.4). Three elements, **one keyframe**. Adding a
+  second pulse rhythm would make it two motion moments; reusing this one keeps
+  it one.
 
 One continuous horizontal crawl of today's prices, at the top of the page,
 entering from the right where a Persian reader's eye starts. It is the site
@@ -482,3 +490,61 @@ products are now 1.7× short of a DPR-2 340px box instead of 1.4× short of a
 would be fake sharpness, so it is not done. This is the photography ceiling in
 `docs/PLACEHOLDERS.md` showing up again, and real product photography is what
 fixes it.
+
+### 14.4 — The headlights
+
+A 1200×200 crop of a supplied photograph — two amber headlight clusters
+glowing in pure black — closing the board band, full-bleed, once per page.
+
+**Bends:** §8's "nothing else on the site may be dark" and §9's "nothing else
+moves". Both narrowly, and both on purpose.
+
+**Why it is allowed.**
+
+It is not a second dark band. It sits *inside* `<section class="board-band">`,
+outside the 1180px `.wrap`, and `.bb-lit` removes the section's bottom padding
+so the photograph **is** the board's bottom edge. The board still ends once,
+and now it ends in headlights.
+
+The photograph is static. The only thing that animates is the **opacity** of
+two radial glows over the lamps, and it animates on `tick-pulse` — the same
+keyframe and the same 2.4s rhythm as the tape's dot and the date stamp. One
+motion idea, three places, as §9 now records. A second rhythm would have made
+it two moments; this does not.
+
+It introduces **no new colour**: the glow is `var(--amber)` to `transparent`,
+and its strength comes from one static `opacity` on the wrapper, so the
+gradient needs no alpha and the stylesheet still carries no `rgba()`.
+
+**Why this image, and not the other four supplied.**
+
+The amber matches `--amber` and the ground matches `--board`, which is luck
+worth taking. More importantly it is the only one of the five that is **on
+subject and anonymous**: no car body, no badge, no manufacturer's mark — two
+lights in the dark, which is what a brake-parts shop is about. The other four
+are a BMW M3 in daylight, a BMW front end, a Dodge Challenger rear in red
+smoke and a Challenger burnout. All four show recognisable cars that this shop
+does not sell parts for, three carry other manufacturers' trademarks, and a
+mechanic looking for لنت ترمز for an MVM 315 learns nothing from a Hellcat.
+They are vendored at `build/original/images/supplied/` and unused.
+
+**Engineering notes.**
+
+- The crop is measured, not eyeballed: the bright band sits at y 606–689 of
+  the 900px original, so the window is y 560–760.
+- The glow centres are the measured lamp centres — x 185 and x 1036 of 1200,
+  i.e. 15.4% and 86.3% — set with **physical `left`**, because they must not
+  flip with text direction.
+- `aspect-ratio: 6/1` matches the source at every width, so `cover` never has
+  anything to crop. A 4:1 phone variant was tried and rejected: it scaled to
+  the height and took 25% off each side, cutting both lamps in half, since the
+  lamps sit exactly where a horizontal crop bites.
+- Opacity is compositor-only. An animated `filter: brightness()` on a 1200px
+  photograph would repaint every frame; this does not.
+- Under `prefers-reduced-motion` the global rule freezes the animation at its
+  base state, which leaves the lamps simply **on**. That is the right still.
+- 5.0 KB as AVIF at 1200px, 2.6 KB at 640. Heaviest page went 141.2 → 141.5 KB
+  against the 150 KB budget, and CLS stayed 0.000 on all 24 combinations —
+  the `aspect-ratio` plus the `width`/`height` attributes reserve the box.
+- The image is decorative, so `alt=""` and `aria-hidden="true"`: it carries no
+  information a screen-reader user would miss.

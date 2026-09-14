@@ -399,6 +399,59 @@ bdi{unicode-bidi:isolate}
 }
 @media (prefers-reduced-motion:reduce){ .stamp::before{animation:none} }
 
+/* ---- the headlights: DESIGN.md §14.4 ----
+   The board closes in two headlights coming out of the dark. It sits INSIDE
+   the board band, so it is the bottom edge of the signature element rather
+   than a second dark thing on the page.
+
+   The photograph is static. The only thing that moves is the opacity of two
+   radial glows sitting over the lamps, and it moves on `tick-pulse` — the
+   SAME keyframe and the same 2.4s rhythm as the tape's dot and the board's
+   date stamp. That is deliberate: one motion idea, the site's heartbeat,
+   expressed in three places, not three animations. Opacity is a
+   compositor-only property, so this costs no layout and no repaint — an
+   animated `filter: brightness()` on a 1200px photograph would cost both. */
+/* .bb-lit marks a board band that ends in the lights, so its bottom padding
+   goes and the photograph becomes the section's actual edge. A class rather
+   than :has() — the Android WebView tail this site serves predates :has(). */
+.bb-lit{padding-block-end:0}
+.lights{
+  position:relative;margin-top:var(--s3);
+  /* full-bleed: it sits OUTSIDE .wrap, so the photograph spans the viewport
+     and meets the paper below without a visible rectangle edge */
+  aspect-ratio:6/1;          /* 1200x200 — reserves the box, so no shift */
+  overflow:hidden;
+  /* fade the top edge so the lights emerge from the board instead of
+     appearing as a pasted-on rectangle */
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 45%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 45%);
+}
+.lights img{width:100%;height:100%;object-fit:cover;display:block}
+/* One static opacity on the group sets the strength; the pulse then swings
+   it. 0.5 x (1 -> 0.25) lands between 0.5 and 0.13, which reads as breathing
+   rather than blinking. Keeping the strength here means the gradient needs no
+   alpha value, so the stylesheet still carries no rgba(). */
+.lights .glows{position:absolute;inset:0;opacity:.5;pointer-events:none}
+.glow{
+  position:absolute;top:43.5%;width:20%;height:210%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,var(--amber),transparent);
+  animation:tick-pulse 2.4s ease-in-out infinite;
+}
+/* PHYSICAL left, not an inline-logical property: these two numbers are the
+   measured centres of the lamps in the photograph (x=185 and x=1036 of 1200),
+   so they must not flip with text direction. */
+.glow-a{left:15.4%}
+.glow-b{left:86.3%}
+/* The aspect ratio matches the source (1200x200) at EVERY width, so cover
+   never has anything to crop. Tried 4:1 on phones to make the band taller:
+   cover then scaled to the height and took 25% off each side, which cut both
+   lamps in half — they sit at 15% and 86% of the width, i.e. exactly where a
+   horizontal crop bites. A 62px strip with both lamps whole beats a 94px one
+   with both of them sliced. */
+/* Under reduced motion the global rule freezes the animation at its base
+   state, which leaves the lamps simply on. That is the right still frame. */
+
 /* The headline figure — DESIGN.md §4. One per page. */
 .figure-block{
   margin-top:var(--s3);padding-top:var(--s3);
