@@ -1154,7 +1154,9 @@ def contact():
       <tr><th scope="row">تلفن</th><td><a href="tel:{e(CONTACT["phone_tel"])}">{bdi(CONTACT["phone_display"])}</a></td></tr>
       <tr><th scope="row">همراه / واتساپ</th><td><a href="tel:{e(CONTACT["mobile_tel"])}">{bdi(CONTACT["mobile_display"])}</a></td></tr>
       <tr><th scope="row">ایمیل</th><td><a href="mailto:{e(CONTACT["email"])}">{bdi(CONTACT["email"])}</a></td></tr>
-      <tr><th scope="row">نشانی</th><td>{e(CONTACT["street"])}{("، " + e(CONTACT["city"])) if CONTACT["city"] else ""}</td></tr>
+      <tr><th scope="row">نشانی</th><td>{e(CONTACT["street"])}{("، " + e(CONTACT["city"])) if CONTACT["city"] else ""}<br>
+        <a href="{e(CONTACT["map_url"])}" rel="noopener" target="_blank"
+           style="color:var(--gold-ink);font-weight:600">مشاهده روی نقشه گوگل ›</a></td></tr>
       <tr><th scope="row">ساعات کاری</th><td>{e(CONTACT["hours_display"])}</td></tr>
     </tbody>
   </table>

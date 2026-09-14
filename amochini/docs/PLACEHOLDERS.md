@@ -36,12 +36,25 @@ Also worth confirming: the old homepage claimed **100,000+ parts**. The
 catalogue here is 130 SKUs. I did not repeat the claim anywhere. If it is true
 of the physical shop, it is worth saying so explicitly on the About page.
 
+## DONE — supplied by the owner
+
+- **Address:** چراغ برق، خیابان اکباتان، کوچه آهنین، تهران — in the footer, on
+  the contact page, and as `streetAddress` in the store's structured data.
+- **Coordinates:** 35.6890924, 51.4266222 — emitted as `GeoCoordinates`, which
+  is what feeds Google Maps and the local pack. Both the footer address and the
+  contact page link to the map.
+- **Phone 09122650076** — confirmed for both calls and WhatsApp, so the call
+  button and the WhatsApp button both use it.
+- **ASMCO** — all 130 SKUs, wording «عرضه‌کننده قطعات ASMCO».
+
+Still missing from this block: a **postcode**, which is optional but helps
+local SEO.
+
 ## 1. BLOCKING — the site should not go live without these
 
 | What | Where | Why it blocks |
 |---|---|---|
-| **Street address** | `CONTACT["street"]`, `["city"]`, `["region"]`, `["postal_code"]` | Still «نشانی نمونه، خیابان نمونه، پلاک ۰۰». Goes into `AutoPartsStore` structured data and gates local-pack eligibility. A fake address can get a Google Business Profile suspended. |
-| **e-Namad + ساماندهی badges** | `TRUST` | Iranian online shops are expected to display these, and many buyers will not order without them. A labelled empty slot renders in the footer meanwhile, so the layout is already right. |
+| **e-Namad + ساماندهی badges** | `TRUST` | Iranian online shops are expected to display these, and many buyers will not order without them. A labelled empty slot renders in the footer meanwhile, so the layout is already right. **This is the last blocker.** |
 | **Email** | `CONTACT["email"]` | Set to `info@amochini.ir` — **confirm the mailbox exists** before publishing it. |
 | **Currency check** | `COMMERCE["display_divisor"]` | See §4. Getting this wrong shows every price off by 10×. |
 | **TLS certificate** | host, then `SCHEME` in `site_config.py` | The site ships as `http://` on purpose. See §8. |

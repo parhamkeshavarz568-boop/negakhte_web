@@ -48,28 +48,31 @@ SITE = dict(
 # ---------------------------------------------------------------- contact
 # TODO: every value in this block is a placeholder from the draft.
 CONTACT = dict(
-    # 09122650076 is the number the live amochini.ir publishes — it appears in
-    # Google's cached description of the site. VERIFY it is still current before
-    # launch; it is taken from the search index, not from the owner directly.
+    # 09122650076 — confirmed by the owner as the number for BOTH calls and
+    # WhatsApp, which is why phone/mobile/whatsapp all carry it.
     phone_display="۰۹۱۲۲۶۵۰۰۷۶",
     phone_tel="+989122650076",
     mobile_display="۰۹۱۲۲۶۵۰۰۷۶",
     mobile_tel="+989122650076",
     whatsapp="989122650076",                # digits only, no +
     email="info@amochini.ir",               # TODO: confirm this mailbox exists
-    street="نشانی نمونه، خیابان نمونه، پلاک ۰۰",   # TODO: real street address
-    city="تهران",                            # TODO: confirm city
-    region="تهران",                          # TODO: confirm province
-    postal_code="",                          # TODO: real postcode (helps local SEO)
+    street="چراغ برق، خیابان اکباتان، کوچه آهنین",
+    city="تهران",
+    region="تهران",
+    postal_code="",                          # TODO: postcode — helps local SEO
+    # Short, stable form of the Google Maps place. The full share URL is
+    # ~900 characters of session state; this coordinate query is equivalent
+    # and will not rot.
+    map_url="https://www.google.com/maps/search/?api=1&query=35.6890924,51.4266222",
     country="IR",
     hours_display="شنبه تا پنج‌شنبه، ۸ الی ۱۷",
     # schema.org openingHours — 24h, Gregorian day codes
     hours_schema=["Sa 08:00-17:00", "Su 08:00-17:00", "Mo 08:00-17:00",
                   "Tu 08:00-17:00", "We 08:00-17:00", "Th 08:00-17:00"],
-    # TODO: real coordinates of the shop. Leave as None to omit geo from schema
-    # rather than publish wrong ones — a wrong pin is worse than no pin.
-    latitude=None,
-    longitude=None,
+    # From the owner's Google Maps place. Emitted as GeoCoordinates in the
+    # AutoPartsStore structured data, which is what feeds Maps and the local pack.
+    latitude=35.6890924,
+    longitude=51.4266222,
 )
 
 # ---------------------------------------------------------------- socials

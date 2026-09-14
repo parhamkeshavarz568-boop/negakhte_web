@@ -306,7 +306,8 @@ def footer():
       <ul class="contact">
         <li>
           <svg viewBox="0 0 24 24" aria-hidden="true">{SVG["pin"]}</svg>
-          <b>{e(CONTACT["street"])}</b>
+          <b><a href="{e(CONTACT["map_url"])}" rel="noopener" target="_blank">{e(CONTACT["street"])}</a>
+          <small>{e(CONTACT["city"])} — مشاهده روی نقشه</small></b>
         </li>
         <li>
           <svg viewBox="0 0 24 24" aria-hidden="true">{SVG["phone"]}</svg>
