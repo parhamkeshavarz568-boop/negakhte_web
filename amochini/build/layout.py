@@ -133,7 +133,16 @@ def head(*, title, description, canonical, jsonld=(), og_image=None,
          og_type="website", robots=None, extra=""):
     """Build the <head>. `canonical` is a site-root-relative path like /about/."""
     url = BASE + canonical
-    img = og_image or "/assets/img/hero-bg-1024.jpg"
+    # One branded 1200x630 card, site-wide, built by make_icons.py.
+    #
+    # The pages used to hand a 700x700 product photograph to a
+    # twitter:card=summary_large_image, which wants roughly 1.91:1 — a square
+    # image in that slot is centre-cropped to a strip. And the photograph is
+    # stock, shared by up to 50 products, so it identified nothing. Every
+    # social client shows the page's own <title> beside the image, so the
+    # card's job is to say whose link this is. In Iran this business spreads
+    # by WhatsApp and Telegram forwards; this is not a minor surface.
+    img = og_image or "/assets/img/og-card.jpg"
     parts = [
         '<!DOCTYPE html>',
         f'<html lang="{SITE["lang"]}" dir="rtl">',
@@ -161,6 +170,9 @@ def head(*, title, description, canonical, jsonld=(), og_image=None,
         f'<meta property="og:description" content="{e(description)}">',
         f'<meta property="og:url" content="{e(url)}">',
         f'<meta property="og:image" content="{e(BASE + img)}">',
+        '<meta property="og:image:width" content="1200">',
+        '<meta property="og:image:height" content="630">',
+        f'<meta property="og:image:alt" content="{e(SITE["name_fa"])}">',
         '<meta name="twitter:card" content="summary_large_image">',
         f'<meta name="twitter:title" content="{e(title)}">',
         f'<meta name="twitter:description" content="{e(description)}">',

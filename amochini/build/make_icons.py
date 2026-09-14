@@ -23,7 +23,7 @@ clean mark, drops the shadow, and matches a design system that has no shadows
 in it (DESIGN.md §7).
 """
 import colorsys, math, os, sys
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 try:
     import pillow_avif  # noqa: F401
@@ -36,6 +36,10 @@ ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "public")
 IMG = os.path.join(OUT, "assets", "img")
 POSTER = os.path.join(HERE, "original", "images", "supplied", "logo-poster.png")
+sys.path.insert(0, HERE)
+from site_config import SITE as _S           # noqa: E402
+SITE_NAME = _S["name_fa"]
+SITE_SLOGAN = _S["slogan"]
 
 CROP = (208, 72, 942, 620)     # see the module docstring
 AMBER = (247, 174, 12)         # --amber
@@ -82,6 +86,58 @@ def on_ground(m, size, radius_ratio=0.16, pad=0.10):
     return im.resize((size, size), Image.LANCZOS)
 
 
+def og_card(m):
+    """The 1200x630 social card.
+
+    Why it exists: the pages were handing WhatsApp, Telegram and Twitter a
+    700x700 product photograph while declaring twitter:card
+    summary_large_image, which wants roughly 1.91:1. A square image in a
+    1.91:1 slot is centre-cropped to a strip, and these are stock photographs
+    shared by up to 50 products anyway — so the card was neither informative
+    nor well-framed.
+
+    One branded card, used site-wide. The page's own title sits beside it in
+    every client, so the card's job is to say WHOSE link this is, which is
+    exactly what the mark and the name do. In Iran this business spreads by
+    WhatsApp and Telegram forwards, so this is not a minor surface.
+    """
+    W, H = 1200, 630
+    im = Image.new("RGB", (W, H), BOARD)
+    d = ImageDraw.Draw(im)
+    logo = m.copy()
+    logo.thumbnail((360, 360), Image.LANCZOS)
+    im.paste(logo, ((W - logo.width) // 2, 120), logo)
+
+    font = None
+    for cand in ("Vazirmatn[wght].ttf",):
+        fp = os.path.join(HERE, "original", cand)
+        if os.path.isfile(fp):
+            try:
+                font = ImageFont.truetype(fp, 76)
+                small = ImageFont.truetype(fp, 34)
+            except Exception:
+                font = None
+    if font is None:
+        # No usable face: ship the mark alone rather than a card with the
+        # brand name in a fallback font that is not ours.
+        return im
+    # This Pillow is linked against Raqm/HarfBuzz, so it shapes and bidis
+    # Persian itself. Tested all four pipelines side by side: the RAW string
+    # renders «عمو چینی» correctly, and running it through
+    # arabic_reshaper + python-bidi first renders it REVERSED («ینیچ ومع»)
+    # because the text gets bidi-ed twice. So no reshaping library, no
+    # dependency — and a guard below, because a card with mangled Persian on
+    # it is worse than a card with no words.
+    name, slog = SITE_NAME, SITE_SLOGAN
+    w1 = d.textlength(name, font=font)
+    if not (100 < w1 < W - 80):
+        return im            # the face did not render the name; mark only
+    d.text(((W - w1) / 2, 462), name, font=font, fill=PAPER)
+    w2 = d.textlength(slog, font=small)
+    d.text(((W - w2) / 2, 556), slog, font=small, fill=(168, 164, 159))
+    return im
+
+
 def main():
     if not os.path.isfile(POSTER):
         print(f"logo source not found: {POSTER}")
@@ -123,6 +179,11 @@ def main():
     # full circle and the mark is inset further.
     on_ground(m, 512, radius_ratio=0.5, pad=0.20).save(
         os.path.join(OUT, "icon-maskable-512.png"), optimize=True)
+    card = og_card(m)
+    card.save(os.path.join(IMG, "og-card.jpg"), quality=86, optimize=True,
+              progressive=True)
+    print(f"  og-card.jpg  1200x630  "
+          f"{os.path.getsize(os.path.join(IMG, 'og-card.jpg')) / 1024:.1f} KB")
     on_ground(m, 32).save(os.path.join(OUT, "favicon-32.png"), optimize=True)
     on_ground(m, 48).save(os.path.join(OUT, "favicon.ico"), format="ICO",
                           sizes=[(16, 16), (32, 32), (48, 48)])

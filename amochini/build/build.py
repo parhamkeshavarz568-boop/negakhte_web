@@ -26,6 +26,10 @@ from layout import BASE
 
 # Build date. Passed in so the build is reproducible in CI if needed.
 BUILD_DATE = os.environ.get("BUILD_DATE") or datetime.date.today().isoformat()
+# The date the about/contact copy was last edited. Bump it by hand when that
+# copy changes — it must NOT track the build, or the sitemap tells crawlers
+# those two pages change every deploy when they do not.
+STATIC_LASTMOD = "2026-09-14"
 
 
 def write(relpath, content):
@@ -208,30 +212,61 @@ def main():
     write("prices.csv", "\n".join(rows) + "\n")
 
     # ---- sitemap --------------------------------------------------------
-    # Priorities: home > categories > brands > products. Every URL is
-    # canonical, absolute, and appears exactly once.
-    prio = {"/": "1.0"}
-    for slug in cats:
-        prio[f"/{slug}/"] = "0.9"
-    prio["/brands/"] = "0.8"
-    prio["/prices/"] = "0.9"          # the differentiator page
-    for slug in groups:
-        prio[f"/brands/{slug}/"] = "0.7"
-    for p in products:
-        prio[p["url"]] = "0.6" if p["in_stock"] else "0.4"
-    prio["/about/"] = "0.3"
-    prio["/contact/"] = "0.5"
+    # Every URL canonical, absolute, and present exactly once.
+    #
+    # lastmod is REAL, per URL, not the build date. Google uses lastmod and
+    # discounts it on sites where every URL claims to have changed on every
+    # deploy — which is exactly what stamping BUILD_DATE everywhere does. A
+    # product page's real lastmod is the date of its most recent price
+    # observation; a listing page's is the newest lastmod among its members;
+    # the static pages carry the date their copy was last edited.
+    #
+    # `changefreq` and `priority` are deliberately absent. Google has stated
+    # it ignores both, and shipping fields a consumer ignores is noise in a
+    # file whose whole job is to be trusted.
+    def obs_date(pr):
+        return (pr["price"].get("latest_date")
+                or pr.get("updated") or BUILD_DATE)
+
+    lastmod = {}
+    for pr in products:
+        lastmod[pr["url"]] = obs_date(pr)
+    for slug, items in cats.items():
+        lastmod[f"/{slug}/"] = max((obs_date(x) for x in items),
+                                   default=BUILD_DATE)
+    for slug, items in groups.items():
+        lastmod[f"/brands/{slug}/"] = max((obs_date(x) for x in items),
+                                          default=BUILD_DATE)
+    newest = max(lastmod.values(), default=BUILD_DATE)
+    lastmod["/"] = newest
+    lastmod["/prices/"] = newest
+    lastmod["/brands/"] = newest
+    # The static pages change when their copy does, not when a price does.
+    lastmod["/about/"] = STATIC_LASTMOD
+    lastmod["/contact/"] = STATIC_LASTMOD
 
     urls = "\n".join(
         f"  <url>\n    <loc>{BASE}{u}</loc>\n"
-        f"    <lastmod>{BUILD_DATE}</lastmod>\n"
-        f"    <changefreq>{'daily' if u in ('/',) or u.count('/') == 2 else 'weekly'}</changefreq>\n"
-        f"    <priority>{prio.get(u, '0.5')}</priority>\n  </url>"
+        f"    <lastmod>{lastmod.get(u, BUILD_DATE)}</lastmod>\n  </url>"
         for u, _ in written)
     write("sitemap.xml",
           '<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + urls + "\n</urlset>\n")
+
+    # ---- IndexNow ---------------------------------------------------------
+    # Bing, Yandex, Seznam, Naver and Yep take an IndexNow ping and crawl
+    # within minutes instead of days. GOOGLE IGNORES IT — it has said so
+    # repeatedly, so this is not a Google tactic and must not be sold as one.
+    # It is here because Bing and Yandex both have real share among Iranian
+    # users, and because a brand-new domain with no backlinks has nothing
+    # else pulling crawlers in.
+    #
+    # The protocol needs the key served as a text file at the site root whose
+    # body is the key itself. Then, after a deploy:
+    #   curl "https://api.indexnow.org/indexnow?url={SITE}/&key={KEY}"
+    # or POST the changed URL list — see docs/DEPLOY.md.
+    write("e8d8143105718dd4e8f37def76cb6820.txt", "e8d8143105718dd4e8f37def76cb6820")
 
     # ---- robots.txt -----------------------------------------------------
     write("robots.txt", f"""User-agent: *

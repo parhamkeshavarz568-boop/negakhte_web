@@ -586,8 +586,7 @@ def product_page(p, all_p):
     jsonld = [product_ld(p), crumbs_ld(cr), faq_ld(qa), org_ld()]
 
     return f'''{head(title=title, description=desc, canonical=p["url"],
-                     jsonld=jsonld, og_type="product",
-                     og_image=f"/assets/img/{p['image']}-{img_w(p['image'],700)}.jpg")}
+                     jsonld=jsonld, og_type="product")}
 {header()}
 {crumbs(cr)}
 <main id="main">
@@ -1123,7 +1122,9 @@ def home(all_p, groups):
                   'برای استعلام تلفنی تماس بگیرید.</span></div>')
 
     board_rows = "".join(
-        f'<tr><td class="c-name"><a href="{e(x["url"])}">{latin_bdi(x["title"])}</a></td>'
+        f'<tr><td class="c-name"><a href="{e(x["url"])}">'
+        f'<span class="c-thumb">{picture(x["image"], alt="", box=40, sizes="40px")}</span>'
+        f'<span>{latin_bdi(x["title"])}</span></a></td>'
         f'<td class="c-price"><data value="{x["price_irr"]}">'
         f'{money(x["price_irr"], unit=False)}</data></td>'
         f'<td class="c-trend">{price_chip(x)}</td>'
@@ -1159,7 +1160,6 @@ def home(all_p, groups):
       <h1 id="bb-h">قیمت روز قطعات ترمز خودروهای چینی</h1>
       <p class="sub">{e(SUPPLIER["claim_fa"])}. لنت ترمز، دیسک و کاسه چرخ —
         با قیمت روز و تاریخ ثبت، برای {to_fa_digits(len(groups))} برند خودرو.</p>
-      {f'<p class="stamp">آخرین بروزرسانی {e(stamp)}</p>' if stamp else ""}
 
       {figure}
 
@@ -1320,7 +1320,9 @@ def price_index(products):
             f'data-pct="{pct if pct is not None else ""}" '
             f'data-name="{e(p["title"])}" '
             f'data-search="{e(p["search"])}">'
-            f'<td class="c-name"><a href="{e(p["url"])}">{latin_bdi(p["title"])}</a></td>'
+            f'<td class="c-name"><a href="{e(p["url"])}">'
+            f'<span class="c-thumb">{picture(p["image"], alt="", box=40, sizes="40px")}</span>'
+            f'<span>{latin_bdi(p["title"])}</span></a></td>'
             f'<td class="c-sku">{bdi(p["sku"])}</td>'
             f'<td class="c-price"><data value="{p["price_irr"]}">'
             f'{money(p["price_irr"], unit=False)}</data></td>'
@@ -1338,11 +1340,17 @@ def price_index(products):
             if not sel:
                 continue
             p = sel[0]
-            tiles += (f'<div class="tile"><span class="t-label">{e(lbl)}</span>'
+            # The owner's rule, and it is a good one: a price never appears
+            # without the thing it is the price of.
+            tiles += (f'<div class="tile has-thumb">'
+                      f'<div class="t-thumb">'
+                      f'{picture(p["image"], alt="", box=72, sizes="72px")}</div>'
+                      f'<div class="t-body">'
+                      f'<span class="t-label">{e(lbl)}</span>'
                       f'<a class="t-name" href="{e(p["url"])}">{latin_bdi(p["title"])}</a>'
                       f'<span class="t-value">{money(p["price_irr"])}</span>'
                       f'<span class="t-delta">{price_chip(p)}</span>'
-                      f'{PR.sparkline(p["price"]["history"])}</div>')
+                      f'{PR.sparkline(p["price"]["history"])}</div></div>')
         tiles += (f'<div class="tile"><span class="t-label">کالاهای دارای سابقه قیمت</span>'
                   f'<span class="t-value">{to_fa_digits(tracked)}</span>'
                   f'<span class="t-label">از {to_fa_digits(len(priced))} کالای قیمت‌دار — '
@@ -1382,10 +1390,8 @@ def price_index(products):
 <section class="board-band bb-split" aria-labelledby="ix-h">
   <div class="wrap">
     <div class="bb-lede">
-      <h1 id="ix-h">شاخص قیمت قطعات ترمز</h1>
-      <p class="sub">قیمت هر کالا در هر بار تغییر ثبت می‌شود، و شاخص میانگین
-        حرکت همه آن‌ها را نشان می‌دهد.</p>
-      <p class="stamp">آخرین بروزرسانی {stamp}</p>
+      <h1 id="ix-h">بهترین قیمت‌های قطعات ترمز را با عمو چینی پیدا کن</h1>
+      <p class="sub">ما به‌روزترین قیمت‌ها را به شما ارائه می‌دهیم.</p>
       {index_block()}
     </div>
     <div class="bb-table">

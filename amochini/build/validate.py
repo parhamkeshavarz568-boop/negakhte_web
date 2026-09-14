@@ -305,6 +305,12 @@ def main():
     for a in ["assets/css/site.css", "assets/js/site.js",
               "assets/fonts/vazirmatn-subset.woff2", "robots.txt", "sitemap.xml",
               "search-index.json", "site.webmanifest", ".htaccess",
+              # the logo and the social card. They live in the same folder
+              # make_images.py writes to, and a build-order slip once deleted
+              # them and shipped a broken masthead image on 155 pages.
+              "assets/img/logo-70.webp", "assets/img/logo-140.webp",
+              "assets/img/logo-210.webp", "assets/img/logo-140.png",
+              "assets/img/og-card.jpg",
               "favicon-32.png", "favicon.ico", "apple-touch-icon.png",
               "icon-192.png", "icon-512.png", "404.html"]:
         if not os.path.isfile(os.path.join(OUT, a)):

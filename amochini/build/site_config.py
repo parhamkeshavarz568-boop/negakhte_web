@@ -19,6 +19,20 @@ e-commerce compliance. See docs/PLACEHOLDERS.md.
 #   FLIP THIS TO "https" ONLY AFTER someone outside Iran confirms:
 #       curl -I https://amochini.ir/     ->  200, valid chain
 #   and uncomment the matching block at the bottom of build/templates/htaccess.tpl.
+#   UPDATED September 2026 after re-checking: Let's Encrypt's Subscriber
+#   Agreement v1.7 (June 2026) added sanctions wording that looked like it
+#   excluded Iran outright, but v1.8 (6 July 2026) replaced it and Let's
+#   Encrypt states it continues to serve permitted non-governmental users in
+#   sanctioned countries where exemptions apply. A private parts shop is such
+#   a user. The remaining obstacle is practical, not legal: the ACME endpoint
+#   is reachable intermittently from inside Iran, so issue over DNS-01 (which
+#   needs no inbound connection) or let the host obtain it.
+#
+#   HTTPS is a Google ranking signal, Chrome marks http:// as "Not secure" in
+#   the address bar, and this site asks people to phone a number it publishes
+#   — so getting the certificate is the single highest-value launch task.
+#   Flipping this one constant rewrites every canonical, og:url, JSON-LD @id
+#   and the sitemap. It is one line and one rebuild. See docs/DEPLOY.md.
 SCHEME = "http"
 
 SITE = dict(
@@ -40,9 +54,15 @@ SITE = dict(
         "خرید لنت ترمز، دیسک چرخ و کاسه چرخ خودروهای چینی با قیمت روز. "
         "ام‌وی‌ام، جک، لیفان، چری، هایما، برلیانس، چانگان، جیلی و بست."
     ),
-    lang="fa",            # W3C: shortest subtag that captures the distinction
+    # fa-IR, not the shorter "fa". The site is a single Persian-language site
+    # so it needs no hreflang set — Google only wants hreflang where multiple
+    # language or region versions of the same page exist, and three quarters
+    # of hreflang implementations in the wild carry errors. But the region
+    # subtag costs nothing here, matches og:locale fa_IR, and is one more
+    # consistent geotargeting signal alongside the .ir domain.
+    lang="fa-IR",
     locale="fa_IR",
-    theme_color="#fbb316",
+    theme_color="#f7ae0c",   # --amber. Was the pre-redesign yellow.
 )
 
 # ---------------------------------------------------------------- contact

@@ -1,4 +1,19 @@
 {
+ "disc-drilled": {
+  "widths": [
+   80,
+   160,
+   400,
+   600,
+   700
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
  "hero-bg": {
   "widths": [
    640,
@@ -12,37 +27,27 @@
   ],
   "ar": 0.5626666666666666
  },
- "disc-plain": {
-  "widths": [
-   400,
-   600,
-   700
-  ],
-  "formats": [
-   "avif",
-   "jpg",
-   "webp"
-  ],
-  "ar": 1.0
- },
- "disc-drilled": {
-  "widths": [
-   400,
-   600,
-   700
-  ],
-  "formats": [
-   "avif",
-   "jpg",
-   "webp"
-  ],
-  "ar": 1.0
- },
  "cat-brake-pads": {
   "widths": [
+   80,
    160,
    320,
    400
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
+ "disc-plain": {
+  "widths": [
+   80,
+   160,
+   400,
+   600,
+   700
   ],
   "formats": [
    "avif",
@@ -66,6 +71,8 @@
  },
  "disc-slotted": {
   "widths": [
+   80,
+   160,
    400,
    600,
    700
@@ -92,6 +99,7 @@
  },
  "cat-brake-drums": {
   "widths": [
+   80,
    160,
    320,
    400
@@ -117,6 +125,7 @@
  },
  "cat-brake-discs": {
   "widths": [
+   80,
    160,
    320,
    400
