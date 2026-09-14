@@ -544,19 +544,27 @@ main > .wrap > section,
 main > .wrap > .cats,
 main > .wrap > .brandgrid,
 main > .wrap > .faq{margin-block:var(--sect)}
+/* A heading owns the rhythm; the block it introduces does not add its own.
+   Measured before this: a title's 24px bottom margin plus the grid's 96px
+   section margin put 120px of nothing between «خرید بر اساس خودرو» and the
+   car list. Declared after the rule above so it wins at equal specificity. */
+main > .wrap > .section-title{margin-block-start:var(--sect)}
+main > .wrap > .section-title + *{margin-block-start:0}
 
 .section-title{
   font-family:var(--face-display);font-weight:400;
   font-size:var(--t-head);line-height:1.2;color:var(--ink);
   text-wrap:balance;border-top:1px solid var(--rule);
   padding-top:var(--s2);margin-bottom:var(--s3);
-  display:flex;align-items:baseline;justify-content:space-between;
+  display:flex;align-items:baseline;
   gap:var(--s2);flex-wrap:wrap;
 }
-/* The heading text must be ONE flex item. Measured: with the <b> and the bare
-   text node as separate items, space-between flung them apart and the heading
-   read as three unrelated words. */
-.section-title > .st-text{flex:1 1 auto}
+/* The heading text must be ONE flex item, and it must NOT stretch. Measured:
+   with the <b> and the bare text node as separate items, space-between flung
+   them apart and the heading read as three unrelated words; then with
+   flex:1 1 auto the text box ran 1007px wide and pushed «۱۵ کالا» to the far
+   end of the row, away from the heading it belongs to. */
+.section-title > .st-text{flex:0 1 auto}
 .section-title b{font-weight:400}     /* the old build bolded half the heading */
 .section-title .count{
   font-family:var(--face-text);font-size:var(--t-label);font-weight:400;
@@ -609,11 +617,29 @@ main > .wrap > .faq{margin-block:var(--sect)}
 
 /* ==========================================================================
    ROWS — DESIGN.md §8, family 3. No ground, one hairline, no radius.
-   A product listing is a row, not a card. The lattice is a 1px grid gap over
-   a --rule ground, which is what a printed price sheet looks like and what
-   replaced eleven identical white shadowed rectangles.
+   A product listing is a row, not a card.
+
+   The lattice draws its own lines instead of showing a --rule ground through
+   a 1px gap. The gap version had a real bug: a grid never divides evenly, so
+   the trailing slots of the last row had no element in them and the ground
+   showed through as solid grey blocks — 3 of them under the 77-row category
+   grid and 2 under the 16-brand grid. Borders belong to cells, so an empty
+   slot draws nothing.
+
+   RTL note: inline-start is the RIGHT edge here. The container closes the
+   right and the top; each cell draws its own left and bottom.
    ========================================================================== */
-.cats{display:grid;gap:1px;background:var(--rule);border-block:1px solid var(--rule)}
+.lattice{
+  display:grid;gap:0;
+  border-block-start:1px solid var(--rule);
+  border-inline-start:1px solid var(--rule);
+}
+.lattice > *{
+  background:var(--paper);
+  border-inline-end:1px solid var(--rule);
+  border-block-end:1px solid var(--rule);
+}
+.cats{ /* .lattice carries the grid and the lines */ }
 .cat{
   background:var(--paper);padding:var(--s2);
   display:grid;grid-template-columns:1fr 88px;gap:var(--s2);align-items:center;
@@ -638,14 +664,12 @@ main > .wrap > .faq{margin-block:var(--sect)}
 
 /* ---- the product lattice ---- */
 .shop{padding-block:var(--s3) var(--sect)}
-.grid-products{
-  display:grid;gap:1px;background:var(--rule);
-  grid-template-columns:repeat(2,1fr);
-  border-block:1px solid var(--rule);
-}
+.grid-products{grid-template-columns:repeat(2,1fr)}
 .card{
   background:var(--paper);display:flex;flex-direction:column;
   position:relative;padding:var(--s2);
+  border-inline-end:1px solid var(--rule);
+  border-block-end:1px solid var(--rule);
 }
 .card:focus-within{box-shadow:var(--focus)}
 .card .ph{
@@ -667,9 +691,12 @@ main > .wrap > .faq{margin-block:var(--sect)}
 /* 3.7em holds the common two-line Persian name, so a short name cannot let
    the price row float up and misalign the lattice. Tested at the longest
    real value in the catalogue, not a short one — DESIGN.md §11. */
+/* 1.45 and 2.9em, down from 1.6 and 3.7em. The row was 491px tall carrying
+   198px of photograph: six stacked rows of small text, each on prose leading.
+   A product name is a label, not prose. */
 .card h3{
-  font-weight:400;color:var(--ink);line-height:1.6;
-  min-height:3.7em;text-wrap:pretty;
+  font-weight:400;color:var(--ink);line-height:1.45;
+  min-height:2.9em;text-wrap:pretty;
 }
 .card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
 .card:hover h3 a{text-decoration:underline;text-underline-offset:3px}
@@ -679,11 +706,16 @@ main > .wrap > .faq{margin-block:var(--sect)}
    clickable until the cursor was on the name itself. */
 .card:hover{background:var(--paper-2)}
 .card:hover .ph{background:var(--paper)}   /* keep the photo well distinct */
-.card .sku{
-  font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
-  color:var(--ink-2);margin-top:var(--s1);
+/* The code moved INTO the tag row — as its own line it was a 22px band
+   carrying six characters. */
+.card .tags{
+  display:flex;align-items:center;gap:var(--s1);margin-top:var(--s1);
+  flex-wrap:wrap;line-height:1.2;
 }
-.card .tags{display:flex;gap:var(--s1);margin-top:var(--s1);flex-wrap:wrap}
+.card .tags .sku{
+  font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
+  color:var(--ink-2);margin-inline-end:auto;
+}
 .card .tags span{
   font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   color:var(--ink-2);border:1px solid var(--rule);
@@ -694,8 +726,9 @@ main > .wrap > .faq{margin-block:var(--sect)}
    line, at the head weight against a 200-weight label. */
 .card .price{
   margin-top:auto;padding-top:var(--s2);border-top:1px solid var(--rule);
-  font-size:var(--t-head);color:var(--ink);font-weight:800;line-height:1.2;
+  font-size:var(--t-head);color:var(--ink);font-weight:800;line-height:1.15;
   font-variant-numeric:tabular-nums;
+  display:flex;align-items:baseline;gap:var(--s1);
 }
 .card .price small{
   font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
@@ -714,7 +747,7 @@ main > .wrap > .faq{margin-block:var(--sect)}
 .card .add.na:hover{background:transparent;color:var(--ink);border-color:var(--rule-strong)}
 .card-trend{
   display:flex;align-items:center;justify-content:space-between;
-  gap:var(--s1);margin-top:var(--s1);min-height:22px;
+  gap:var(--s1);margin-top:var(--s1);min-height:22px;line-height:1.2;
 }
 
 /* empty state — DESIGN.md §11, a real sentence and never a blank box */
@@ -727,14 +760,14 @@ main > .wrap > .faq{margin-block:var(--sect)}
 }
 
 /* ---- brands: a lattice of plain text links, not tiles ---- */
-.brandgrid{
-  display:grid;gap:1px;background:var(--rule);
-  grid-template-columns:repeat(2,1fr);border-block:1px solid var(--rule);
-}
+.brandgrid{grid-template-columns:repeat(2,1fr)}
+/* The car list is how most visitors navigate, so the names carry the display
+   face at head size rather than sitting as 16px body text in an 80px cell. */
 .brandgrid a{
-  background:var(--paper);padding:var(--s2);min-height:64px;
+  padding:var(--s2);min-height:88px;
   display:flex;flex-direction:column;justify-content:center;
-  color:var(--ink);
+  color:var(--ink);font-family:var(--face-display);font-weight:400;
+  font-size:var(--t-head);line-height:1.15;
 }
 .brandgrid a:hover{background:var(--paper-2)}
 .brandgrid small{
@@ -797,11 +830,8 @@ main > .wrap > .faq{margin-block:var(--sect)}
 .features small{color:var(--ink-2);font-size:var(--t-body);line-height:1.85}
 
 /* ---- stat tiles (price index page) ---- */
-.tiles{
-  display:grid;gap:1px;background:var(--rule);margin-block:var(--s3);
-  grid-template-columns:1fr;border-block:1px solid var(--rule);
-}
-.tile{background:var(--paper);padding:var(--s2);display:flex;flex-direction:column;gap:var(--s1)}
+.tiles{margin-block:var(--s3);grid-template-columns:1fr}
+.tile{padding:var(--s2);display:flex;flex-direction:column;gap:var(--s1)}
 .t-label{font-size:var(--t-label);font-weight:400;letter-spacing:.06em;color:var(--ink-2)}
 .t-name{color:var(--ink);min-height:44px;display:flex;align-items:center}
 .t-name:hover{text-decoration:underline;text-underline-offset:3px}
@@ -1005,6 +1035,8 @@ main > .wrap > .faq{margin-block:var(--sect)}
   gap:var(--s2);flex-wrap:wrap;min-height:64px;
 }
 .slider-head .section-title{margin:0;flex:1 1 auto}
+/* the arrows go to the far end; the count stays beside the heading */
+.slider-head .slider-nav{margin-inline-start:auto}
 .slider-nav{display:flex;gap:var(--s1);margin-bottom:var(--s2)}
 .s-btn{
   width:46px;height:46px;flex:none;display:grid;place-items:center;
@@ -1019,8 +1051,9 @@ main > .wrap > .faq{margin-block:var(--sect)}
 .s-btn:hover:not(:disabled) svg{stroke:var(--paper)}
 .s-btn:disabled{opacity:.3;cursor:default}
 .slider-track{
-  display:flex;gap:1px;background:var(--rule);
+  display:flex;gap:0;
   border-block:1px solid var(--rule);
+  border-inline-start:1px solid var(--rule);
   overflow-x:auto;overflow-y:hidden;
   scroll-snap-type:x mandatory;scroll-behavior:smooth;
   scrollbar-width:none;-ms-overflow-style:none;

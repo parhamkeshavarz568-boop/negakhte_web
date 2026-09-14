@@ -328,8 +328,8 @@ def card(p, eager=False, sizes=GRID_SIZES):
   </div>
   <div class="body">
     <h3><a href="{e(p["url"])}">{e(p["title"])}</a></h3>
-    <p class="sku">کد کالا: {bdi(p["sku"])}</p>
     <div class="tags">
+      <span class="sku">کد کالا: {bdi(p["sku"])}</span>
       <span class="brand">{e(b["fa"])}</span>
       <span>{e(AXLE_FA[p["axle"]])}</span>
     </div>
@@ -621,7 +621,7 @@ def category_page(slug, prods, all_p):
 <div class="wrap shop">
   <h2 class="sr-only">فهرست محصولات</h2>
   {filter_bar(prods, brands_present)}
-  <div class="grid-products" id="grid">{"".join(card(p) for p in prods)}</div>
+  <div class="grid-products lattice" id="grid">{"".join(card(p) for p in prods)}</div>
   <p class="empty" id="empty" hidden>کالایی با این مشخصات پیدا نشد. فیلترها را تغییر دهید یا با ما تماس بگیرید.</p>
 </div>
 
@@ -717,7 +717,7 @@ def brand_page(slug, prods, all_p):
     for c, items in by_cat.items():
         sections += (f'<h2 class="section-title"><span class="st-text">'
                      f'<b>{e(CATEGORIES[c]["fa"])}</b> {e(b["fa"])}</span></h2>'
-                     f'<div class="grid-products">{"".join(card(p) for p in items)}</div>'
+                     f'<div class="grid-products lattice">{"".join(card(p) for p in items)}</div>'
                      f'<p class="linkrow">'
                      f'<a href="/{e(c)}/">همه {e(CATEGORIES[c]["fa"])} '
                      f'{e(b["fa"])}</a></p>')
@@ -769,7 +769,7 @@ def brands_index(groups):
 </div></section>
 <div class="wrap">
   <h2 class="sr-only">فهرست برندهای خودرو</h2>
-  <div class="brandgrid">{cards}</div>
+  <div class="brandgrid lattice">{cards}</div>
 </div>
 </main>
 {footer()}'''
@@ -940,15 +940,35 @@ def home(all_p, groups):
     # priced, in-stock items spread across all three categories rather than the
     # first fifteen rows of the catalogue (which were all drums and discs).
     def _spread(items, n):
-        by_cat, out = {}, []
+        """Pick n products that read as a real selection.
+
+        Two constraints, both for the same reason. Spread across the three
+        categories, so the strip is not fifteen discs. And never let two
+        adjacent rows carry the SAME photograph — with four stock images for
+        130 products the naive pick put the identical disc shot in rows two
+        and three, which is the single thing that made the strip look
+        generated. Rotating the image breaks the repeat at zero cost; it is
+        not a substitute for real photography (docs/PLACEHOLDERS.md).
+        """
+        by_cat = {}
         for x in items:
             by_cat.setdefault(x["category"], []).append(x)
+        out = []
         while len(out) < n and any(by_cat.values()):
+            progressed = False
             for c in CAT_ORDER:
-                if by_cat.get(c):
-                    out.append(by_cat[c].pop(0))
-                    if len(out) == n:
-                        break
+                pool = by_cat.get(c) or []
+                if not pool:
+                    continue
+                last_img = out[-1]["image"] if out else None
+                pick = next((i for i, x in enumerate(pool)
+                             if x["image"] != last_img), 0)
+                out.append(pool.pop(pick))
+                progressed = True
+                if len(out) == n:
+                    break
+            if not progressed:
+                break
         return out
     featured = _spread([p for p in all_p if p["in_stock"]], 15)
 
@@ -1072,14 +1092,14 @@ def home(all_p, groups):
 
 <div class="wrap">
   <h2 class="section-title"><span class="st-text"><b>دسته‌بندی</b>‌های محصولات</span></h2>
-  <section class="cats">{cats_html}</section>
+  <section class="cats lattice">{cats_html}</section>
 
   {slider(featured, title_html="<b>پرفروش‌ترین</b> قطعات",
           label="پرفروش‌ترین قطعات ترمز", slug="top", eager_first=3)}
   <p class="linkrow"><a href="/brake-discs/">همه دیسک‌های چرخ</a></p>
 
   <h2 class="section-title"><span class="st-text"><b>خرید</b> بر اساس خودرو</span></h2>
-  <div class="brandgrid">{"".join(f'<a href="/brands/{e(s)}/">{e(BRANDS[s]["fa"])}<small>{to_fa_digits(len(v))} کالا</small></a>' for s, v in sorted(groups.items(), key=lambda kv: -len(kv[1])))}</div>
+  <div class="brandgrid lattice">{"".join(f'<a href="/brands/{e(s)}/">{e(BRANDS[s]["fa"])}<small>{to_fa_digits(len(v))} کالا</small></a>' for s, v in sorted(groups.items(), key=lambda kv: -len(kv[1])))}</div>
 
   {faq_block(qa)}
 </div>
@@ -1183,7 +1203,7 @@ def price_index(products):
      not readable, and the band above already carries the signature. The
      .board-page class resets the contextual chart palette to the light one. -->
 <div class="wrap board-page">
-  {f'<div class="tiles">{tiles}</div>' if tiles else ''}
+  {f'<div class="tiles lattice">{tiles}</div>' if tiles else ''}
   {board_note}
 
   <div class="filters board-filters">
