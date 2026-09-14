@@ -13,13 +13,14 @@ PORT=8901 python3 build/measure_weight.py
 | element | mobile 390 | tablet 768 | desktop 1440 | renditions shipped |
 |---|---|---|---|---|
 | hero | 390×541 | 768×589 | 1440×597 | 640, 1024, 1500 |
-| category thumbnail | 108×108 | 108×108 | 108×108 | 108, 216 |
+| category thumbnail | 160×160 | 160×160 | 160×160 | 160, 320, 400 |
 | product card image | 187 | 245 | 283 | 400, 600 |
 | product detail photo | 318 | 380 | 380 | 400, 600, 700 |
 
-The category thumbnails render at **108 px at every viewport**. They were
-originally being shipped at 400 px — a 3.4× pixel-count overspend on every
-home-page load, for a box that never gets bigger.
+The category thumbnails originally rendered at 108 px while being *shipped* at
+400 px — a 3.4× pixel-count overspend. The redesign made them image-forward at
+160 px, so they now ship at 160/320 and the same files are reused at 400 for
+product cards (the sources are 400×400, so that is the largest honest size).
 
 ## First-load transfer weight
 
@@ -27,10 +28,14 @@ Over-the-wire, gzip applied to text, AVIF chosen by the browser:
 
 | page | mobile | desktop |
 |---|---|---|
-| home | **107.3 KB** | 141.4 KB |
-| category (50 products) | 79.6 KB | 79.6 KB |
-| product | 75.7 KB | 105.7 KB |
-| brand | 77.0 KB | 77.0 KB |
+| home | **103.7 KB** | 137.7 KB |
+| category (50 products) | 89.4 KB | 89.4 KB |
+| product | 85.4 KB | 111.4 KB |
+| brand | 86.6 KB | 86.6 KB |
+
+The visual redesign *reduced* the home page (107.3 → 103.7 KB on mobile): the
+extra 2.9 KB of gzipped CSS was more than paid for by right-sizing the
+category imagery.
 
 Repeat visits are HTML only — around 6–10 KB — because the font, CSS and JS
 are cached for a month or a year.
@@ -73,14 +78,14 @@ width/height so nothing reflows as images arrive.
 
 ## Contrast
 
-Every text/background pair clears WCAG AA (4.5:1). Three failed before and
-were corrected — see `git log`:
-
-| token | before | after |
-|---|---|---|
-| `--muted` on the page ground | 4.06:1 | 4.55:1 |
-| card SKU text | 2.85:1 | 5.10:1 |
-| gold link colour | 4.05:1 | 5.21:1 |
+All **21** text/background pairs in the palette clear WCAG AA (4.5:1),
+re-verified after the visual redesign changed most of them. Lowest passing
+pair is `--muted` on the page ground at 4.81:1.
 
 The brand yellow `#fbb316` is 1.9:1 on white and is never used as text — a
-darkened `--gold-ink` (#996000, 5.21:1) is used instead.
+darkened `--gold-ink` (#8a5600, 6.16:1 on white) carries link and accent text
+instead.
+
+Neutrals are warm-tinted rather than pure grey: a neutral grey next to an
+amber accent reads cold, so the page ground is `#f4f2ef` and the shadows are
+tinted `rgba(28,22,8,…)` rather than black.

@@ -7,7 +7,7 @@ Sizes are not guessed — they come from measuring the real rendered boxes in
 headless Chromium at 390/768/1440 CSS px (see docs/MEASUREMENTS.md):
 
     hero          390x541, 768x589, 1440x597   -> full-bleed, 640/1024/1500
-    category thumb    108x108 at EVERY viewport -> 108 and 216 (2x)
+    category thumb    160x160 (image-forward)   -> 160 and 320 (2x)
     product card  187 / 245 / 283              -> 400 and 600
     product photo 318 / 380 / 380              -> 400 and 700
 
@@ -32,9 +32,20 @@ OUT = os.path.join(os.path.dirname(HERE), "public", "assets", "img")
 
 PLAN = {
     "hero-bg":         [640, 1024, 1500],
-    "cat-brake-pads":  [108, 216],
-    "cat-brake-discs": [108, 216],
-    "cat-headlight":   [108, 216],
+    # Category cards are image-forward in the redesign: a 160px CSS square,
+    # so 160 (1x) and 320 (2x). The sources are 400x400, so 320 is the
+    # largest honest rendition — asking for more would just upscale.
+    # 160/320 for the image-forward category card; 400 because the same files
+    # are reused as product-card images, which render up to 283 CSS px (566 at
+    # DPR 2 — 400 is the largest the 400x400 sources honestly support).
+    "cat-brake-pads":  [160, 320, 400],
+    "cat-brake-discs": [160, 320, 400],
+    "cat-headlight":   [160, 320, 400],
+    # A tight, darkened crop of the plain-disc studio shot. There is no real
+    # کاسه چرخ photo, and the untouched white-cloth original sat beside two
+    # dark studio photos in the same three-card row, which read as a
+    # mismatched set. Still a placeholder — see docs/PLACEHOLDERS.md.
+    "cat-brake-drums": [160, 320, 400],
     "disc-drilled":    [400, 600, 700],
     "disc-slotted":    [400, 600, 700],
     "disc-plain":      [400, 600, 700],

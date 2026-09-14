@@ -1,16 +1,4 @@
 {
- "cat-headlight": {
-  "widths": [
-   108,
-   216
-  ],
-  "formats": [
-   "avif",
-   "jpg",
-   "webp"
-  ],
-  "ar": 1.0
- },
  "hero-bg": {
   "widths": [
    640,
@@ -23,18 +11,6 @@
    "webp"
   ],
   "ar": 0.5626666666666666
- },
- "cat-brake-pads": {
-  "widths": [
-   108,
-   216
-  ],
-  "formats": [
-   "avif",
-   "jpg",
-   "webp"
-  ],
-  "ar": 1.0
  },
  "disc-plain": {
   "widths": [
@@ -62,6 +38,32 @@
   ],
   "ar": 1.0
  },
+ "cat-brake-pads": {
+  "widths": [
+   160,
+   320,
+   400
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
+ "cat-headlight": {
+  "widths": [
+   160,
+   320,
+   400
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
  "disc-slotted": {
   "widths": [
    400,
@@ -75,10 +77,24 @@
   ],
   "ar": 1.0
  },
+ "cat-brake-drums": {
+  "widths": [
+   160,
+   320,
+   400
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 1.0
+ },
  "cat-brake-discs": {
   "widths": [
-   108,
-   216
+   160,
+   320,
+   400
   ],
   "formats": [
    "avif",

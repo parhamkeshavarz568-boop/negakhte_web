@@ -153,8 +153,12 @@ def main():
             price_irr=price,                       # Rial, integer, no separators
             price_toman=(price // 10) if price else None,
             in_stock=bool(r["k"]) and price is not None,
+            # Drums borrow the plain-disc studio shot rather than the dark
+            # "mood" disc photo: mixing a dramatic dark image in with
+            # white-studio ones made the grid look like a mismatched
+            # catalogue. All three are placeholders until real photos exist.
             image=VARIANTS[variant]["img"] if cat == "brake-discs" else (
-                "cat-brake-pads" if cat == "brake-pads" else "cat-brake-discs"),
+                "cat-brake-pads" if cat == "brake-pads" else "disc-plain"),
             search=" ".join(sorted(set(
                 search_key(f"{title} {r['n']} {BRANDS.get(brand,{}).get('en','')} "
                            f"{' '.join(BRANDS.get(brand,{}).get('alt',[]))} "

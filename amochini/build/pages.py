@@ -693,7 +693,7 @@ def home(all_p, groups):
     # brake drums is actively misleading, whereas a disc at least shows a brake
     # part. Still a placeholder: a real کاسه چرخ photo is on the owner's list.
     cat_imgs = {"brake-pads": "cat-brake-pads", "brake-discs": "cat-brake-discs",
-                "brake-drums": "disc-plain"}
+                "brake-drums": "cat-brake-drums"}
     cats_html = ""
     for c in CAT_ORDER:
         cc = CATEGORIES[c]
