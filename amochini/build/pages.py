@@ -688,8 +688,12 @@ def home(all_p, groups):
     cr = [(None, "خانه")]
 
     counts = {c: sum(1 for p in all_p if p["category"] == c) for c in CAT_ORDER}
+    # brake-drums borrows a disc photo. The draft's third card was a چراغ
+    # (headlight) card, and its photo came with it — a headlight standing in for
+    # brake drums is actively misleading, whereas a disc at least shows a brake
+    # part. Still a placeholder: a real کاسه چرخ photo is on the owner's list.
     cat_imgs = {"brake-pads": "cat-brake-pads", "brake-discs": "cat-brake-discs",
-                "brake-drums": "cat-headlight"}
+                "brake-drums": "disc-plain"}
     cats_html = ""
     for c in CAT_ORDER:
         cc = CATEGORIES[c]
