@@ -548,3 +548,90 @@ They are vendored at `build/original/images/supplied/` and unused.
   the `aspect-ratio` plus the `width`/`height` attributes reserve the box.
 - The image is decorative, so `alt=""` and `aria-hidden="true"`: it carries no
   information a screen-reader user would miss.
+
+### 14.5 — The product row's hierarchy
+
+Six things in a card body were within one step of each other, so the row had
+no loudest element. Four changes, and one refusal.
+
+**The price is now `--t-display`, not `--t-head`** — 30–44px against a 16px
+title, a ratio of 2.75 instead of 1.5.
+
+**It stays in the TEXT face.** Lalezar has no `tnum` feature and its Persian
+digit advances run from 286 to 680 units — a 2.4× spread with no way to
+equalise them — so a column of prices set in it cannot align across cards.
+Vazirmatn has `tnum`. Alignment beats the display face here, and this is the
+only place in the system where those two pull against each other.
+
+**The trend chip drops to weight 400** in a product row. At 800 in a warning
+colour it was the loudest pixel in the card, louder than the price it sat
+under. It keeps weight 800 on the board and in the stat tiles, where the delta
+*is* the subject.
+
+**The title is clamped to two lines** and nothing in the body may be squeezed.
+Measured: a 60-character name grew to three lines, and because the price is
+pinned by `margin-top: auto` the row it pushed into had nothing to give — the
+tag row shrank and the third line rendered on top of the part code. The
+longest real title is 38 characters, 32 once the variant chip takes the code.
+
+**The four facts in the tag row get four treatments**, because they were one
+bordered chip each and so an identity, an attribute, a sub-brand and a machine
+code all looked the same:
+
+| fact | treatment | why |
+|---|---|---|
+| part code `AMO-081` | ink-2, no box | a machine string, not a label |
+| car `ام‌وی‌ام` | ink, weight 800, no box | an identity |
+| fitment `جلو` | ink-2 in a quiet box | an attribute you filter on |
+| product line `TRA-X` | solid `--board`, paper text | a sub-brand, and a spec |
+
+The product line also moved **off the photograph and into the row**. It used
+to share one exclusive slot with the out-of-stock warning, so a stock warning
+and a sub-brand wore one costume and a product could not be both.
+
+**`--amber` on the carousel's CTA.** This widens §2: amber's permitted list
+says "the primary button", and a card's order button is the card's primary
+action. It is the carousel only — solid `--board` in the category grid, where
+four amber buttons per row down 77 rows would be a wall of yellow. A grey
+outlined button reads as disabled, which is what it was, and grey outlined
+buttons are on the banned list.
+
+### 14.6 — Latin runs inside Persian titles are isolated
+
+`latin_bdi()` in `layout.py` escapes a title and wraps every Latin/digit run
+in `<bdi>`. Applied to every rendered product name: the card, the `<h1>`, the
+tape, the board's headline figure, both price tables and the stat tiles.
+
+Not cosmetic. Under UAX#9 a Latin run inside RTL text resolves by its
+surroundings, and the joiners are **bidi-neutral**: the `/` in
+«برلیانس 220/230 عقب» and the `-` in «TRA-X» take direction from whatever sits
+next to them, so a title can reorder depending on the words around it. That is
+the same failure class that reached us in the source data as «230-220» and
+«35 CS», which `build_catalog.py` repairs — this stops the build re-creating it
+on the way out. A single run with no trailing neutral (`33X`, `315`) happens to
+render correctly unisolated, which is why it was easy to miss.
+
+`data-*` attributes keep the plain escaped form: they are read by `site.js`,
+not rendered.
+
+### 14.7 — Two things asked for and not done
+
+**"Separate cards with whitespace, not borders and grey fills."** Declined.
+The hairline lattice is §8, and it is the specific thing that replaced eleven
+identical shadowed cards. Whitespace separation is what the generic build
+looked like. Available on request as a further exception, but it is a step
+back.
+
+**"Unify the product images — pick ONE treatment."** Cannot be done in code.
+Three of the four photographs are 700×700 white-studio shots and the fourth,
+which 50 of 130 products share, is a 400×400 dark-ground shot. `object-fit:
+cover` fills the box, so the well colour never shows and the clash is between
+the photographs' own backgrounds. A `filter` would flatten real product
+colour, and upscaling would be fake detail. This is the photography ceiling in
+`docs/PLACEHOLDERS.md` and it is the highest-value thing the owner can fix.
+
+**Also corrected while here:** the card photograph now carries `alt=""`. The
+product name sits immediately beside it, so the old `alt="{title}"` made a
+screen reader announce each product twice — and the same stock image is shared
+by up to 50 products, so an alt claiming to be one specific part was a small
+lie. The product page's gallery keeps a real alt.

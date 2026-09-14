@@ -2,7 +2,7 @@
 """Page bodies. Each function returns a full HTML document."""
 from normalize import to_fa_digits, BRANDS, CATEGORIES, VARIANTS, AXLES
 from site_config import SITE, CONTACT, COMMERCE, SOCIAL, SUPPLIER
-from layout import (e, ld, money, bdi, head, header, footer, crumbs, crumbs_ld,
+from layout import (latin_bdi, e, ld, money, bdi, head, header, footer, crumbs, crumbs_ld,
                     BASE, sameas, SVG)
 import json as _json, os as _os
 import prices as PR
@@ -247,9 +247,11 @@ def product_description(p, plain=False):
 
 
 def price_block(p, big=False):
+    # DESIGN.md §10: a price we do not hold is «استعلام تلفنی» — never
+    # «تماس بگیرید» on its own, and never a fabricated figure.
     if p["price_irr"] is None:
-        return ('<div class="price-na">قیمت: تماس بگیرید</div>' if big
-                else '<div class="price na">استعلام قیمت</div>')
+        return ('<div class="price-na">استعلام تلفنی</div>' if big
+                else '<div class="price na">استعلام تلفنی</div>')
     toman = money(p["price_irr"], data=True)
     rial = to_fa_digits(f"{p['price_irr']:,}").replace(",", "،")
     if big:
@@ -311,27 +313,44 @@ SLIDER_SIZES = "(min-width:1000px) 340px, (min-width:700px) 300px, 78vw"
 
 def card(p, eager=False, sizes=GRID_SIZES):
     b = BRANDS[p["brand"]]
-    badge = ""
-    if not p["in_stock"]:
-        badge = '<span class="badge">ناموجود</span>'
-    elif p["variant"] != "base":
-        badge = f'<span class="badge v">{e(VARIANTS[p["variant"]]["code"])}</span>'
+    # Three different facts, three different treatments. They used to share
+    # one .badge slot on the image, so a stock WARNING and a product-LINE
+    # marker wore the same costume — and because the slot was exclusive, a
+    # product could not be both out of stock and TRA-X.
+    #   out of stock  -> a warning, on the image, in --rise
+    #   product line  -> a spec, in the tag row, solid on --board
+    #   brand/fitment -> attributes, in the tag row, quieter
+    badge = '<span class="badge">ناموجود</span>' if not p["in_stock"] else ""
+    line, disp = "", p["title"]
+    if p["variant"] != "base":
+        code = VARIANTS[p["variant"]]["code"]
+        line = (f'<span class="line" title="{e(VARIANTS[p["variant"]]["fa"])}">'
+                f'{bdi(code)}</span>')
+        # The canonical title already ends in the variant code, so with the
+        # chip present it was printed twice in one card. The chip carries it
+        # here; the <h1> and every machine-readable field keep the full name.
+        if disp.endswith(" " + code):
+            disp = disp[: -(len(code) + 1)]
     img = p["image"]
+    # The price slot and the button must not say the same words: without a
+    # price the card was printing «استعلام قیمت» twice, once as the figure and
+    # once as the label.
     cta = ('<a class="add" href="{}">مشاهده و سفارش</a>'.format(e(p["url"]))
            if p["price_irr"] is not None else
-           '<a class="add na" href="{}">استعلام قیمت</a>'.format(e(p["url"])))
+           '<a class="add na" href="{}">مشاهده و استعلام</a>'.format(e(p["url"])))
     return f'''<article class="card" data-brand="{e(p["brand"])}" data-axle="{e(p["axle"])}"
          data-price="{p["price_irr"] if p["price_irr"] is not None else ""}"
          data-title="{e(p["title"])}" data-search="{e(p["search"])}">
   <div class="ph">{badge}
-    {picture(img, alt=p["title"], box=340, sizes=sizes, eager=eager)}
+    {picture(img, alt="", box=340, sizes=sizes, eager=eager)}
   </div>
   <div class="body">
-    <h3><a href="{e(p["url"])}">{e(p["title"])}</a></h3>
+    <h3><a href="{e(p["url"])}">{latin_bdi(disp)}</a></h3>
     <div class="tags">
-      <span class="sku">کد کالا: {bdi(p["sku"])}</span>
+      <span class="sku">{bdi(p["sku"])}</span>
+      {line}
       <span class="brand">{e(b["fa"])}</span>
-      <span>{e(AXLE_FA[p["axle"]])}</span>
+      <span class="fit">{e(AXLE_FA[p["axle"]])}</span>
     </div>
     {price_block(p)}
     <div class="card-trend">{price_chip(p)}{PR.sparkline(p.get("price", {}).get("history", []))}</div>
@@ -492,7 +511,7 @@ def product_page(p, all_p):
 <section class="board-band bb-split" aria-labelledby="p-h">
   <div class="wrap">
     <div class="bb-lede">
-      <h1 id="p-h">{e(p["title"])}</h1>
+      <h1 id="p-h">{latin_bdi(p["title"])}</h1>
       <p class="sub">{bdi(SUPPLIER["part_brand"])} · کد کالا: {bdi(p["sku"])} — {e(v["fa"])}</p>
       <span class="stock{stock_cls}">{e(stock_txt)}</span>
     </div>
@@ -817,7 +836,7 @@ def ticker(prods):
             delta = ""
         return (f'<a class="tick {tone}" href="{e(x["url"])}" dir="rtl"'
                 + (' aria-hidden="true" tabindex="-1"' if dup else '') + '>'
-                f'<span class="tick-name">{e(x["title"])}</span>'
+                f'<span class="tick-name">{latin_bdi(x["title"])}</span>'
                 f'<span class="tick-price">{money(x["price_irr"], unit=False)}</span>'
                 f'<span class="tick-delta"><span aria-hidden="true">{arrow}</span> {delta}</span>'
                 f'</a>')
@@ -1001,7 +1020,7 @@ def home(all_p, groups):
         <span class="fb-label">{e(fb_label)}</span>
         <span class="fb-value">{money(lead["price_irr"], unit=False)}<small>تومان</small></span>
         {fb_delta}
-        <span class="fb-name"><a href="{e(lead["url"])}">{e(lead["title"])}</a></span>
+        <span class="fb-name"><a href="{e(lead["url"])}">{latin_bdi(lead["title"])}</a></span>
       </div>'''
     else:
         # Empty state — DESIGN.md §11. A real sentence, never a zero.
@@ -1010,7 +1029,7 @@ def home(all_p, groups):
                   'برای استعلام تلفنی تماس بگیرید.</span></div>')
 
     board_rows = "".join(
-        f'<tr><td class="c-name"><a href="{e(x["url"])}">{e(x["title"])}</a></td>'
+        f'<tr><td class="c-name"><a href="{e(x["url"])}">{latin_bdi(x["title"])}</a></td>'
         f'<td class="c-price"><data value="{x["price_irr"]}">'
         f'{money(x["price_irr"], unit=False)}</data></td>'
         f'<td class="c-trend">{price_chip(x)}</td>'
@@ -1148,7 +1167,7 @@ def price_index(products):
             f'<tr data-cat="{e(p["category"])}" data-brand="{e(p["brand"])}" '
             f'data-dir="{e(st.get("direction","none"))}" '
             f'data-search="{e(p["search"])}">'
-            f'<td class="c-name"><a href="{e(p["url"])}">{e(p["title"])}</a></td>'
+            f'<td class="c-name"><a href="{e(p["url"])}">{latin_bdi(p["title"])}</a></td>'
             f'<td class="c-sku">{bdi(p["sku"])}</td>'
             f'<td class="c-price"><data value="{p["price_irr"]}">'
             f'{money(p["price_irr"], unit=False)}</data></td>'
@@ -1168,7 +1187,7 @@ def price_index(products):
                 continue
             p = sel[0]
             tiles += (f'<div class="tile"><span class="t-label">{e(lbl)}</span>'
-                      f'<a class="t-name" href="{e(p["url"])}">{e(p["title"])}</a>'
+                      f'<a class="t-name" href="{e(p["url"])}">{latin_bdi(p["title"])}</a>'
                       f'<span class="t-value">{money(p["price_irr"])}</span>'
                       f'<span class="t-delta">{price_chip(p)}</span>'
                       f'{PR.sparkline(p["price"]["history"])}</div>')

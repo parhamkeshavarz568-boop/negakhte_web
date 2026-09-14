@@ -785,10 +785,25 @@ main > .wrap > .section-title + *{margin-block-start:0}
 /* 1.45 and 2.9em, down from 1.6 and 3.7em. The row was 491px tall carrying
    198px of photograph: six stacked rows of small text, each on prose leading.
    A product name is a label, not prose. */
+/* An explicit size: <h3> inherits the UA's 1.17em, which was rendering the
+   title at 19px — a value from no scale, and it flattened the price/title
+   ratio the whole hierarchy depends on.
+
+   Clamped to exactly two lines. LONG-TITLE STATE, measured: a 60-character
+   name grew to three lines, and because the price is pinned by margin-top the
+   flex row it pushed into had nothing to give — .tags shrank and the third
+   line rendered ON TOP of the part code. The longest real title in the
+   catalogue is 38 characters and 32 once the variant chip takes the code, so
+   two lines is not a truncation in practice; it is a guard. The full name is
+   always on the product page and in the machine-readable fields. */
 .card h3{
-  font-weight:400;color:var(--ink);line-height:1.45;
+  font-size:var(--t-body);font-weight:400;color:var(--ink);line-height:1.45;
   min-height:2.9em;text-wrap:pretty;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  line-clamp:2;overflow:hidden;
 }
+/* Nothing in the body may be squeezed to make room for something else. */
+.card h3,.card .tags,.card .price,.card-trend,.card .add{flex:none}
 .card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
 .card:hover h3 a{text-decoration:underline;text-underline-offset:3px}
 /* DESIGN.md §14.1. A ground change, not motion: no transition, no transform,
@@ -803,42 +818,107 @@ main > .wrap > .section-title + *{margin-block-start:0}
   display:flex;align-items:center;gap:var(--s1);margin-top:var(--s1);
   flex-wrap:wrap;line-height:1.2;
 }
-.card .tags .sku{
-  font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
-  color:var(--ink-2);margin-inline-end:auto;
-}
+
+/* Four facts, four treatments. Each was one bordered chip before, so an
+   identity, an attribute, a sub-brand and a machine code all looked the same
+   and the row read as decoration. */
 .card .tags span{
-  font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
-  color:var(--ink-2);border:1px solid var(--rule);
+  font-size:var(--t-label);letter-spacing:.06em;line-height:1.2;
+}
+/* the part code: a machine string. No box — it is not a label. */
+.card .tags .sku{color:var(--ink-2);font-weight:400}
+/* the car: an identity. Weight, no box. */
+.card .tags .brand{color:var(--ink);font-weight:800}
+/* fitment: an attribute you filter on. A quiet box. */
+.card .tags .fit{
+  color:var(--ink-2);font-weight:400;border:1px solid var(--rule);
   padding:0 var(--s1);border-radius:var(--r);
 }
-.card .tags .brand{color:var(--ink);font-weight:800;border-color:var(--rule-strong)}
+/* the product line (TRA-X / XTRA): a sub-brand and a spec, so it reads as a
+   stamped-on marker — and it lives in the row now instead of floating over
+   the photograph where only 2 of 15 cards had one. */
+.card .tags .line{
+  background:var(--board);color:var(--paper);font-weight:800;
+  padding:0 var(--s1);border-radius:var(--r);
+}
 /* The price is the loudest thing in the row, on its own hairline-separated
    line, at the head weight against a 200-weight label. */
+/* --t-display, not --t-head: the price was 24px against a 16px title, a
+   ratio of 1.5, which is not "unmistakably the largest thing in the card".
+   It is now 30-44px against 16px.
+
+   Deliberately in the TEXT face, not the display face. Lalezar has no `tnum`
+   feature and its Persian digit advances run from 286 to 680 units — a 2.4x
+   spread with no way to equalise them — so a column of prices set in it could
+   not align across cards. Vazirmatn does have `tnum`. Alignment wins over the
+   display face here, and this is the one place that trade comes up. */
 .card .price{
   margin-top:auto;padding-top:var(--s2);border-top:1px solid var(--rule);
-  font-size:var(--t-head);color:var(--ink);font-weight:800;line-height:1.15;
+  font-size:var(--t-head);color:var(--ink);font-weight:800;line-height:1.05;
   font-variant-numeric:tabular-nums;
-  display:flex;align-items:baseline;gap:var(--s1);
+  display:flex;align-items:baseline;gap:var(--s1);flex-wrap:wrap;
+  /* Every price in the catalogue is 9 characters today («۶,۰۸۸,۵۰۰»), and one
+     crossing ۱۰٬۰۰۰٬۰۰۰ would be 10. The unit is allowed to wrap rather than
+     push the figure out of the card. */
+}
+.card .price data{min-width:0}
+/* The price sizes to the CARD, not the viewport. --t-display is a vw clamp,
+   and the same .card is 316px wide in the carousel and 159px in a two-column
+   grid on a phone — measured, the viewport clamp overflowed /brake-pads/ and
+   /brands/mvm/ horizontally at 768, where a three-column grid leaves 224px of
+   inner width for a 44px nine-character figure that needs 250.
+   15cqi lands at 24px in the narrowest card and 44px in the widest, which is
+   exactly the range the scale allows. The plain --t-head above is the
+   fallback for engines without container queries: never the most dramatic
+   option, always one that fits. */
+@supports (container-type:inline-size){
+  .card{container-type:inline-size}
+  /* 13cqi, not 15: at 15 the two-column phone grid sized the figure so that
+     «تومان» no longer fit beside it and wrapped to its own line, which reads
+     as broken rather than as a unit. 13cqi keeps the unit inline at every
+     card width the layout produces. */
+  .card .price{font-size:clamp(22px,13cqi,44px)}
 }
 .card .price small{
   font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   color:var(--ink-2);margin-inline-start:var(--s1);
 }
-.card .price.na{font-size:var(--t-body);color:var(--rise);font-weight:800}
+.card .price.na{font-size:var(--t-head);color:var(--rise);font-weight:800}
+/* DESIGN.md §14.5. Solid, never outlined: a grey-outlined button reads as
+   disabled, which is exactly what this was.
+   SOLID --board in the grid, SOLID --amber in the carousel. One treatment
+   could not serve both — four amber buttons per row down a 77-row category
+   page is a wall of yellow, while in a 3.4-card carousel the accent is the
+   right answer and keeps amber inside its area budget. */
 .card .add{
-  margin-top:var(--s2);min-height:46px;background:transparent;color:var(--ink);
-  border:1px solid var(--rule-strong);cursor:pointer;
+  margin-top:var(--s2);min-height:46px;
+  background:var(--board);color:var(--paper);
+  border:1px solid var(--board);cursor:pointer;
   padding:0 var(--s2);font:inherit;font-weight:800;border-radius:var(--r);
   position:relative;z-index:2;text-align:center;
   display:flex;align-items:center;justify-content:center;
 }
-.card .add:hover{background:var(--board);color:var(--paper);border-color:var(--board)}
-.card .add.na{border-style:dashed;color:var(--ink-2);font-weight:400;letter-spacing:.06em}
-.card .add.na:hover{background:transparent;color:var(--ink);border-color:var(--rule-strong)}
+.card .add:hover{background:var(--ink);border-color:var(--ink)}
+/* "ask for a price" is a different action from "order", so it does not wear
+   the same button. Outlined is correct here — it IS the lesser affordance. */
+.card .add.na{
+  background:transparent;color:var(--ink);border-color:var(--rule-strong);
+  border-style:dashed;font-weight:400;
+}
+.card .add.na:hover{background:var(--paper-2)}
+.slider-track .card .add{
+  background:var(--amber);color:var(--board);border-color:var(--amber);
+}
+.slider-track .card .add:hover{background:var(--paper);border-color:var(--board)}
+.slider-track .card .add.na{
+  background:transparent;color:var(--ink);border-color:var(--rule-strong);
+}
+/* The date line is the smallest thing in the card, per its importance. It
+   was inheriting the 16px body size, i.e. the same size as the title. */
 .card-trend{
   display:flex;align-items:center;justify-content:space-between;
   gap:var(--s1);margin-top:var(--s1);min-height:22px;line-height:1.2;
+  font-size:var(--t-label);letter-spacing:.06em;
 }
 
 /* empty state — DESIGN.md §11, a real sentence and never a blank box */
@@ -938,8 +1018,13 @@ main > .wrap > .section-title + *{margin-block-start:0}
    ========================================================================== */
 .chip-price{
   display:inline-flex;align-items:center;gap:var(--s1);
-  font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;
+  font-weight:400;white-space:nowrap;font-variant-numeric:tabular-nums;
 }
+/* On the board the delta IS the subject, so it keeps the weight. Inside a
+   product row it is a secondary metric that was set at 800 in a warning
+   colour, which made it the loudest pixel in the card — louder than the
+   price it sat under. */
+.board .chip-price,.board-band .chip-price,.tile .chip-price{font-weight:800}
 .chip-price.is-up  {color:var(--px-rise)}
 .chip-price.is-down{color:var(--px-fall)}
 .chip-price.is-flat,.chip-price.is-new{color:var(--ink-2);font-weight:400;letter-spacing:.06em}

@@ -613,9 +613,13 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .card .body{padding-top:var(--s2);display:flex;flex-direction:column;flex:1}
 
 .card h3{
-  font-weight:400;color:var(--ink);line-height:1.45;
+  font-size:var(--t-body);font-weight:400;color:var(--ink);line-height:1.45;
   min-height:2.9em;text-wrap:pretty;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  line-clamp:2;overflow:hidden;
 }
+
+.card h3,.card .tags,.card .price,.card-trend,.card .add{flex:none}
 .card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
 .card:hover h3 a{text-decoration:underline;text-underline-offset:3px}
 
@@ -626,41 +630,72 @@ main > .wrap > .section-title + *{margin-block-start:0}
   display:flex;align-items:center;gap:var(--s1);margin-top:var(--s1);
   flex-wrap:wrap;line-height:1.2;
 }
-.card .tags .sku{
-  font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
-  color:var(--ink-2);margin-inline-end:auto;
-}
+
 .card .tags span{
-  font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
-  color:var(--ink-2);border:1px solid var(--rule);
+  font-size:var(--t-label);letter-spacing:.06em;line-height:1.2;
+}
+
+.card .tags .sku{color:var(--ink-2);font-weight:400}
+
+.card .tags .brand{color:var(--ink);font-weight:800}
+
+.card .tags .fit{
+  color:var(--ink-2);font-weight:400;border:1px solid var(--rule);
   padding:0 var(--s1);border-radius:var(--r);
 }
-.card .tags .brand{color:var(--ink);font-weight:800;border-color:var(--rule-strong)}
+
+.card .tags .line{
+  background:var(--board);color:var(--paper);font-weight:800;
+  padding:0 var(--s1);border-radius:var(--r);
+}
 
 .card .price{
   margin-top:auto;padding-top:var(--s2);border-top:1px solid var(--rule);
-  font-size:var(--t-head);color:var(--ink);font-weight:800;line-height:1.15;
+  font-size:var(--t-head);color:var(--ink);font-weight:800;line-height:1.05;
   font-variant-numeric:tabular-nums;
-  display:flex;align-items:baseline;gap:var(--s1);
+  display:flex;align-items:baseline;gap:var(--s1);flex-wrap:wrap;
+  
+}
+.card .price data{min-width:0}
+
+@supports (container-type:inline-size){
+  .card{container-type:inline-size}
+  
+  .card .price{font-size:clamp(22px,13cqi,44px)}
 }
 .card .price small{
   font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   color:var(--ink-2);margin-inline-start:var(--s1);
 }
-.card .price.na{font-size:var(--t-body);color:var(--rise);font-weight:800}
+.card .price.na{font-size:var(--t-head);color:var(--rise);font-weight:800}
+
 .card .add{
-  margin-top:var(--s2);min-height:46px;background:transparent;color:var(--ink);
-  border:1px solid var(--rule-strong);cursor:pointer;
+  margin-top:var(--s2);min-height:46px;
+  background:var(--board);color:var(--paper);
+  border:1px solid var(--board);cursor:pointer;
   padding:0 var(--s2);font:inherit;font-weight:800;border-radius:var(--r);
   position:relative;z-index:2;text-align:center;
   display:flex;align-items:center;justify-content:center;
 }
-.card .add:hover{background:var(--board);color:var(--paper);border-color:var(--board)}
-.card .add.na{border-style:dashed;color:var(--ink-2);font-weight:400;letter-spacing:.06em}
-.card .add.na:hover{background:transparent;color:var(--ink);border-color:var(--rule-strong)}
+.card .add:hover{background:var(--ink);border-color:var(--ink)}
+
+.card .add.na{
+  background:transparent;color:var(--ink);border-color:var(--rule-strong);
+  border-style:dashed;font-weight:400;
+}
+.card .add.na:hover{background:var(--paper-2)}
+.slider-track .card .add{
+  background:var(--amber);color:var(--board);border-color:var(--amber);
+}
+.slider-track .card .add:hover{background:var(--paper);border-color:var(--board)}
+.slider-track .card .add.na{
+  background:transparent;color:var(--ink);border-color:var(--rule-strong);
+}
+
 .card-trend{
   display:flex;align-items:center;justify-content:space-between;
   gap:var(--s1);margin-top:var(--s1);min-height:22px;line-height:1.2;
+  font-size:var(--t-label);letter-spacing:.06em;
 }
 
 .empty{
@@ -748,8 +783,10 @@ main > .wrap > .section-title + *{margin-block-start:0}
 
 .chip-price{
   display:inline-flex;align-items:center;gap:var(--s1);
-  font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;
+  font-weight:400;white-space:nowrap;font-variant-numeric:tabular-nums;
 }
+
+.board .chip-price,.board-band .chip-price,.tile .chip-price{font-weight:800}
 .chip-price.is-up  {color:var(--px-rise)}
 .chip-price.is-down{color:var(--px-fall)}
 .chip-price.is-flat,.chip-price.is-new{color:var(--ink-2);font-weight:400;letter-spacing:.06em}

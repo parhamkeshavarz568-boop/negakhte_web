@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Shared chrome: <head>, header, nav, footer, and the SEO/JSON-LD helpers."""
-import json, html, os as _os
+import json, html, os as _os, re
 from normalize import to_fa_digits, BRANDS, CATEGORIES
 from site_config import SITE, CONTACT, SOCIAL, COMMERCE, TRUST, ANALYTICS, SUPPLIER
 
@@ -38,6 +38,34 @@ def money(rial, unit=True, data=False):
     if data:
         txt = f'<data value="{rial}">{txt}</data>'
     return f"{txt} <small>{COMMERCE['display_unit']}</small>" if unit else txt
+
+
+# A Latin/digit run: letters, digits, and the joiners that appear inside a
+# part designation (220/230, TRA-X, AMO-006, 4.5).
+_LATIN_RUN = re.compile(r"[A-Za-z0-9][A-Za-z0-9/.\-]*")
+
+
+def latin_bdi(s):
+    """Escape a Persian string and isolate every Latin/digit run in <bdi>.
+
+    Why this is not optional. Under UAX#9 a Latin run inside RTL text is
+    resolved by its surroundings, and the joiners are BIDI-NEUTRAL: the `/` in
+    «برلیانس 220/230 عقب» and the `-` in «TRA-X» take their direction from
+    whatever is next to them, so a title can reorder depending on the words
+    around it. That is the same failure class that reached us in the source
+    data as «230-220» and «35 CS», which build_catalog.py repairs — this stops
+    us re-creating it on the way out.
+
+    A single run with no trailing neutral (33X, 315) happens to render
+    correctly without isolation, which is why this was easy to miss.
+    """
+    out, last = [], 0
+    for m in _LATIN_RUN.finditer(s):
+        out.append(e(s[last:m.start()]))
+        out.append("<bdi>" + e(m.group(0)) + "</bdi>")
+        last = m.end()
+    out.append(e(s[last:]))
+    return "".join(out)
 
 
 def bdi(s):

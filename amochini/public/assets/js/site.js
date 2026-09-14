@@ -178,9 +178,20 @@
 
     // One "page" is a whole viewport of cards minus a sliver, so the user
     // keeps a visual anchor between pages instead of jumping blind.
+    // The real pitch between two cards, measured — not the card width plus a
+    // guessed 16px gap. The lattice draws its separators as borders now, so
+    // the gap is 0 and the old estimate overshot by 16px per card; scroll-snap
+    // was quietly correcting it on every click.
     function step() {
-      var card = track.querySelector('.card');
-      var w = card ? card.getBoundingClientRect().width + 16 : 240;
+      var cards = track.children;
+      var w = 240;
+      if (cards.length > 1) {
+        var a = cards[0].getBoundingClientRect();
+        var b2 = cards[1].getBoundingClientRect();
+        w = Math.abs(b2.left - a.left) || a.width;
+      } else if (cards.length === 1) {
+        w = cards[0].getBoundingClientRect().width;
+      }
       return Math.max(w, Math.floor(track.clientWidth / w) * w - w * 0.25);
     }
 
