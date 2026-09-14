@@ -65,12 +65,17 @@ def main():
                 overflow = pg.evaluate(
                     "()=>document.documentElement.scrollWidth > "
                     "document.documentElement.clientWidth + 1")
+                # The FULL viewport, not the top 60%. The earlier version
+                # excluded anything below 0.6 * viewport height, which is
+                # exactly where a category page's first product row sits —
+                # so it missed four invisible cards on every category page.
                 stuck = pg.evaluate("""()=>{
                   const els=[...document.querySelectorAll(
                     '.card,.cat,.features li,.brandgrid a')];
                   return els.filter(e=>{
                     const r=e.getBoundingClientRect();
-                    if (r.top >= innerHeight*0.6 || r.bottom <= 0) return false;
+                    if (r.top >= innerHeight || r.bottom <= 0) return false;
+                    if (r.width === 0 || r.height === 0) return false;
                     return parseFloat(getComputedStyle(e).opacity) < 0.5;
                   }).length;
                 }""")

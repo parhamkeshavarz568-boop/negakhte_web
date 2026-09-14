@@ -823,32 +823,28 @@ footer{view-transition-name:sitefooter}
    benefit with none of the sizing risk. Do not reintroduce this without
    re-running the scroll-height check in build/check_layout.py.
 
-/* ---- scroll-driven reveal ----
-   Cards fade and rise as they enter the viewport. Driven by
-   `animation-timeline: view()`, which runs on the compositor — no scroll
-   listener, no JS, no main-thread work at all. `both` fill means anything
-   already past its entry range is simply at the end state, so above-fold
-   content is never left invisible.
-   Excluded inside .slider-track: view() resolves against the nearest
-   scroll container, which there is the horizontal track, and the cards
-   would animate on horizontal scroll instead. */
-@supports (animation-timeline: view()){
-  @media (prefers-reduced-motion:no-preference){
-    .grid-products > .card,
-    .cats > .cat,
-    .features li,
-    .brandgrid > a{
-      animation:reveal-up linear both;
-      animation-timeline:view();
-      animation-range:entry 0% entry 46%;
-    }
-    .slider-track > .card{animation:none}
-  }
-}
-@keyframes reveal-up{
-  from{opacity:0;transform:translateY(16px)}
-  to{opacity:1;transform:none}
-}
+/* ---- scroll-driven reveal: TRIED AND REMOVED ----
+   `animation-timeline: view()` reveals looked ideal — compositor-driven, no
+   scroll listener, no main-thread work. Measured, they broke first paint:
+   on a category page at scrollY 0 all four product cards in the viewport sat
+   at opacity 0, so a visitor landed on an EMPTY grid until they scrolled.
+
+   The cause is structural, not a bad range value. A `view()` timeline has no
+   notion of "already in the initial viewport", so an element that never
+   enters from below sits at its `from` state. Five ranges were measured —
+   entry, cover, entry-crossing, contain, and a mixed entry/cover — and all
+   five left those four cards invisible; several left them invisible mid-page
+   too. There is no CSS-only way to scope the animation to elements below the
+   fold.
+
+   An IntersectionObserver version would work, but it means main-thread work
+   and a class-toggle dance for a decorative fade, on a site whose whole point
+   is being fast from a bad connection. The hover lifts and transitions
+   already do the "this is alive" job at zero risk.
+
+   Re-run build/check_layout.py before attempting this again — it now checks
+   the FULL viewport, which is what would have caught this the first time.
+   The keyframes are kept because nothing references them; delete freely. */
 
 /* ---- smoother anchor scrolling ----
    scroll-padding keeps an anchored heading clear of the sticky-ish chrome. */
