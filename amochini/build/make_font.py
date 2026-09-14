@@ -30,6 +30,14 @@ alongside and the copyright name records are preserved (--name-IDs).
 """
 import os, shutil, subprocess, sys
 
+# Reproducible output. fontTools stamps head.created/modified with the current
+# time unless SOURCE_DATE_EPOCH is set, so every rebuild produced a
+# byte-different woff2 for an identical font — a spurious 20 KB change in the
+# repo on every build, and a re-upload that busts the file's cache for no
+# reason. pyftsubset runs in a subprocess, so the variable has to reach it.
+os.environ.setdefault("SOURCE_DATE_EPOCH", "1700000000")   # in-process saves
+ENV = dict(os.environ)                                      # and the subprocess
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(os.path.dirname(HERE), "public", "assets", "fonts")
 DEST = os.path.join(OUT, "vazirmatn-subset.woff2")
@@ -79,7 +87,7 @@ def main():
         "--name-IDs=0,1,2,3,4,5,6,13,14", # keep the OFL copyright/licence records
         "--drop-tables+=DSIG",
     ]
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, env=ENV)
     print(f"wrote {DEST}  {os.path.getsize(DEST)/1024:.1f} KB")
     # SIL OFL 1.1 requires the licence to travel with the font.
     lic_src = os.path.join(HERE, "original", "OFL.txt")
@@ -163,7 +171,7 @@ def build_display():
         "--layout-features=ccmp,init,medi,fina,rlig,locl,liga",
         "--name-IDs=0,1,2,3,4,5,6,13,14",
         "--drop-tables+=DSIG",
-    ], check=True)
+    ], check=True, env=ENV)
     os.remove(tmp)
     print(f"wrote {LALEZAR_DEST}  {os.path.getsize(LALEZAR_DEST)/1024:.1f} KB")
     lic = os.path.join(HERE, "original", "OFL-Lalezar.txt")
