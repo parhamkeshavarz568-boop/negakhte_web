@@ -1,5 +1,69 @@
 # عمو چینی — amochini.ir
 
+## Run it on your laptop
+
+The built site is committed, so a fresh clone is already a working website —
+nothing to install, nothing to compile.
+
+```powershell
+# Windows PowerShell
+git clone https://github.com/parhamkeshavarz568-boop/negakhte_web.git
+cd negakhte_web\amochini\public
+python -m http.server 8000
+```
+
+```bash
+# macOS / Linux
+git clone https://github.com/parhamkeshavarz568-boop/negakhte_web.git
+cd negakhte_web/amochini/public
+python3 -m http.server 8000
+```
+
+Then open <http://localhost:8000> — not `http://0.0.0.0:8000`, which some
+Windows browsers refuse. Ctrl+C in the terminal stops the server.
+
+Already have the repo? `git pull` first.
+
+No Python on the machine? Any static server does: `npx serve -l 8000` with
+Node, or `php -S localhost:8000`, or the "Live Server" extension in VS Code
+(right-click `public/index.html` → Open with Live Server).
+
+### Do not double-click index.html
+
+Opening the file directly gives a broken page with no fonts and no styling.
+Every asset path is root-absolute (`/assets/css/site.css`) and every page is a
+directory (`/brake-discs/`), so both need a server at the root of `public/`.
+That is how the site will actually be served — it is not a bug to fix.
+
+### What a local server cannot show you
+
+Three things are the web server's job, so `python -m http.server` skips them
+and the pages are still correct:
+
+| | why |
+|---|---|
+| the WordPress 301 redirects | they live in `.htaccess`, which only Apache/LiteSpeed reads |
+| the real 404 page | you will get Python's plain "File not found"; open `/404.html` directly to see ours |
+| link prerendering | Speculation Rules ship as an HTTP header, which needs the real server config |
+
+### Seeing the price movement
+
+The live site holds one price per product so far, so every row reads
+«ثبت‌شده» with no percentage and no sparkline — correct, because a trend
+through one point would be invented. To see what it looks like once history
+accumulates:
+
+```powershell
+cd negakhte_web\amochini\build
+python make_preview.py
+```
+
+That writes a throwaway build with synthetic movement to a temp folder (it
+prints the path), carries `noindex` on every page, and never touches `public/`
+or the real price history. Serve that folder the same way.
+
+---
+
 **Read `DESIGN.md` before changing anything visual.** It is the design system:
 six colours, two typefaces, five type sizes, five spacing steps, one radius, no
 shadows, one signature element and one moment of motion. If a change needs a
