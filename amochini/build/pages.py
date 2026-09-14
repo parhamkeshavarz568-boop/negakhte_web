@@ -302,7 +302,14 @@ def price_chip(p, *, size="sm"):
             f'<bdi>{num}٪</bdi> <span class="chip-word">{word}</span></span>')
 
 
-def card(p, eager=False):
+# DESIGN.md §14.3: the slider's rows are 340px and the grid's are 283px, so
+# they need different `sizes`. Sharing one string would either under-resolve
+# the slider photo or make 77 grid rows over-fetch a 700px rendition.
+GRID_SIZES = "(min-width:1000px) 283px, (min-width:700px) 245px, 45vw"
+SLIDER_SIZES = "(min-width:1000px) 340px, (min-width:700px) 300px, 78vw"
+
+
+def card(p, eager=False, sizes=GRID_SIZES):
     b = BRANDS[p["brand"]]
     badge = ""
     if not p["in_stock"]:
@@ -317,9 +324,7 @@ def card(p, eager=False):
          data-price="{p["price_irr"] if p["price_irr"] is not None else ""}"
          data-title="{e(p["title"])}" data-search="{e(p["search"])}">
   <div class="ph">{badge}
-    {picture(img, alt=p["title"], box=300,
-             sizes="(min-width:1000px) 283px, (min-width:700px) 245px, 45vw",
-             eager=eager)}
+    {picture(img, alt=p["title"], box=340, sizes=sizes, eager=eager)}
   </div>
   <div class="body">
     <h3><a href="{e(p["url"])}">{e(p["title"])}</a></h3>
@@ -862,7 +867,8 @@ def slider(prods, *, title_html, label, slug="s1", eager_first=0):
     The script only adds the arrows, the progress bar and the keyboard
     shortcuts on top.
     """
-    cards = "".join(card(p, eager=i < eager_first) for i, p in enumerate(prods))
+    cards = "".join(card(p, eager=i < eager_first, sizes=SLIDER_SIZES)
+                    for i, p in enumerate(prods))
     return f'''<section class="slider" id="{e(slug)}"
          aria-roledescription="carousel" aria-label="{e(label)}">
   <div class="slider-head">

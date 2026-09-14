@@ -415,3 +415,70 @@ rationed to a 2%-of-screen budget with a closed list of permitted uses.
 **7. A type scale from 13px to 38px.**
 2.9×, every step ~1.2×, so nothing was ever dramatic. **Changed:** 11px to
 72px, five steps, with weight 200 against weight 800 in the same block.
+
+---
+
+## 14. Named exceptions
+
+The system is closed. Anything added after it was locked is recorded here, with
+what it is, why, and what rule it bends. If it is not in this list and not in
+§2–§9, it does not exist.
+
+### 14.1 — Row-fill hover on a product row
+
+```css
+.card:hover{background:var(--paper-2)}
+```
+
+**Bends:** §9's "nothing else on this site moves" and the standing ban on
+"hover transitions on every card".
+
+**Why it is allowed:** it is not motion and it is not a transition. There is no
+`transition`, no `transform`, no shadow and no scale — the row's ground changes
+from `--paper` to `--paper-2` instantly, the way a table row highlights. It
+introduces **no new value**: both are existing tokens.
+
+**Why it is needed:** the fifteen-item scroller and the seventy-seven-row
+category lattice gave a pointer user no feedback at all about what was
+clickable. The underline on the product name (which is still there) only
+appears once the cursor is on the text itself, not on the row.
+
+### 14.2 — A 4px progress rail
+
+The slider's progress rail goes from 2px to `--s1` (4px), `--rule` track with
+an `--ink` fill.
+
+**Bends:** nothing. 4px is an existing spacing token; no new value.
+
+**Why it is needed:** at 2px the rail was measurably present and practically
+invisible, which made the one affordance that tells a reader how far through a
+fifteen-item scroller they are useless.
+
+**Explicitly NOT amber.** An amber rail was offered and is declined. §2 rations
+`--amber` to *live* signals — the pulse dot, the date stamp, the primary
+button, the focus ring, the active nav item. A scroll-position indicator is not
+a live signal, and spending the accent on it is exactly how the previous build
+ended up with an accent that meant nothing.
+
+### 14.3 — Slider rows are wider than grid rows
+
+`flex-basis` goes from 266px to 340px on desktop, `clamp(260px, 78vw, 340px)`
+below.
+
+**Bends:** nothing — a component dimension, like the 1180px column.
+
+**Why it is needed:** the reason the slider read as thin was not that it lacked
+effects. It was that a 266px row gives a photograph a 266×200 box, which is too
+small for a brake disc to land. At 340px the photo is 340×255 and three and a
+half rows fill a 1440px screen instead of four and a third. The slider gets its
+own `sizes` attribute rather than sharing the grid's, so the grid does not
+start over-fetching a 700px rendition for a 283px box.
+
+**The cost, stated:** the three disc photographs are 700×700 sources, so the 80
+disc products get a genuinely sharper image in the wider box. `cat-brake-pads`
+is a 400×400 source — that is the real file, not a setting — so the 50 pad
+products are now 1.7× short of a DPR-2 340px box instead of 1.4× short of a
+283px one. They were already capped; they are slightly softer now. Upscaling
+would be fake sharpness, so it is not done. This is the photography ceiling in
+`docs/PLACEHOLDERS.md` showing up again, and real product photography is what
+fixes it.

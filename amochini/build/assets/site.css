@@ -673,6 +673,12 @@ main > .wrap > .faq{margin-block:var(--sect)}
 }
 .card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
 .card:hover h3 a{text-decoration:underline;text-underline-offset:3px}
+/* DESIGN.md §14.1. A ground change, not motion: no transition, no transform,
+   no shadow, no scale, and no new value — the row highlights the way a table
+   row does. Without it a pointer user got no signal at all about what was
+   clickable until the cursor was on the name itself. */
+.card:hover{background:var(--paper-2)}
+.card:hover .ph{background:var(--paper)}   /* keep the photo well distinct */
 .card .sku{
   font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   color:var(--ink-2);margin-top:var(--s1);
@@ -990,10 +996,10 @@ main > .wrap > .faq{margin-block:var(--sect)}
    JS off it still scrolls and swipes; the arrows, the rail and the keyboard
    shortcuts are progressive enhancement on top. DESIGN.md §11, error state.
    ========================================================================== */
-/* 6px of bottom padding reserves the progress rail's box (2px high with a
+/* 8px of bottom padding reserves the progress rail's box (4px high with a
    4px margin) before site.js unhides it. Measured: without it the reveal
-   shifted the section and the home page reported CLS 0.001 instead of 0. */
-.slider{margin-block:var(--sect);position:relative;padding-bottom:6px}
+   shifted the section. */
+.slider{margin-block:var(--sect);position:relative;padding-bottom:8px}
 .slider-head{
   display:flex;align-items:flex-end;justify-content:space-between;
   gap:var(--s2);flex-wrap:wrap;min-height:64px;
@@ -1022,7 +1028,7 @@ main > .wrap > .faq{margin-block:var(--sect)}
 }
 .slider-track::-webkit-scrollbar{display:none}
 .slider-track:focus-visible{box-shadow:var(--focus)}
-.slider-track > .card{flex:0 0 clamp(210px,68vw,258px);scroll-snap-align:start}
+.slider-track > .card{flex:0 0 clamp(260px,78vw,340px);scroll-snap-align:start}
 
 /* Edge fade, so the track reads as continuing past the viewport rather than
    being cut off. Masked rather than an overlay, so it works over any ground
@@ -1041,8 +1047,12 @@ main > .wrap > .faq{margin-block:var(--sect)}
     mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
   }
 }
-.slider-rail{height:2px;background:var(--rule);overflow:hidden;margin-top:var(--s1);
-  margin-bottom:-6px}
+/* DESIGN.md §14.2. 4px, not 2: at 2px the rail was present and invisible.
+   Not amber — §2 rations the accent to live signals, and a scroll position is
+   not one. The 8px reserve below matches 4px margin + 4px height, so site.js
+   unhiding it cannot shift the page. */
+.slider-rail{height:var(--s1);background:var(--rule);overflow:hidden;
+  margin-top:var(--s1);margin-bottom:-8px}
 .slider-fill{
   display:block;height:100%;width:22%;background:var(--ink);
   /* positioned rather than transformed: a percentage inset resolves against
@@ -1189,7 +1199,7 @@ footer a:hover{color:var(--paper)}
   .brandgrid{grid-template-columns:repeat(6,1fr)}
   .finder{grid-template-columns:repeat(3,minmax(0,1fr)) auto}
   .finder button{grid-column:auto}
-  .slider-track > .card{flex-basis:266px}
+  .slider-track > .card{flex-basis:340px}
 }
 
 /* ---- phone ----
