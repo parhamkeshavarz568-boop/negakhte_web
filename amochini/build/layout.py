@@ -178,8 +178,10 @@ def header(active="/"):
     </nav>
     <span class="asmco-badge">{e(SUPPLIER["claim_fa"])}</span>
     <div class="account">
-      <svg viewBox="0 0 24 24" aria-hidden="true">{SVG["phone"]}</svg>
-      <span>سفارش تلفنی: <a href="tel:{e(CONTACT["phone_tel"])}">{bdi(CONTACT["phone_display"])}</a></span>
+      <span class="tb-hours"><svg viewBox="0 0 24 24" aria-hidden="true">{SVG["clock"]}</svg>
+        {e(CONTACT["hours_display"])}</span>
+      <span class="tb-phone"><svg viewBox="0 0 24 24" aria-hidden="true">{SVG["phone"]}</svg>
+        سفارش تلفنی: <a href="tel:{e(CONTACT["phone_tel"])}">{bdi(CONTACT["phone_display"])}</a></span>
     </div>
   </div>
 </div>
@@ -202,16 +204,6 @@ def header(active="/"):
     </form>
     <p class="sr-only" id="q-help">برای مثال: لنت ترمز ام‌وی‌ام ۳۱۵ جلو</p>
 
-    <div class="utilities">
-      <div class="util">
-        <span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true">{SVG["phone"]}</svg></span>
-        <span><b>شماره تماس</b><small>{bdi(CONTACT["phone_display"])}</small></span>
-      </div>
-      <div class="util">
-        <span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true">{SVG["clock"]}</svg></span>
-        <span><b>ساعات کاری</b><small>{e(CONTACT["hours_display"])}</small></span>
-      </div>
-    </div>
   </div>
 </header>
 

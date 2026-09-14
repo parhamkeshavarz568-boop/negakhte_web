@@ -762,6 +762,83 @@ def brands_index(groups):
 {footer()}'''
 
 
+def ticker(prods):
+    """A live price ticker under the hero.
+
+    This is the one element that says what the site IS at a glance: prices,
+    moving, with dates. The headline claims «قیمت روز» — this shows it.
+
+    Accessibility, because a marquee is easy to get wrong:
+      * the duplicate half is aria-hidden, so a screen reader reads each
+        product once, not twice;
+      * it pauses on hover AND on keyboard focus;
+      * under prefers-reduced-motion the animation is dropped entirely and it
+        becomes a plain horizontally-scrollable strip;
+      * it is never the only route to the data — every item links to its
+        product and the band links to the full board.
+
+    The track is forced to `direction: ltr` so the items slide leftward and
+    enter from the right, where a Persian reader's eye starts. Each item keeps
+    dir="rtl" internally so its own text is laid out correctly.
+    """
+    if not prods:
+        return ""
+
+    def item(x, dup=False):
+        st = x.get("price") or {}
+        d = st.get("direction")
+        if d == "up":
+            tone, arrow = "t-up", "▲"
+        elif d == "down":
+            tone, arrow = "t-down", "▼"
+        else:
+            tone, arrow = "t-flat", "•"
+        if d in ("up", "down"):
+            pct = abs(st["change_pct"])
+            delta = (("کمتر از ۰٫۱" if pct < 0.05
+                      else to_fa_digits(f"{pct:.1f}".rstrip("0").rstrip("."))
+                           .replace(".", "\u066B")) + "٪")
+        elif st.get("latest_date"):
+            delta = to_fa_digits(PR.jalali_str(st["latest_date"], with_year=False))
+        else:
+            delta = ""
+        return (f'<a class="tick {tone}" href="{e(x["url"])}" dir="rtl"'
+                + (' aria-hidden="true" tabindex="-1"' if dup else '') + '>'
+                f'<span class="tick-name">{e(x["title"])}</span>'
+                f'<span class="tick-price">{money(x["price_irr"], unit=False)}</span>'
+                f'<span class="tick-delta"><span aria-hidden="true">{arrow}</span> {delta}</span>'
+                f'</a>')
+
+    half = "".join(item(x) for x in prods)
+    return f'''<section class="ticker" aria-label="قیمت روز قطعات">
+  <a class="ticker-tag" href="/prices/">
+    <span class="dot" aria-hidden="true"></span> قیمت روز
+  </a>
+  <div class="ticker-win">
+    <div class="ticker-track">{half}{"".join(item(x, dup=True) for x in prods)}</div>
+  </div>
+  <a class="ticker-all" href="/prices/">جدول کامل ›</a>
+</section>'''
+
+
+def stat_band(all_p, groups):
+    """Four numbers that establish scale and freshness. Not a chart — a KPI
+    row of plain figures is the right form for a handful of headline values,
+    and it is the cheapest credibility on the page."""
+    meta = PRICE_META
+    stamp = (to_fa_digits(PR.jalali_str(meta["latest"])) if meta["latest"] else "—")
+    cells = [
+        (to_fa_digits(len(all_p)), "کالا در انبار"),
+        (to_fa_digits(len(groups)), "برند خودرو"),
+        (to_fa_digits(meta["observations"]), "قیمت ثبت‌شده"),
+        (stamp, "آخرین بروزرسانی"),
+    ]
+    return ('<section class="stat-band"><div class="wrap"><ul>'
+            + "".join(f'<li><b>{e(v)}</b><span>{e(k)}</span></li>'
+                      for v, k in cells)
+            + "</ul></div></section>")
+
+
 def slider(prods, *, title_html, label, slug="s1", eager_first=0):
     """A scroll-snap product carousel.
 
@@ -893,7 +970,12 @@ def home(all_p, groups):
   </div>
   <div class="inner">
     <h1>قطعات ترمز خودروهای چینی، با قیمت روز</h1>
-    <p>{e(SITE["slogan"])} — {to_fa_digits(len(all_p))} کالا برای {to_fa_digits(len(groups))} برند</p>
+    <p>{e(SITE["slogan"])}</p>
+    <ul class="hero-trust">
+      <li><span aria-hidden="true">◆</span> {e(SUPPLIER["claim_fa"])}</li>
+      <li><span aria-hidden="true">◆</span> قیمت روز، با تاریخ ثبت</li>
+      <li><span aria-hidden="true">◆</span> ارسال به سراسر ایران</li>
+    </ul>
 
     <form class="finder" id="finder" action="/brake-pads/" method="get">
       <label class="sr-only" for="f-brand">خودرو</label>
@@ -906,6 +988,9 @@ def home(all_p, groups):
     </form>
   </div>
 </section>
+
+{ticker(board_pick)}
+{stat_band(all_p, groups)}
 
 <div class="wrap">
   <h2 class="section-title"><b>دسته‌بندی</b>‌های محصولات</h2>
