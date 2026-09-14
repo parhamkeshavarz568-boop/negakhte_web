@@ -150,15 +150,21 @@ bdi{unicode-bidi:isolate}
 .masthead{background:var(--board);border-top:1px solid var(--rule-board)}
 .masthead .wrap{padding-block:var(--s3)}
 .logo{
-  display:block;font-family:var(--face-display);font-weight:400;
+  display:flex;align-items:center;gap:var(--s2);
+  font-family:var(--face-display);font-weight:400;
   font-size:var(--t-head);color:var(--paper);line-height:1.2;
   margin-bottom:var(--s2);
 }
-.logo span{color:var(--amber)}       
+
+.logo .mark{flex:none;display:block}
+.logo .mark img{width:auto;height:44px}
+.logo .wordmark{display:block;min-width:0}
+.logo .wordmark span{color:var(--amber)}   
 .logo small{
   display:block;font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   color:var(--chalk);margin-top:var(--s1);font-family:var(--face-text);
 }
+@media (min-width:768px){ .logo .mark img{height:52px} }
 .search{
   display:flex;max-width:640px;position:relative;
   border:1px solid var(--rule-board);border-radius:var(--r);
@@ -1002,10 +1008,12 @@ main > .wrap > .section-title + *{margin-block-start:0}
 footer{background:var(--board);color:var(--chalk);padding-top:var(--s4)}
 footer .cols{display:grid;gap:var(--s3)}
 .f-logo{
+  display:flex;align-items:center;gap:var(--s2);
   font-family:var(--face-display);font-weight:400;font-size:var(--t-head);
   color:var(--paper);margin-bottom:var(--s2);line-height:1.2;
 }
-.f-logo span{color:var(--amber)}
+.f-logo img{flex:none;width:auto;height:40px}
+.f-logo b{color:var(--amber);font-weight:400}
 .f-claim{
   color:var(--chalk);font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   margin-bottom:var(--s2);

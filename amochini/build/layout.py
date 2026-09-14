@@ -166,8 +166,11 @@ def head(*, title, description, canonical, jsonld=(), og_image=None,
         f'<meta name="twitter:description" content="{e(description)}">',
         f'<meta name="twitter:image" content="{e(BASE + img)}">',
         # --- icons ---
-        '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
-        '<link rel="alternate icon" href="/favicon.ico" sizes="32x32">',
+        # PNG, not SVG: the mark is the real logo keyed out of the owner's
+        # poster, and there is no faithful vector of it. An SVG wrapping a
+        # base64 PNG would be larger and a lie about the format.
+        '<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">',
+        '<link rel="alternate icon" href="/favicon.ico" sizes="48x48">',
         '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
         '<link rel="manifest" href="/site.webmanifest">',
         # --- fonts: self-hosted, preloaded, no third-party origin ---
@@ -223,8 +226,14 @@ def header(active="/"):
 
 <header class="masthead">
   <div class="wrap">
-    <a href="/" class="logo">عمو <span>چینی</span>
-      <small>{e(SITE["slogan"])}</small>
+    <a href="/" class="logo">
+      <picture class="mark">
+        <source type="image/webp" srcset="/assets/img/logo-70.webp 70w, /assets/img/logo-140.webp 140w, /assets/img/logo-210.webp 210w" sizes="70px">
+        <img src="/assets/img/logo-140.png" alt="" width="140" height="104"
+             loading="eager" fetchpriority="high" decoding="sync">
+      </picture>
+      <span class="wordmark">عمو <span>چینی</span>
+        <small>{e(SITE["slogan"])}</small></span>
     </a>
 
     <form class="search" role="search" action="/brake-pads/" method="get" id="siteSearch">
@@ -327,7 +336,10 @@ def footer():
 <footer>
   <div class="wrap cols">
     <div>
-      <div class="f-logo">عمو <span>چینی</span></div>
+      <div class="f-logo">
+        <img src="/assets/img/logo-70.png" alt="" width="70" height="52">
+        <span>عمو <b>چینی</b></span>
+      </div>
       <p class="f-claim">{e(SUPPLIER["claim_fa"])}</p>
       <ul class="contact">
         <li>

@@ -68,7 +68,8 @@ its leading zero. `۰۹۱۲۲۶۵۰۰۷۶` → `+989122650076`.
 
 | What | Where | Why |
 |---|---|---|
-| **Instagram / Telegram handles** | `SOCIAL` | The draft linked Facebook, Twitter and Google+. Google+ shut down in 2019; Facebook and Twitter are filtered in Iran — all three were dead links and I removed them. Any handle left empty is simply not rendered, so no broken icons. |
+| **Instagram** | `SOCIAL` | **Supplied and live:** `instagram.com/amo.chini`. It renders in the footer's social row and in the organisation's `sameAs`. |
+| **Telegram / Eitaa handles** | `SOCIAL` | The draft linked Facebook, Twitter and Google+. Google+ shut down in 2019; Facebook and Twitter are filtered in Iran — all three were dead links and I removed them. Any handle left empty is simply not rendered, so no broken icons. |
 | **Shop coordinates** | `CONTACT["latitude"]`, `["longitude"]` | Left as `None` on purpose: the code omits `geo` from structured data rather than publishing a wrong pin. Fill in from Google Maps / Neshan and they appear. |
 | **Real product photos** | `public/assets/img/` | See §3. |
 
@@ -223,3 +224,31 @@ but it does **not** settle the copyright in the photograph itself.
 If the licence cannot be confirmed, the band should be replaced. A photograph
 of a real headlight or brake light taken in the shop would do the same job,
 cost nothing, and be unambiguously ours.
+
+---
+
+## The logo is no longer a placeholder
+
+The icon set used to be a **drawn brake disc** — a stand-in generated in
+`make_icons.py` because no real mark existed. The owner has now supplied the
+real one, and every icon on the site is derived from it:
+
+| asset | from |
+|---|---|
+| masthead + footer lockup | `logo-70/140/210.{webp,png}` |
+| `favicon.ico` (16/32/48) and `favicon-32.png` | the mark on a `--board` tile |
+| `apple-touch-icon.png` 180 | same |
+| `icon-192.png`, `icon-512.png` | same |
+| `icon-maskable-512.png` | same, on a full circle inside Android's safe zone |
+
+`favicon.svg` is **gone**. The mark is a raster shape keyed out of a poster and
+there is no faithful vector of it; an SVG wrapping a base64 PNG would be bigger
+than the PNG and a lie about the format.
+
+The crop and the colour key live in `build/make_icons.py`, not in a
+hand-edited file, so the whole set rebuilds from the poster the owner actually
+sent (`build/original/images/supplied/logo-poster.png`).
+
+**Still open:** a vector original. If the designer who made this logo has the
+AI/EPS/SVG, it would give sharper small sizes and a real `favicon.svg`. Worth
+one message to them.

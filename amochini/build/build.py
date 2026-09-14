@@ -47,8 +47,11 @@ def main():
     # template can never reference a rendition that does not exist on disk.
     imgdir = os.path.join(OUT, "assets", "img")
     man = {}
+    # PNG is in the list because the logo mark has an alpha channel and so has
+    # no JPEG rendition — the aspect-ratio probe below reads whichever format
+    # is actually present rather than assuming .jpg.
     for f in os.listdir(imgdir):
-        m = re.match(r"(.+)-(\d+)\.(avif|webp|jpg)$", f)
+        m = re.match(r"(.+)-(\d+)\.(avif|webp|jpg|png)$", f)
         if not m:
             continue
         d = man.setdefault(m.group(1), {"widths": set(), "formats": set()})
@@ -57,7 +60,10 @@ def main():
     from PIL import Image as _Im
     for name, d in man.items():
         w = max(d["widths"])
-        with _Im.open(os.path.join(imgdir, f"{name}-{w}.jpg")) as im:
+        probe = next(os.path.join(imgdir, f"{name}-{w}.{ext}")
+                     for ext in ("jpg", "png", "webp", "avif")
+                     if os.path.exists(os.path.join(imgdir, f"{name}-{w}.{ext}")))
+        with _Im.open(probe) as im:
             d["ar"] = im.size[1] / im.size[0]
         d["widths"] = sorted(d["widths"])
         d["formats"] = sorted(d["formats"])

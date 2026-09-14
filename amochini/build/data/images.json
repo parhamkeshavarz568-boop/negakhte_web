@@ -103,6 +103,18 @@
   ],
   "ar": 1.0
  },
+ "logo": {
+  "widths": [
+   70,
+   140,
+   210
+  ],
+  "formats": [
+   "png",
+   "webp"
+  ],
+  "ar": 0.7428571428571429
+ },
  "cat-brake-discs": {
   "widths": [
    160,

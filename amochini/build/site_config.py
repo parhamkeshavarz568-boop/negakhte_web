@@ -81,7 +81,7 @@ CONTACT = dict(
 # the channels Iranian shoppers actually use.
 # TODO: fill in the real handles; any left empty is simply not rendered.
 SOCIAL = dict(
-    instagram="",      # TODO e.g. "amochini"
+    instagram="amo.chini",   # confirmed by the owner: instagram.com/amo.chini
     telegram="",       # TODO e.g. "amochini"
     whatsapp="",       # TODO digits only; falls back to CONTACT["whatsapp"]
     eitaa="",          # TODO optional

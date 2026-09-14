@@ -635,3 +635,31 @@ product name sits immediately beside it, so the old `alt="{title}"` made a
 screen reader announce each product twice — and the same stock image is shared
 by up to 50 products, so an alt claiming to be one specific part was a small
 lie. The product page's gallery keeps a real alt.
+
+### 14.8 — The real mark
+
+An amber gear ring around a white curly head with a moustache — عمو چینی,
+"Chinese Uncle". Supplied by the owner inside a promotional poster, so
+`build/make_icons.py` carries the crop and the colour key and everything
+rebuilds from the file he sent.
+
+**Bends:** nothing. Its amber is within a hair of `--amber` and its white
+within a hair of `--paper`, so the mark repaints to those two exactly and adds
+no value to the palette.
+
+**Why it is repainted rather than lifted.** The poster gives the gear a 3D drop
+shadow. A luminance key left a muddy brown fringe around it, and §7 says this
+system has no shadows — so the key classifies in HSV and repaints flat
+`--amber` and `--paper`. The mark comes out as two flat inks on transparency,
+which is what it should have been.
+
+**Shipped as lossless WebP with a palettised PNG fallback, and deliberately no
+AVIF.** Measured at 140px: 1.5 KB lossless WebP, 2.3 KB PNG8, against 5.6 KB
+AVIF from the RGBA source. AVIF's transform coding is the wrong tool for
+hard-edged flat art. The mark is on all 155 pages, so the difference is about
+4 KB a page — which is what brought the home page back under the 150 KB budget
+after it first went to 150.8.
+
+**The wordmark stays as text** beside it. The link needs an accessible name,
+the brand needs to be selectable and searchable, and the mark carries `alt=""`
+because the name is right there.
