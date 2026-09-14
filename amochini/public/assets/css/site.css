@@ -1,33 +1,14 @@
-/* ==========================================================================
-   عمو چینی — amochini.ir
-   Every value in this file comes from DESIGN.md. There are no ad-hoc colours,
-   sizes, radii, shadows or spacing steps, and none may be added here without
-   being added there first.
 
-   The shape of the thing: a black price board at the top of every page, paper
-   below it, one tape that moves and nothing else that does.
-   All box-direction properties are LOGICAL (inline-start/end) so RTL holds.
-   ========================================================================== */
 
-/* ---------- the text face ----------
-   One variable file, weights 100-900, subset to Persian + the Latin we use.
-   Deliberately NOT from a CDN: jsDelivr / Google Fonts are unreliable from
-   inside Iran and a blocked font request stalls first paint. */
 @font-face{
   font-family:Vazirmatn;
   src:url(/assets/fonts/vazirmatn-subset.woff2) format('woff2-variations'),
       url(/assets/fonts/vazirmatn-subset.woff2) format('woff2');
   font-weight:100 900;
   font-style:normal;
-  font-display:swap;   /* never `optional`: Persian in a fallback face is
-                          legible, invisible text is not */
+  font-display:swap;   
 }
 
-/* ---------- the display face ----------
-   Lalezar — DESIGN.md §3. A revival of mid-century Iranian shop-sign
-   lettering, which is the vernacular of the market this business sells into.
-   One weight; at this density its 400 reads as black. Subset to Persian plus
-   the digits and separators only, so it costs ~19 KB. */
 @font-face{
   font-family:Lalezar;
   src:url(/assets/fonts/lalezar-display.woff2) format('woff2');
@@ -36,14 +17,6 @@
   font-display:swap;
 }
 
-/* Metric-matched fallback faces.
-   Vazirmatn's default line box is 156% of font-size (ascent 2100 + descent
-   1100 over 2048 unitsPerEm) against Tahoma's 121% — a 35-point gap, so a
-   font swap reflows every block of text on the page. These synthetic faces
-   override the LOCAL fallback's metrics to match, which is what removes the
-   shift. Lalezar's own line box is 156.7% (979 + 588 over 1000), within half
-   a point of Vazirmatn's, so the same two faces stand in for both and the
-   display face needs no second pair. size-adjust does most of the work. */
 @font-face{
   font-family:'Vazirmatn fallback';
   src:local('Tahoma');
@@ -56,65 +29,51 @@
 }
 
 :root{
-  /* ---- DESIGN.md §3 — two stacks, and that is all.
-     `system-ui` is deliberately absent. */
-  /* Lalezar's subset carries no Latin, so Vazirmatn comes NEXT rather than
-     the metric-matched fallback: measured, "33X" and "TRA-X" inside a display
-     heading were rendering in Tahoma, which read as a third typeface. */
+  
+  
   --face-display:Lalezar,Vazirmatn,'Vazirmatn fallback',Tahoma,sans-serif;
   --face-text:Vazirmatn,'Vazirmatn fallback',Tahoma,sans-serif;
 
-  /* ---- DESIGN.md §2 — six colours -----------------------------------
-     Authored in OKLCH, shipped as hex: a meaningful share of this audience
-     is on Android WebView builds old enough to drop an oklch() declaration
-     outright, and a dropped colour on this palette means black on black. */
-  --board:#1a150f;        /* oklch(0.200 0.014  70)  DOMINANT */
-  --paper:#f2f5f7;        /* oklch(0.968 0.004 250)  the reading ground */
-  --ink:#25221f;          /* oklch(0.255 0.008  70)  text on paper */
-  --amber:#f7ae0c;        /* oklch(0.800 0.165  78)  the accent, rationed */
-  --rise:#ba362e;         /* oklch(0.530 0.170  28)  price up — bad for the buyer */
-  --fall:#0069be;         /* oklch(0.515 0.160 250)  price down */
+  
+  --board:#1a150f;        
+  --paper:#f2f5f7;        
+  --ink:#25221f;          
+  --amber:#f7ae0c;        
+  --rise:#ba362e;         
+  --fall:#0069be;         
 
-  /* ---- derived siblings. One ground cannot serve both surfaces. ---- */
-  --board-2:#2a241e;      /* oklch(0.265 0.014  70)  inset panels on board */
-  --rule-board:#3c3731;   /* oklch(0.340 0.012  70)  the hairline, on board */
-  --paper-2:#e5e8eb;      /* oklch(0.930 0.005 250)  image wells. NO TEXT. */
-  --rule:#ccd0d3;         /* oklch(0.855 0.006 250)  the hairline, on paper */
-  --rule-strong:#7e8084;  /* oklch(0.600 0.006 250)  3.61:1 — form borders */
-  --ink-2:#66625e;        /* oklch(0.500 0.008  70)  5.52:1 on paper */
-  --chalk:#a8a49f;        /* oklch(0.720 0.008  70)  7.32:1 on board */
-  --rise-b:#e15a4e;       /* oklch(0.640 0.170  28)  4.99:1 on board */
-  --fall-b:#4697e4;       /* oklch(0.660 0.140 250)  5.88:1 on board */
+  
+  --board-2:#2a241e;      
+  --rule-board:#3c3731;   
+  --paper-2:#e5e8eb;      
+  --rule:#ccd0d3;         
+  --rule-strong:#7e8084;  
+  --ink-2:#66625e;        
+  --chalk:#a8a49f;        
+  --rise-b:#e15a4e;       
+  --fall-b:#4697e4;       
 
-  /* Contextual aliases. Everything that draws on an unknown ground — the
-     sparklines and the history chart, which are emitted by prices.py — reads
-     these, and the board band below redefines them. That is why there are no
-     hard-coded chart colours anywhere in the Python. */
+  
   --ground:var(--paper);
   --px-rise:var(--rise);
   --px-fall:var(--fall);
   --spark-ink:var(--ink-2);
 
-  /* ---- DESIGN.md §4 — five sizes, 12px → 72px, a 6x range ----
-     12px, not 11, and weight 400, not 200: 11px Vazirmatn ExtraLight in
-     Persian was measured unreadable on a 1x Android LCD, which is the screen
-     this site is actually read on. The 200/800 extreme now lives at body size
-     and above (the band lede against the figure), where it carries. */
+  
   --t-label:12px;
   --t-body:16px;
   --t-head:24px;
   --t-display:clamp(30px,7vw,44px);
   --t-figure:clamp(48px,13vw,72px);
 
-  /* ---- DESIGN.md §5 — five steps: x3, x2, x2, x2 ---- */
+  
   --s1:4px; --s2:12px; --s3:24px; --s4:48px; --s5:96px;
-  --sect:var(--s4);            /* the section rhythm; --s5 from 768px up */
+  --sect:var(--s4);            
 
-  /* ---- DESIGN.md §6 ---- */
+  
   --r:2px; --r-pill:999px;
 
-  /* ---- DESIGN.md §7 — the only box-shadow in this stylesheet ----
-     Two rings so it stays visible against both grounds. */
+  
   --focus:0 0 0 3px var(--amber),0 0 0 5px var(--board);
 }
 @media (min-width:768px){ :root{ --sect:var(--s5) } }
@@ -124,9 +83,7 @@ body{
   font-family:var(--face-text);
   background:var(--paper);
   color:var(--ink);
-  /* 400, not 300: at 16px Persian on the budget Android LCDs common in Iran,
-     Vazirmatn Light is too thin to read comfortably. Costs zero bytes with a
-     variable font. DESIGN.md §4 bans 500/600/700 — 200, 400, 800 only. */
+  
   font-weight:400;
   line-height:1.85;
   font-size:var(--t-body);
@@ -139,11 +96,8 @@ button,select,input{font:inherit;color:inherit}
 :focus-visible{outline:none;box-shadow:var(--focus);border-radius:var(--r)}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:var(--s2)}
 
-/* Latin runs inside Persian text (product codes, SKUs, phone numbers) must be
-   bidi-isolated or their punctuation jumps to the wrong end of the line. */
 bdi{unicode-bidi:isolate}
 
-/* screen-reader-only, and a keyboard skip link */
 .sr-only{
   position:absolute;width:1px;height:1px;padding:0;margin:-1px;
   overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
@@ -155,31 +109,21 @@ bdi{unicode-bidi:isolate}
 }
 .skip:focus{inset-inline-start:0}
 
-/* --------------------------------------------------------------------------
-   TYPE PRIMITIVES — DESIGN.md §4
-   The display face is never used for a sentence and never below --t-head.
-   -------------------------------------------------------------------------- */
 .u-display{
   font-family:var(--face-display);font-weight:400;line-height:1.2;
-  /* Arabic script is cursive; tracking would pull apart glyphs that must stay
-     joined, so no letter-spacing on any Persian-bearing selector. */
+  
 }
 .u-label{
   font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
-  line-height:1.6;text-transform:none;   /* Persian has no case; never "caps" */
+  line-height:1.6;text-transform:none;   
 }
-/* The one figure size on the page. Nothing but the board may use it. */
+
 .u-figure{
   font-family:var(--face-display);font-weight:400;
   font-size:var(--t-figure);line-height:1;
   font-variant-numeric:tabular-nums;
 }
 
-/* ==========================================================================
-   CHROME — topbar, masthead, menubar. All on --board, so the top of every
-   page is one continuous black mass that runs into the tape and then into
-   the price board. DESIGN.md §8.
-   ========================================================================== */
 .topbar{background:var(--board);color:var(--chalk)}
 .topbar .wrap{
   display:flex;flex-wrap:wrap;gap:var(--s1) var(--s3);
@@ -187,9 +131,7 @@ bdi{unicode-bidi:isolate}
   padding-block:var(--s2);font-size:var(--t-label);
   font-weight:400;letter-spacing:.06em;
 }
-/* 24px minimum on every topbar link. WCAG 2.5.8 wants 24x24 and these are
-   12px text in a 1.6 line box, i.e. 22px — and they are not links inline in
-   a sentence, so the 2.5.8 inline exemption does not cover them. */
+
 .topbar nav{display:flex;gap:var(--s3);flex-wrap:wrap}
 .topbar a{min-height:24px;display:inline-flex;align-items:center}
 .topbar a:hover{color:var(--paper)}
@@ -212,7 +154,7 @@ bdi{unicode-bidi:isolate}
   font-size:var(--t-head);color:var(--paper);line-height:1.2;
   margin-bottom:var(--s2);
 }
-.logo span{color:var(--amber)}       /* the accent's single branding use */
+.logo span{color:var(--amber)}       
 .logo small{
   display:block;font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   color:var(--chalk);margin-top:var(--s1);font-family:var(--face-text);
@@ -235,8 +177,6 @@ bdi{unicode-bidi:isolate}
 }
 .search svg{width:20px;height:20px;stroke:var(--board);fill:none;stroke-width:2}
 
-/* live suggestions — a Row list (DESIGN.md §8), on paper so it reads as
-   content dropping out of the chrome rather than more chrome */
 .suggest{
   position:absolute;inset-inline:0;top:calc(100% + 1px);z-index:60;
   background:var(--paper);border:1px solid var(--rule);
@@ -276,11 +216,6 @@ bdi{unicode-bidi:isolate}
   color:var(--paper);font-weight:800;border-bottom-color:var(--amber);
 }
 
-/* ==========================================================================
-   THE TAPE — DESIGN.md §9. The one motion moment on this site.
-   ========================================================================== */
-/* --board, not --board-2: on the lighter ground --rise-b measured 4.22:1,
-   under the 4.5 floor, and the delta is the whole point of the tape. */
 .ticker{
   background:var(--board);color:var(--paper);
   display:flex;align-items:stretch;
@@ -304,10 +239,7 @@ bdi{unicode-bidi:isolate}
   z-index:2;background:var(--board);
 }
 .ticker-all:hover{color:var(--paper)}
-/* Both edges fade, so items emerge and leave rather than popping. Masked
-   rather than a gradient overlay: the previous single gradient was pinned to
-   inset-inline-end, which in RTL is the LEFT edge — the side items exit, not
-   the side they enter. A symmetric mask has no side to get wrong. */
+
 .ticker-win{flex:1;overflow:hidden;min-width:0;position:relative}
 @supports (mask-image:linear-gradient(#000,#000)) or (-webkit-mask-image:linear-gradient(#000,#000)){
   .ticker-win{
@@ -317,8 +249,7 @@ bdi{unicode-bidi:isolate}
 }
 .ticker-track{
   display:flex;width:max-content;
-  /* forced LTR so items slide leftward and enter from the right, which is
-     where a Persian reader's eye starts. Each item is dir="rtl" internally. */
+  
   direction:ltr;
   animation:ticker-slide 64s linear infinite;
 }
@@ -331,8 +262,7 @@ bdi{unicode-bidi:isolate}
   border-inline-end:1px solid var(--rule-board);
   font-size:var(--t-label);letter-spacing:0;
 }
-/* 400, not 200: at --t-label this is the same 12px ExtraLight that was
-   measured unreadable elsewhere, and it is moving. */
+
 .tick-name{
   color:var(--chalk);font-weight:400;letter-spacing:.04em;
   max-width:26ch;overflow:hidden;text-overflow:ellipsis;
@@ -346,12 +276,7 @@ bdi{unicode-bidi:isolate}
 .tick.t-flat .tick-delta{color:var(--chalk)}
 
 @media (prefers-reduced-motion:reduce){
-  /* No animation — but the track must KEEP width:max-content, or as a flex
-     item it shrinks to the window and the remaining items become
-     unreachable. Measured: with width:auto the window reported
-     scrollWidth == clientWidth, so reduced-motion users saw 3 of 20 items
-     and could not scroll to the rest. It is now a plain swipeable strip, and
-     the duplicate half is dropped so nobody scrolls the same products twice. */
+  
   .ticker-track{animation:none;width:max-content}
   .ticker-win{overflow-x:auto;scrollbar-width:thin}
   .ticker-track .tick[aria-hidden="true"]{display:none}
@@ -362,15 +287,10 @@ bdi{unicode-bidi:isolate}
   .tick-name{max-width:16ch}
 }
 
-/* ==========================================================================
-   THE BOARD — DESIGN.md §8. The signature element.
-   Full-bleed, always the darkest thing on screen, carries the only --t-figure
-   on the page, and always carries a date.
-   ========================================================================== */
 .board-band{
   background:var(--board);color:var(--paper);
   padding-block:var(--s3) var(--s4);
-  /* Contextual chart palette — see the aliases at :root. */
+  
   --ground:var(--board);
   --px-rise:var(--rise-b);
   --px-fall:var(--fall-b);
@@ -383,10 +303,9 @@ bdi{unicode-bidi:isolate}
 }
 .board-band .sub{
   color:var(--chalk);margin-top:var(--s2);max-width:48ch;
-  font-weight:200;   /* the light end of the extreme, at --t-body where it reads */
+  font-weight:200;   
 }
-/* The stamp. An undated price is a rumour, so the date is the one thing here
-   allowed to wear the accent. */
+
 .stamp{
   display:inline-flex;align-items:center;gap:var(--s1);
   color:var(--amber);font-size:var(--t-label);font-weight:800;
@@ -399,60 +318,56 @@ bdi{unicode-bidi:isolate}
 }
 @media (prefers-reduced-motion:reduce){ .stamp::before{animation:none} }
 
-/* ---- the headlights: DESIGN.md §14.4 ----
-   The board closes in two headlights coming out of the dark. It sits INSIDE
-   the board band, so it is the bottom edge of the signature element rather
-   than a second dark thing on the page.
-
-   The photograph is static. The only thing that moves is the opacity of two
-   radial glows sitting over the lamps, and it moves on `tick-pulse` — the
-   SAME keyframe and the same 2.4s rhythm as the tape's dot and the board's
-   date stamp. That is deliberate: one motion idea, the site's heartbeat,
-   expressed in three places, not three animations. Opacity is a
-   compositor-only property, so this costs no layout and no repaint — an
-   animated `filter: brightness()` on a 1200px photograph would cost both. */
-/* .bb-lit marks a board band that ends in the lights, so its bottom padding
-   goes and the photograph becomes the section's actual edge. A class rather
-   than :has() — the Android WebView tail this site serves predates :has(). */
 .bb-lit{padding-block-end:0}
+
 .lights{
-  position:relative;margin-top:var(--s3);
-  /* full-bleed: it sits OUTSIDE .wrap, so the photograph spans the viewport
-     and meets the paper below without a visible rectangle edge */
-  aspect-ratio:6/1;          /* 1200x200 — reserves the box, so no shift */
+  position:relative;
+  margin-top:var(--s3);
+  
+  max-width:1200px;margin-inline:auto;
+  aspect-ratio:6/1;          
   overflow:hidden;
-  /* fade the top edge so the lights emerge from the board instead of
-     appearing as a pasted-on rectangle */
+  
   -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 45%);
   mask-image:linear-gradient(to bottom,transparent 0,#000 45%);
 }
+
+.lights::before,.lights::after{
+  content:"";position:absolute;inset-block:0;width:10%;z-index:2;
+  pointer-events:none;
+}
+.lights::before{left:0;background:linear-gradient(to right,var(--board),transparent)}
+.lights::after{right:0;background:linear-gradient(to left,var(--board),transparent)}
 .lights img{width:100%;height:100%;object-fit:cover;display:block}
-/* One static opacity on the group sets the strength; the pulse then swings
-   it. 0.5 x (1 -> 0.25) lands between 0.5 and 0.13, which reads as breathing
-   rather than blinking. Keeping the strength here means the gradient needs no
-   alpha value, so the stylesheet still carries no rgba(). */
-.lights .glows{position:absolute;inset:0;opacity:.5;pointer-events:none}
+
+.lights .glows{position:absolute;inset:0;pointer-events:none}
+
+.lamp{
+  position:absolute;top:43.5%;width:20%;aspect-ratio:1;
+  transform:translate(-50%,-50%);opacity:.6;
+}
+
+.lamp-a{left:15.4%}
+.lamp-b{left:86.3%}
+
+.lamp::before{
+  content:"";position:absolute;inset:36%;border-radius:50%;
+  background:radial-gradient(closest-side,var(--amber),transparent);
+  opacity:.8;
+}
+
+.lamp::after{
+  content:"";position:absolute;inset-inline:-22%;top:calc(50% - 1px);height:2px;
+  background:linear-gradient(to right,transparent,var(--amber),transparent);
+  opacity:.2;
+}
+
 .glow{
-  position:absolute;top:43.5%;width:20%;height:210%;
-  transform:translate(-50%,-50%);
+  position:absolute;inset:0;border-radius:50%;
   background:radial-gradient(closest-side,var(--amber),transparent);
   animation:tick-pulse 2.4s ease-in-out infinite;
 }
-/* PHYSICAL left, not an inline-logical property: these two numbers are the
-   measured centres of the lamps in the photograph (x=185 and x=1036 of 1200),
-   so they must not flip with text direction. */
-.glow-a{left:15.4%}
-.glow-b{left:86.3%}
-/* The aspect ratio matches the source (1200x200) at EVERY width, so cover
-   never has anything to crop. Tried 4:1 on phones to make the band taller:
-   cover then scaled to the height and took 25% off each side, which cut both
-   lamps in half — they sit at 15% and 86% of the width, i.e. exactly where a
-   horizontal crop bites. A 62px strip with both lamps whole beats a 94px one
-   with both of them sliced. */
-/* Under reduced motion the global rule freezes the animation at its base
-   state, which leaves the lamps simply on. That is the right still frame. */
 
-/* The headline figure — DESIGN.md §4. One per page. */
 .figure-block{
   margin-top:var(--s3);padding-top:var(--s3);
   border-top:1px solid var(--rule-board);
@@ -478,10 +393,6 @@ bdi{unicode-bidi:isolate}
 .figure-block .fb-delta.is-down{color:var(--fall-b)}
 .figure-block .fb-delta.is-flat{color:var(--chalk)}
 
-/* the finder, on the board */
-/* The three standing claims. They were in the old photographic hero; here
-   they also stop the lede column running out of content 200px above the
-   table's last row. */
 .claims{
   list-style:none;margin-top:var(--s3);border-top:1px solid var(--rule-board);
 }
@@ -514,8 +425,6 @@ bdi{unicode-bidi:isolate}
 }
 .finder button:hover{background:var(--paper)}
 
-/* the two halves of the band. On a phone they stack; from 768px the .bb-split
-   grid puts the numbers beside the headline instead of 400px below it. */
 .bb-lede{min-width:0}
 .bb-table{min-width:0;margin-top:var(--s3)}
 .bb-th{
@@ -524,11 +433,10 @@ bdi{unicode-bidi:isolate}
 }
 @media (min-width:768px){ .bb-table{margin-top:0} }
 
-/* the table */
 .board-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:var(--s3)}
 .board{
   width:100%;border-collapse:collapse;
-  /* tabular figures HERE and only here: a column of prices must align */
+  
   font-variant-numeric:tabular-nums;
 }
 .board caption{text-align:start}
@@ -567,9 +475,6 @@ bdi{unicode-bidi:isolate}
 }
 .board-all:hover{background:var(--paper);color:var(--board);border-color:var(--paper)}
 
-/* the full price-index page keeps the board on paper — it is the page's whole
-   body, and 130 rows of reversed-out text is not readable. The band above it
-   still carries the signature. */
 .board-page .board th,.board-page .board td{border-bottom-color:var(--rule)}
 .board-page .board thead th{color:var(--ink-2);border-bottom-color:var(--ink-2)}
 .board-page .board .c-name{color:var(--ink)}
@@ -577,9 +482,7 @@ bdi{unicode-bidi:isolate}
 .board-page .board .c-sku,.board-page .board .c-date{color:var(--ink-2)}
 .board-page{--ground:var(--paper);--px-rise:var(--rise);--px-fall:var(--fall);
   --spark-ink:var(--ink-2)}
-/* The footnote and its link are styled for the dark band by default. On the
-   full index they sit on paper, where --chalk measured 2.26:1 and --amber
-   1.74:1 — both failures. */
+
 .board-page .board-foot{color:var(--ink-2)}
 .board-page .board-foot a{color:var(--ink);font-weight:800}
 .board-note{
@@ -588,19 +491,11 @@ bdi{unicode-bidi:isolate}
 }
 .board-note b{color:var(--ink);font-weight:800}
 
-/* ==========================================================================
-   SECTIONS ON PAPER
-   One rhythm (--sect), one heading treatment, a hairline above each.
-   No amber underlines: DESIGN.md §2 rations the accent.
-   ========================================================================== */
 main > .wrap > section,
 main > .wrap > .cats,
 main > .wrap > .brandgrid,
 main > .wrap > .faq{margin-block:var(--sect)}
-/* A heading owns the rhythm; the block it introduces does not add its own.
-   Measured before this: a title's 24px bottom margin plus the grid's 96px
-   section margin put 120px of nothing between «خرید بر اساس خودرو» and the
-   car list. Declared after the rule above so it wins at equal specificity. */
+
 main > .wrap > .section-title{margin-block-start:var(--sect)}
 main > .wrap > .section-title + *{margin-block-start:0}
 
@@ -612,21 +507,14 @@ main > .wrap > .section-title + *{margin-block-start:0}
   display:flex;align-items:baseline;
   gap:var(--s2);flex-wrap:wrap;
 }
-/* The heading text must be ONE flex item, and it must NOT stretch. Measured:
-   with the <b> and the bare text node as separate items, space-between flung
-   them apart and the heading read as three unrelated words; then with
-   flex:1 1 auto the text box ran 1007px wide and pushed «۱۵ کالا» to the far
-   end of the row, away from the heading it belongs to. */
+
 .section-title > .st-text{flex:0 1 auto}
-.section-title b{font-weight:400}     /* the old build bolded half the heading */
+.section-title b{font-weight:400}     
 .section-title .count{
   font-family:var(--face-text);font-size:var(--t-label);font-weight:400;
   letter-spacing:.06em;color:var(--ink-2);
 }
 
-/* Interior page heads are the board band — DESIGN.md §8 puts the signature on
-   every page, once. They are single-column (no .bb-split), so the headline and
-   its count read as one block. */
 .page-head h1{
   font-family:var(--face-display);font-weight:400;
   font-size:var(--t-display);line-height:1.15;color:var(--paper);
@@ -649,7 +537,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .crumbs a:hover{text-decoration:underline;text-underline-offset:3px}
 .crumbs [aria-current=page]{color:var(--ink)}
 
-/* ---- stat band: plain figures, hairline separated ---- */
 .stat-band{border-bottom:1px solid var(--rule)}
 .stat-band ul{
   list-style:none;display:grid;grid-template-columns:repeat(2,1fr);
@@ -668,20 +555,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
 }
 @media (min-width:768px){ .stat-band ul{grid-template-columns:repeat(4,1fr)} }
 
-/* ==========================================================================
-   ROWS — DESIGN.md §8, family 3. No ground, one hairline, no radius.
-   A product listing is a row, not a card.
-
-   The lattice draws its own lines instead of showing a --rule ground through
-   a 1px gap. The gap version had a real bug: a grid never divides evenly, so
-   the trailing slots of the last row had no element in them and the ground
-   showed through as solid grey blocks — 3 of them under the 77-row category
-   grid and 2 under the 16-brand grid. Borders belong to cells, so an empty
-   slot draws nothing.
-
-   RTL note: inline-start is the RIGHT edge here. The container closes the
-   right and the top; each cell draws its own left and bottom.
-   ========================================================================== */
 .lattice{
   display:grid;gap:0;
   border-block-start:1px solid var(--rule);
@@ -692,7 +565,7 @@ main > .wrap > .section-title + *{margin-block-start:0}
   border-inline-end:1px solid var(--rule);
   border-block-end:1px solid var(--rule);
 }
-.cats{ /* .lattice carries the grid and the lines */ }
+.cats{  }
 .cat{
   background:var(--paper);padding:var(--s2);
   display:grid;grid-template-columns:1fr 88px;gap:var(--s2);align-items:center;
@@ -707,7 +580,7 @@ main > .wrap > .section-title + *{margin-block-start:0}
   color:var(--ink-2);font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   font-variant-numeric:tabular-nums;
 }
-.cat .all{display:none}        /* the whole row is the link — §10, no arrows */
+.cat .all{display:none}        
 .cat .thumb{
   aspect-ratio:1;overflow:hidden;background:var(--paper-2);border-radius:var(--r);
 }
@@ -715,7 +588,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .cat:focus-within{box-shadow:var(--focus)}
 .cat:hover h3{text-decoration:underline;text-underline-offset:3px}
 
-/* ---- the product lattice ---- */
 .shop{padding-block:var(--s3) var(--sect)}
 .grid-products{grid-template-columns:repeat(2,1fr)}
 .card{
@@ -729,9 +601,7 @@ main > .wrap > .section-title + *{margin-block-start:0}
   aspect-ratio:4/3;background:var(--paper-2);border-radius:var(--r);
   display:grid;place-items:center;position:relative;overflow:hidden;
 }
-/* cover, not contain: most of these photographs carry their own near-white
-   studio ground, and `contain` left a white rectangle floating inside a grey
-   well — two mismatched backgrounds per row, 77 rows down a category page. */
+
 .card .ph img{width:100%;height:100%;object-fit:cover}
 .card .badge{
   position:absolute;inset-block-start:var(--s1);inset-inline-start:var(--s1);
@@ -741,26 +611,17 @@ main > .wrap > .section-title + *{margin-block-start:0}
 }
 .card .badge.v{background:var(--board)}
 .card .body{padding-top:var(--s2);display:flex;flex-direction:column;flex:1}
-/* 3.7em holds the common two-line Persian name, so a short name cannot let
-   the price row float up and misalign the lattice. Tested at the longest
-   real value in the catalogue, not a short one — DESIGN.md §11. */
-/* 1.45 and 2.9em, down from 1.6 and 3.7em. The row was 491px tall carrying
-   198px of photograph: six stacked rows of small text, each on prose leading.
-   A product name is a label, not prose. */
+
 .card h3{
   font-weight:400;color:var(--ink);line-height:1.45;
   min-height:2.9em;text-wrap:pretty;
 }
 .card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
 .card:hover h3 a{text-decoration:underline;text-underline-offset:3px}
-/* DESIGN.md §14.1. A ground change, not motion: no transition, no transform,
-   no shadow, no scale, and no new value — the row highlights the way a table
-   row does. Without it a pointer user got no signal at all about what was
-   clickable until the cursor was on the name itself. */
+
 .card:hover{background:var(--paper-2)}
-.card:hover .ph{background:var(--paper)}   /* keep the photo well distinct */
-/* The code moved INTO the tag row — as its own line it was a 22px band
-   carrying six characters. */
+.card:hover .ph{background:var(--paper)}   
+
 .card .tags{
   display:flex;align-items:center;gap:var(--s1);margin-top:var(--s1);
   flex-wrap:wrap;line-height:1.2;
@@ -775,8 +636,7 @@ main > .wrap > .section-title + *{margin-block-start:0}
   padding:0 var(--s1);border-radius:var(--r);
 }
 .card .tags .brand{color:var(--ink);font-weight:800;border-color:var(--rule-strong)}
-/* The price is the loudest thing in the row, on its own hairline-separated
-   line, at the head weight against a 200-weight label. */
+
 .card .price{
   margin-top:auto;padding-top:var(--s2);border-top:1px solid var(--rule);
   font-size:var(--t-head);color:var(--ink);font-weight:800;line-height:1.15;
@@ -803,7 +663,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
   gap:var(--s1);margin-top:var(--s1);min-height:22px;line-height:1.2;
 }
 
-/* empty state — DESIGN.md §11, a real sentence and never a blank box */
 .empty{
   border:1px dashed var(--rule-strong);border-radius:var(--r);
   padding:var(--s3);text-align:center;color:var(--ink-2);
@@ -812,10 +671,8 @@ main > .wrap > .section-title + *{margin-block-start:0}
   color:var(--ink-2);font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
 }
 
-/* ---- brands: a lattice of plain text links, not tiles ---- */
 .brandgrid{grid-template-columns:repeat(2,1fr)}
-/* The car list is how most visitors navigate, so the names carry the display
-   face at head size rather than sitting as 16px body text in an 80px cell. */
+
 .brandgrid a{
   padding:var(--s2);min-height:88px;
   display:flex;flex-direction:column;justify-content:center;
@@ -831,9 +688,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .brandlinks a{color:var(--ink);border-bottom:1px solid var(--rule-strong)}
 .brandlinks a:hover{border-bottom-color:var(--ink)}
 
-/* ==========================================================================
-   PANELS — DESIGN.md §8, family 2. Paper, one rule on top, no shadow.
-   ========================================================================== */
 .filters,.board-filters{
   border-top:1px solid var(--rule);padding-top:var(--s2);
   margin-bottom:var(--s3);display:grid;gap:var(--s2);
@@ -872,7 +726,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .faq details[open] summary::after{content:"−"}
 .faq details p{padding-bottom:var(--s2);color:var(--ink-2)}
 
-/* ---- features: a plain hairline row, no pill icons ---- */
 .features{border-top:1px solid var(--rule);padding-top:var(--s3);margin-block:var(--sect)}
 .features ul{list-style:none;display:grid;gap:var(--s3)}
 .features li{display:grid;gap:var(--s1)}
@@ -882,7 +735,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .features b{display:block;color:var(--ink);font-weight:800}
 .features small{color:var(--ink-2);font-size:var(--t-body);line-height:1.85}
 
-/* ---- stat tiles (price index page) ---- */
 .tiles{margin-block:var(--s3);grid-template-columns:1fr}
 .tile{padding:var(--s2);display:flex;flex-direction:column;gap:var(--s1)}
 .t-label{font-size:var(--t-label);font-weight:400;letter-spacing:.06em;color:var(--ink-2)}
@@ -894,10 +746,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
 }
 .t-delta{margin-top:var(--s1)}
 
-/* ==========================================================================
-   PRICE MOVEMENT — DESIGN.md §2. Text and a glyph. No tinted grounds:
-   the four pale chip tints the previous build used are gone.
-   ========================================================================== */
 .chip-price{
   display:inline-flex;align-items:center;gap:var(--s1);
   font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;
@@ -907,24 +755,17 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .chip-price.is-flat,.chip-price.is-new{color:var(--ink-2);font-weight:400;letter-spacing:.06em}
 .board-band .chip-price.is-flat,.board-band .chip-price.is-new{color:var(--chalk)}
 .chip-word{font-weight:400;letter-spacing:.06em}
-@media (max-width:520px){.chip-word{display:none}}   /* arrow + % is enough */
+@media (max-width:520px){.chip-word{display:none}}   
 .spark{display:block;flex:none;overflow:visible}
 
-/* Links inside running text. The global reset strips colour and underline
-   from every anchor, which is right for a card or a table row where the whole
-   row is the target — but inside a paragraph it left links completely
-   invisible. Anything inline in prose gets its underline back. */
 .prose a,.board-note a,.board-foot a,.faq details p a,.hist-none a,.nf p a{
   text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;
 }
 .prose a{color:var(--ink);font-weight:800}
 
-/* A two-column list, for the model lists on a brand page. */
 .cols2{columns:2;column-gap:var(--s3);padding-inline-start:var(--s2)}
 @media (max-width:520px){ .cols2{columns:1} }
 
-/* A quiet "see all of these" link under a section. No appended arrow —
-   DESIGN.md §10. */
 .linkrow{margin-top:var(--s2)}
 .linkrow a{
   color:var(--ink);font-weight:800;border-bottom:1px solid var(--rule-strong);
@@ -932,14 +773,9 @@ main > .wrap > .section-title + *{margin-block-start:0}
 }
 .linkrow a:hover{border-bottom-color:var(--ink)}
 
-/* ==========================================================================
-   PRODUCT PAGE
-   ========================================================================== */
 .product{display:grid;gap:var(--s3);padding-block:var(--s3) var(--sect)}
 .product .gallery{background:var(--paper-2);border-radius:var(--r);overflow:hidden}
-/* cover, matching the lattice: these photographs carry their own near-white
-   studio ground, and `contain` inside a tinted well put a white rectangle
-   inside a grey one. */
+
 .product .gallery img{width:100%;height:100%;object-fit:cover;aspect-ratio:1}
 .product .info{display:grid;gap:0}
 .product h1{
@@ -974,11 +810,7 @@ main > .wrap > .section-title + *{margin-block-start:0}
   display:inline-flex;align-items:center;gap:var(--s1);margin-top:var(--s2);
   font-size:var(--t-label);font-weight:800;letter-spacing:.06em;color:var(--ink);
 }
-/* A square marker, not a dot: DESIGN.md §6 keeps 50% for the live pulse.
-   In stock is deliberately UNCOLOURED — --fall is the price-down colour and
-   lending it to "available" made two unrelated things the same blue. Out of
-   stock wears --rise, which DESIGN.md §2 names as the system's one warning
-   colour: for this reader a rise and a shortage are the same news. */
+
 .stock::before{content:"";width:8px;height:8px;border-radius:var(--r);background:var(--ink)}
 .stock.out{color:var(--rise)}
 .stock.out::before{background:var(--rise)}
@@ -986,8 +818,7 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .board-band .stock::before{background:var(--paper)}
 .board-band .stock.out{color:var(--rise-b)}
 .board-band .stock.out::before{background:var(--rise-b)}
-/* the page's one primary action. On the board band the WhatsApp button needs
-   a visible edge, since --board on --board is invisible. */
+
 .cta{display:flex;gap:var(--s1);flex-wrap:wrap;margin-top:var(--s3)}
 .cta a{
   min-height:52px;display:flex;align-items:center;justify-content:center;
@@ -1017,8 +848,7 @@ main > .wrap > .section-title + *{margin-block-start:0}
   width:42%;vertical-align:top;padding-top:calc(var(--s1) + 4px);
 }
 .spec td{color:var(--ink)}
-/* 68ch: on the about page this block is the full 1180px column, and an
-   unconstrained measure there ran past 110 characters a line. */
+
 .prose{margin-top:var(--s3);color:var(--ink-2);max-width:68ch}
 .prose h2,.prose h3{
   font-family:var(--face-display);font-weight:400;font-size:var(--t-head);
@@ -1034,7 +864,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
   padding-top:var(--s2);margin-bottom:var(--s3);
 }
 
-/* ---- per-product price history ---- */
 .hist{border-top:1px solid var(--rule);padding-top:var(--s2);margin-block:var(--s3)}
 .hist h2{
   font-family:var(--face-display);font-weight:400;font-size:var(--t-head);
@@ -1044,21 +873,13 @@ main > .wrap > .section-title + *{margin-block-start:0}
   color:var(--ink-2);font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
   margin-bottom:var(--s2);font-variant-numeric:tabular-nums;
 }
-/* direction:ltr on the chart, deliberately. SVG `text-anchor:start|end` is
-   direction-sensitive, so in the page's RTL context every label anchored
-   itself from the wrong side: the y labels ran off the right edge of the
-   container and the first x label was clipped at the left. The time axis
-   inside the mark already runs left-to-right (mirroring it would make
-   "rising" read as "falling"), so an LTR box is the honest one. A lone
-   Persian month name inside it still shapes and renders correctly. */
+
 .hchart{width:100%;height:150px;display:block;overflow:visible;direction:ltr}
 .hchart .hc-y,.hchart .hc-x{
   font-size:var(--t-label);fill:var(--ink-2);font-weight:400;
   font-family:var(--face-text);
 }
-/* The y labels are pure figures and read left-to-right in Persian too, so
-   they inherit the chart's LTR box. The date labels are «day month» and must
-   stay RTL; they are middle-anchored, which is direction-independent. */
+
 .hchart .hc-x{direction:rtl}
 .hchart .hc-hit{cursor:default}
 .hist-details{margin-top:var(--s2)}
@@ -1067,28 +888,19 @@ main > .wrap > .section-title + *{margin-block-start:0}
   display:flex;align-items:center;
 }
 .hist-table{margin-top:var(--s2);font-variant-numeric:tabular-nums}
-/* DESIGN.md §10: fewer than two observations renders NOTHING. This is the
-   copy for "we hold one reading", not a placeholder for missing data. */
+
 .hist-none{
   border-inline-start:2px solid var(--rule-strong);padding-inline-start:var(--s2);
   color:var(--ink-2);margin-block:var(--s2);
 }
 
-/* ==========================================================================
-   SLIDER — native scroll-snap. The track is a real scroll container, so with
-   JS off it still scrolls and swipes; the arrows, the rail and the keyboard
-   shortcuts are progressive enhancement on top. DESIGN.md §11, error state.
-   ========================================================================== */
-/* 8px of bottom padding reserves the progress rail's box (4px high with a
-   4px margin) before site.js unhides it. Measured: without it the reveal
-   shifted the section. */
 .slider{margin-block:var(--sect);position:relative;padding-bottom:8px}
 .slider-head{
   display:flex;align-items:flex-end;justify-content:space-between;
   gap:var(--s2);flex-wrap:wrap;min-height:64px;
 }
 .slider-head .section-title{margin:0;flex:1 1 auto}
-/* the arrows go to the far end; the count stays beside the heading */
+
 .slider-head .slider-nav{margin-inline-start:auto}
 .slider-nav{display:flex;gap:var(--s1);margin-bottom:var(--s2)}
 .s-btn{
@@ -1110,15 +922,12 @@ main > .wrap > .section-title + *{margin-block-start:0}
   overflow-x:auto;overflow-y:hidden;
   scroll-snap-type:x mandatory;scroll-behavior:smooth;
   scrollbar-width:none;-ms-overflow-style:none;
-  overscroll-behavior-x:contain;        /* don't trigger page back-swipe */
+  overscroll-behavior-x:contain;        
 }
 .slider-track::-webkit-scrollbar{display:none}
 .slider-track:focus-visible{box-shadow:var(--focus)}
 .slider-track > .card{flex:0 0 clamp(260px,78vw,340px);scroll-snap-align:start}
 
-/* Edge fade, so the track reads as continuing past the viewport rather than
-   being cut off. Masked rather than an overlay, so it works over any ground
-   and never intercepts a click. */
 @supports (mask-image:linear-gradient(#000,#000)) or (-webkit-mask-image:linear-gradient(#000,#000)){
   .slider[data-overflow="both"] .slider-track{
     -webkit-mask-image:linear-gradient(to right,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%);
@@ -1133,23 +942,15 @@ main > .wrap > .section-title + *{margin-block-start:0}
     mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 24px),transparent 100%);
   }
 }
-/* DESIGN.md §14.2. 4px, not 2: at 2px the rail was present and invisible.
-   Not amber — §2 rations the accent to live signals, and a scroll position is
-   not one. The 8px reserve below matches 4px margin + 4px height, so site.js
-   unhiding it cannot shift the page. */
+
 .slider-rail{height:var(--s1);background:var(--rule);overflow:hidden;
   margin-top:var(--s1);margin-bottom:-8px}
 .slider-fill{
   display:block;height:100%;width:22%;background:var(--ink);
-  /* positioned rather than transformed: a percentage inset resolves against
-     the rail and the browser flips it for RTL, so the script does no
-     direction arithmetic. */
+  
   position:relative;inset-inline-start:0;
 }
-/* The nav and the rail ship with the `hidden` attribute and site.js reveals
-   them. With no JS they never appear, which beats dead arrows and a stuck
-   progress bar — and it needs no inline script, so the CSP stays at a strict
-   script-src 'self'. */
+
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){ .slider-track{scroll-behavior:auto} }
 
@@ -1161,9 +962,6 @@ main > .wrap > .section-title + *{margin-block-start:0}
 }
 .more-btn:hover{background:var(--ink)}
 
-/* ==========================================================================
-   FOOTER — on --board, closing the page the way it opened.
-   ========================================================================== */
 footer{background:var(--board);color:var(--chalk);padding-top:var(--s4)}
 footer .cols{display:grid;gap:var(--s3)}
 .f-logo{
@@ -1209,9 +1007,6 @@ footer a:hover{color:var(--paper)}
   font-size:var(--t-label);font-weight:400;letter-spacing:.06em;
 }
 
-/* ==========================================================================
-   404
-   ========================================================================== */
 .nf{padding-block:var(--s4);max-width:48ch}
 .nf h1{
   font-family:var(--face-display);font-weight:400;font-size:var(--t-figure);
@@ -1228,8 +1023,6 @@ footer a:hover{color:var(--paper)}
   color:var(--paper);padding:0 var(--s3);font-weight:800;border-radius:var(--r);
 }
 
-/* Preview-only banner. Rendered exclusively when PREVIEW_BANNER is set by
-   build/make_preview.py, so it can never appear on the published site. */
 .preview-banner{
   background:var(--rise);color:var(--paper);
   font-size:var(--t-label);font-weight:800;letter-spacing:.06em;
@@ -1237,10 +1030,6 @@ footer a:hover{color:var(--paper)}
   position:sticky;top:0;z-index:999;
 }
 
-/* ==========================================================================
-   RESPONSIVE — DESIGN.md §11: the mobile reflow is built with the component,
-   not after it.
-   ========================================================================== */
 @media (min-width:600px){
   .finder{grid-template-columns:repeat(2,minmax(0,1fr))}
   .finder button{grid-column:span 2}
@@ -1259,20 +1048,14 @@ footer a:hover{color:var(--paper)}
   .search{flex:1 1 auto;max-width:520px;margin-inline-start:auto}
 }
 @media (min-width:1000px){
-  /* The board band becomes two columns: the headline and the figure at the
-     start, the table beside them. Measured at 768 first and moved here: in a
-     300px column the figure's delta overflowed onto the table and every
-     product name wrapped to three lines. Below 1000 the band stacks and the
-     table gets the full width. */
+  
   .board-band.bb-split .wrap{
     display:grid;grid-template-columns:minmax(0,7fr) minmax(0,10fr);
     gap:var(--s3);align-items:start;
   }
   .board-band.bb-split .bb-lede{grid-column:1}
   .board-band.bb-split .bb-table{grid-column:2}
-  /* The finder spans the full band. Inside the lede column its three selects
-     were 110px wide and «خودرو را انتخاب کنید» clipped to «خودرو را انتخ».
-     It belongs to the whole board anyway, not to the headline. */
+  
   .board-band.bb-split .bb-foot{grid-column:1/-1}
   .figure-block{grid-template-columns:auto auto;justify-content:start;
     align-items:baseline;gap:var(--s2)}
@@ -1288,25 +1071,16 @@ footer a:hover{color:var(--paper)}
   .slider-track > .card{flex-basis:340px}
 }
 
-/* ---- phone ----
-   Measured before this block on a 375x667 viewport: 340px of chrome before a
-   single pixel of content, and 41 tap targets under 44px. */
 @media (max-width:760px){
-  /* the secondary nav links live in the main menu AND the footer, so on a
-     phone they are pure duplication. The phone number survives — it is the
-     primary conversion action on this site. */
+  
   .topbar nav{display:none}
   .topbar .wrap{justify-content:center;gap:var(--s2)}
-  .asmco-badge{display:none}          /* repeated in the board band lede */
+  .asmco-badge{display:none}          
   .tb-hours{display:none}
   .tb-phone a{min-height:34px;display:inline-flex;align-items:center}
-  /* 12px instead of 24 top and bottom. Measured on a 375x667 screen: this is
-     24px of the distance between the top of the page and today's figure,
-     which is the one thing this visitor came for. */
+  
   .masthead .wrap{padding-block:var(--s2)}
-  /* Six columns do not fit 360px, so the code and the sparkline drop. The
-     matching <th> must drop with them — measured, «روند» was holding 41px of
-     header over a zero-width column. */
+  
   .board .c-sku,.board .c-spark,
   .board th.h-sku,.board th.h-spark{display:none}
   .board .c-name{min-width:140px}
@@ -1317,17 +1091,10 @@ footer a:hover{color:var(--paper)}
   .menubar .wrap,footer .wrap{padding-inline:var(--s2)}
 }
 
-/* ==========================================================================
-   MOTION AND PERFORMANCE
-   DESIGN.md §9: the tape moves. Nothing else does.
-   ========================================================================== */
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 
-/* Same-origin navigations cross-fade instead of flashing white. Combined with
-   the Speculation-Rules prerender, a click on a product goes straight to a
-   painted page. Inert where unsupported. */
 @view-transition{navigation:auto}
 .masthead{view-transition-name:masthead}
 .menubar{view-transition-name:menubar}
@@ -1338,21 +1105,7 @@ footer{view-transition-name:sitefooter}
   }
 }
 
-/* Each row is an independent layout and paint island, so an image settling
-   cannot invalidate layout for the other 76 rows on a category page.
-   `contain` only — deliberately NOT content-visibility. That was measured
-   causing up to 765px of phantom scroll height (the category page reported
-   12840px on load and collapsed to 12075px once scrolled, so a visitor could
-   scroll into space that stopped existing). Do not reintroduce it without
-   re-running build/check_layout.py. */
 .card,.cat,.brandgrid a{contain:layout paint style}
-
-/* Scroll-driven reveals were also tried and removed: a `view()` timeline has
-   no notion of "already in the initial viewport", so the four product rows
-   on screen at scrollY 0 sat at opacity 0 and a visitor landed on an EMPTY
-   grid. Five ranges were measured; all five failed. There is no CSS-only way
-   to scope the animation to elements below the fold. DESIGN.md §9 now bans
-   section reveals outright, so this is settled, not pending. */
 
 html{scroll-padding-block-start:var(--s3);scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }

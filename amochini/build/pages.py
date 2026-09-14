@@ -1088,8 +1088,12 @@ def home(all_p, groups):
   </div>
 
   <div class="lights" aria-hidden="true">
-    {picture("lights-band", alt="", box=1200, sizes="100vw")}
-    <div class="glows"><span class="glow glow-a"></span><span class="glow glow-b"></span></div>
+    {picture("lights-band", alt="", box=1200,
+             sizes="(min-width:1200px) 1200px, 100vw")}
+    <div class="glows">
+      <span class="lamp lamp-a"><span class="glow"></span></span>
+      <span class="lamp lamp-b"><span class="glow"></span></span>
+    </div>
   </div>
 </section>
 

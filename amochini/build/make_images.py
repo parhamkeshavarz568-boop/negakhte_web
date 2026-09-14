@@ -52,7 +52,7 @@ PLAN = {
     # centres it with a little more black below. 1200 is the honest ceiling —
     # the source is 1200 wide and upscaling a photograph is fake detail. It is
     # almost entirely black, so it compresses to a few KB.
-    "lights-band":     [640, 1024, 1200],
+    "lights-band":     [600, 900, 1200],
     "disc-drilled":    [400, 600, 700],
     "disc-slotted":    [400, 600, 700],
     "disc-plain":      [400, 600, 700],
@@ -63,6 +63,12 @@ Q = dict(avif=54, webp=79, jpeg=78)
 # much lower quality than the product photos: 30 KB instead of 57 KB at 1500px
 # for a difference nobody can see through the scrim.
 Q_HERO = dict(avif=38, webp=62, jpeg=68)
+# The headlight band is the opposite case: a near-black frame with two smooth
+# amber gradients, which is exactly where a low-quality AVIF bands visibly —
+# the dark falloff broke into steps at q=54 and read as a cheap image. It is
+# 200px tall and mostly black, so near-lossless still lands in single-digit
+# kilobytes. Worth every byte; this is the one photograph on the site.
+Q_LIGHTS = dict(avif=74, webp=90, jpeg=92)
 
 
 def main():
@@ -78,7 +84,9 @@ def main():
             w = min(w, ow)
             h = max(1, round(oh * w / ow))
             r = im.resize((w, h), Image.LANCZOS)
-            q = Q_HERO if name.startswith("hero") else Q
+            q = (Q_HERO if name.startswith("hero")
+                 else Q_LIGHTS if name == "lights-band"
+                 else Q)
             made = {}
             if HAVE_AVIF:
                 p = f"{OUT}/{name}-{w}.avif"

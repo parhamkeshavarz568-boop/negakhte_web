@@ -107,8 +107,20 @@ def main():
     # ---- assets ---------------------------------------------------------
     os.makedirs(os.path.join(OUT, "assets", "css"), exist_ok=True)
     os.makedirs(os.path.join(OUT, "assets", "js"), exist_ok=True)
-    shutil.copy(os.path.join(HERE, "assets", "site.css"),
-                os.path.join(OUT, "assets", "css", "site.css"))
+    # The stylesheet ships without its comments. The source carries a lot of
+    # them on purpose — every value traces back to DESIGN.md and several rules
+    # record a measurement that justifies them — but a visitor on an Iranian
+    # mobile connection should not pay for the handover notes. Measured: 17.1
+    # KB over the wire with comments, 11.6 KB without, on every page.
+    # Deliberately a conservative strip: the stylesheet contains no data URI
+    # and no string literal holding "/*", so there is nothing for this to eat.
+    css = open(os.path.join(HERE, "assets", "site.css"), encoding="utf-8").read()
+    stripped = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    stripped = re.sub(r"\n{3,}", "\n\n", stripped)
+    for must in ("--board:#1a150f", ".lights{", "@keyframes tick-pulse",
+                 ".lattice > *{", ".board-band"):
+        assert must in stripped, f"comment strip broke the stylesheet: {must!r}"
+    write("assets/css/site.css", stripped)
     shutil.copy(os.path.join(HERE, "assets", "site.js"),
                 os.path.join(OUT, "assets", "js", "site.js"))
 
