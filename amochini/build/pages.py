@@ -1076,11 +1076,17 @@ def slider(prods, *, title_html, label, slug="s1", eager_first=0):
 def home(all_p, groups):
     """The entry page.
 
-    Structure is the whole argument here (DESIGN.md §8): there is no
-    photographic hero, because this site has four stock photos for 130
-    products and its subject is numbers. The board IS the hero — a full-bleed
-    dark band carrying the headline, today's biggest move at --t-figure, the
-    vehicle finder and ten live prices. Everything below it is quiet paper.
+    Structure is the whole argument here (DESIGN.md §8). The board IS the
+    hero — a full-bleed dark band carrying the headline, today's biggest move
+    at --t-figure, the vehicle finder and ten live prices. Everything below it
+    is quiet paper.
+
+    It opens on one photograph (DESIGN.md §14.4) and closes on none. There is
+    no photographic hero BEHIND the words: this site has four stock photos for
+    130 products and its subject is numbers, so a picture that competed with
+    the figure would be lying about what the page is for. The band is a
+    separate register above the text — brake lights in smoke, the trade the
+    shop is in — and it earns its place by being the only one.
     """
     url = "/"
     title = f"{SITE['name_fa']} | قیمت روز لنت ترمز، دیسک و کاسه چرخ خودروهای چینی"
@@ -1222,6 +1228,10 @@ def home(all_p, groups):
 {ticker(board_pick)}
 
 <section class="board-band bb-split bb-lit" aria-labelledby="bb-h">
+  <div class="bb-photo" aria-hidden="true">
+    {picture("brake-lights", alt="", box=1200, eager=True,
+             sizes="(min-width:1200px) 1200px, 100vw")}
+  </div>
   <div class="wrap">
     <div class="bb-lede">
       <h1 id="bb-h">قیمت روز قطعات ترمز خودروهای چینی</h1>
@@ -1267,14 +1277,6 @@ def home(all_p, groups):
     </div>
   </div>
 
-  <div class="lights" aria-hidden="true">
-    {picture("lights-band", alt="", box=1200,
-             sizes="(min-width:1200px) 1200px, 100vw")}
-    <div class="glows">
-      <span class="lamp lamp-a"><span class="glow"></span></span>
-      <span class="lamp lamp-b"><span class="glow"></span></span>
-    </div>
-  </div>
 </section>
 
 {stat_band(all_p, groups)}

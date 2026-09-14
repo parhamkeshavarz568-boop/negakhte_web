@@ -49,13 +49,10 @@ PLAN = {
     # dark studio photos in the same three-card row, which read as a
     # mismatched set. Still a placeholder — see docs/PLACEHOLDERS.md.
     "cat-brake-drums": [80, 160, 320, 400],
-    # The headlight band that closes the board (DESIGN.md §14.4). A measured
-    # 1200x200 crop of the supplied amber-headlights-on-black photograph: the
-    # bright band sits at y 606-689 of the 900px original, so this window
-    # centres it with a little more black below. 1200 is the honest ceiling —
-    # the source is 1200 wide and upscaling a photograph is fake detail. It is
-    # almost entirely black, so it compresses to a few KB.
-    "lights-band":     [600, 900, 1200],
+    # The band that opens the board (DESIGN.md §14.4). Derived, not a file on
+    # disk — see _brake_lights() below. 1200 is the honest ceiling; the source
+    # is 1200 wide and upscaling a photograph is fake detail.
+    "brake-lights":    [600, 900, 1200],
     "disc-drilled":    [80, 160, 400, 600, 700],
     "disc-slotted":    [80, 160, 400, 600, 700],
     "disc-plain":      [80, 160, 400, 600, 700],
@@ -66,12 +63,65 @@ Q = dict(avif=54, webp=79, jpeg=78)
 # much lower quality than the product photos: 30 KB instead of 57 KB at 1500px
 # for a difference nobody can see through the scrim.
 Q_HERO = dict(avif=38, webp=62, jpeg=68)
-# The headlight band is the opposite case: a near-black frame with two smooth
-# amber gradients, which is exactly where a low-quality AVIF bands visibly —
-# the dark falloff broke into steps at q=54 and read as a cheap image. It is
-# 200px tall and mostly black, so near-lossless still lands in single-digit
-# kilobytes. Worth every byte; this is the one photograph on the site.
-Q_LIGHTS = dict(avif=74, webp=90, jpeg=92)
+# The brake-light band. The frame it replaced was near-black with two smooth
+# amber falloffs, which is exactly where a low-quality encode bands visibly,
+# so it was shipped at q=74. This frame is the opposite: smoke fills it edge
+# to edge, and noise is what codecs are good at. Swept 44-74 at 1200px and
+# compared at 1:1 and at 2x — q=50 is indistinguishable from q=74 with no
+# banding anywhere in the dark falloff, at 9.4 KB instead of 18.3 KB. That
+# difference is the whole reason the desktop home page fits its budget
+# (156.5 KB at q=74; the budget is 150).
+Q_LIGHTS = dict(avif=50, webp=64, jpeg=74)
+
+# --------------------------------------------------------------------------
+#  brake-lights — derived at build time from a supplied photograph.
+# --------------------------------------------------------------------------
+#  The band that opens the board is not a file in original/images/; it is cut
+#  and graded here so the recipe is reviewable and the result reproducible.
+#  Three operations, in order, each for a stated reason:
+#
+#  1. CROP (0,380)-(1200,640) of the 1200x675 supplied frame. This window
+#     holds the tail-light bars at roughly a third down and the lit smoke
+#     below them, and excludes the roofline — what is wanted is the light
+#     signature, not a recognisable car.
+#  2. RETOUCH. The frame carries the manufacturer's wordmark twice: once
+#     illuminated between the light bars, once on the plate below. This site
+#     sells Chinese-car brake parts; another carmaker's wordmark across the
+#     masthead of the price board is somebody else's brand on ours. Both are
+#     erased with a local blur of their own surroundings, which on a smooth
+#     dark gradient leaves nothing to see.
+#  3. GRADE. A per-channel gamma curve with the board colour as its black
+#     floor. Gamma crushes the smoke (a mid grey at 150 lands near 90) while
+#     leaving the lamps alone (240 stays above 220) — a linear multiply would
+#     have taken the lamps down with the smoke and killed the only light in
+#     the frame. The floor means the darkest pixel IS --board, so the
+#     photograph's edges dissolve into the band instead of sitting on it as a
+#     slightly-different black.
+BOARD_RGB = (0x1a, 0x15, 0x0f)     # --board, DESIGN.md §2
+LIGHTS_GAMMA = 2.2
+
+
+def _brake_lights():
+    from PIL import ImageFilter
+    im = Image.open(os.path.join(SRC, "supplied",
+                                 "challenger-rear-red-smoke.jpg")).convert("RGB")
+    assert im.size == (1200, 675), f"source frame changed: {im.size}"
+    # Wordmark boxes are given in SOURCE-frame coordinates and shifted by the
+    # crop, so re-cropping the band cannot silently move the retouch off them.
+    TOP = 380
+    im = im.crop((0, TOP, 1200, 640))
+    for (x0, y0, x1, y1), radius in ((( 548, 512,  648, 556), 9),    # the plate
+                                     (( 562, 450,  646, 482), 7)):   # lit wordmark
+        box = (x0, y0 - TOP, x1, y1 - TOP)
+        im.paste(im.crop(box).filter(ImageFilter.GaussianBlur(radius)), box)
+    lut = []
+    for floor in BOARD_RGB:
+        lut += [min(255, int(floor + (v / 255.0) ** LIGHTS_GAMMA * (255 - floor) + .5))
+                for v in range(256)]
+    return im.point(lut)
+
+
+PREP = {"brake-lights": _brake_lights}
 
 
 def main():
@@ -88,15 +138,17 @@ def main():
             os.remove(os.path.join(OUT, f))
     rows, tot = [], 0
     for name, widths in PLAN.items():
-        src = os.path.join(SRC, f"{name}.jpg")
-        im = Image.open(src).convert("RGB")
+        if name in PREP:
+            im = PREP[name]()
+        else:
+            im = Image.open(os.path.join(SRC, f"{name}.jpg")).convert("RGB")
         ow, oh = im.size
         for w in widths:
             w = min(w, ow)
             h = max(1, round(oh * w / ow))
             r = im.resize((w, h), Image.LANCZOS)
             q = (Q_HERO if name.startswith("hero")
-                 else Q_LIGHTS if name == "lights-band"
+                 else Q_LIGHTS if name == "brake-lights"
                  else Q)
             made = {}
             if HAVE_AVIF:

@@ -208,22 +208,32 @@ Five photographs were supplied by the owner and are vendored at
 
 | file | used | where |
 |---|---|---|
-| `headlights-amber-on-black.jpg` | **yes** | cropped to `lights-band`, closing the board band (DESIGN.md §14.4) |
+| `challenger-rear-red-smoke.jpg` | **yes** | cut and graded to `brake-lights`, opening the board band (DESIGN.md §14.4) |
+| `headlights-amber-on-black.jpg` | no | was the band until it was replaced; soft, and the lighting read as baked in |
 | `headlights-white-bmw.jpg` | no | recognisable BMW front end |
-| `challenger-rear-red-smoke.jpg` | no | Dodge Challenger, DODGE lettering visible |
 | `bmw-m3-daylight.jpg` | no | BMW M3, roundel and grille centre-frame |
-| `challenger-burnout.jpg` | no | Challenger, SRT badge, 735px wide |
+| `challenger-burnout.jpg` | no | Challenger, SRT badge, 735px wide — too small to use |
 
-**Open item before launch:** the provenance of these files is unknown to the
-build. Commercial use needs a licence that covers it — a stock licence, the
-photographer's permission, or a Creative Commons / Unsplash-style grant. The
-one in use is cropped to two lights in the dark with no car, badge or
-manufacturer's mark visible, which reduces the trademark question to nothing,
-but it does **not** settle the copyright in the photograph itself.
+**Trademark, handled.** The source frame carries the manufacturer's wordmark
+twice — lit between the light bars, and on the plate below. Both are erased at
+build time (`make_images.py:_brake_lights()`), and the crop excludes the
+roofline, so what ships is a light signature in smoke rather than an
+identifiable car. Nothing in the shipped band names or shows another
+manufacturer's brand.
 
-If the licence cannot be confirmed, the band should be replaced. A photograph
-of a real headlight or brake light taken in the shop would do the same job,
-cost nothing, and be unambiguously ours.
+**Open item before launch: copyright is NOT settled by that.** The provenance
+of these files is unknown to the build. Erasing a wordmark answers the
+trademark question; it does nothing about the copyright in the photograph,
+which almost certainly belongs to whoever shot it. Commercial use needs a
+licence that covers it — a stock licence, the photographer's permission, or a
+Creative Commons / Unsplash-style grant.
+
+If the licence cannot be confirmed, replace the band. This is the cheapest
+placeholder on the site to retire: a phone photograph of a brake light in a
+dark corner of the shop, run through the same `_brake_lights()` grade, would
+do the same job, cost nothing, and be unambiguously ours. Point the function
+at the new file and rebuild — the crop box and the retouch boxes are the only
+two things that would need new numbers.
 
 ---
 

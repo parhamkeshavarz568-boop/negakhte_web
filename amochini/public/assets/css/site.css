@@ -324,55 +324,32 @@ bdi{unicode-bidi:isolate}
 }
 @media (prefers-reduced-motion:reduce){ .stamp::before{animation:none} }
 
-.bb-lit{padding-block-end:0}
+.bb-lit{padding-block-start:0}
 
-.lights{
+.bb-photo{
   position:relative;
-  margin-top:var(--s3);
   
-  max-width:1200px;margin-inline:auto;
-  aspect-ratio:6/1;          
+  --bh:clamp(150px,17vw,260px);
+  height:var(--bh);
+  
+  margin-block-end:calc(var(--bh) * -0.16);
+  
+  max-width:1600px;margin-inline:auto;
   overflow:hidden;
-  
-  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 45%);
-  mask-image:linear-gradient(to bottom,transparent 0,#000 45%);
 }
 
-.lights::before,.lights::after{
-  content:"";position:absolute;inset-block:0;width:10%;z-index:2;
+.bb-photo{
+  -webkit-mask-image:linear-gradient(to bottom,#000 58%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 58%,transparent 100%);
+}
+.bb-photo img{width:100%;height:100%;object-fit:cover;display:block}
+
+.bb-photo::before,.bb-photo::after{
+  content:"";position:absolute;inset-block:0;width:6%;z-index:2;
   pointer-events:none;
 }
-.lights::before{left:0;background:linear-gradient(to right,var(--board),transparent)}
-.lights::after{right:0;background:linear-gradient(to left,var(--board),transparent)}
-.lights img{width:100%;height:100%;object-fit:cover;display:block}
-
-.lights .glows{position:absolute;inset:0;pointer-events:none}
-
-.lamp{
-  position:absolute;top:43.5%;width:20%;aspect-ratio:1;
-  transform:translate(-50%,-50%);opacity:.6;
-}
-
-.lamp-a{left:15.4%}
-.lamp-b{left:86.3%}
-
-.lamp::before{
-  content:"";position:absolute;inset:36%;border-radius:50%;
-  background:radial-gradient(closest-side,var(--amber),transparent);
-  opacity:.8;
-}
-
-.lamp::after{
-  content:"";position:absolute;inset-inline:-22%;top:calc(50% - 1px);height:2px;
-  background:linear-gradient(to right,transparent,var(--amber),transparent);
-  opacity:.2;
-}
-
-.glow{
-  position:absolute;inset:0;border-radius:50%;
-  background:radial-gradient(closest-side,var(--amber),transparent);
-  animation:tick-pulse 2.4s ease-in-out infinite;
-}
+.bb-photo::before{left:0;background:linear-gradient(to right,var(--board),transparent)}
+.bb-photo::after{right:0;background:linear-gradient(to left,var(--board),transparent)}
 
 .figure-block{
   margin-top:var(--s3);padding-top:var(--s3);

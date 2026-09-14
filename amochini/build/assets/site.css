@@ -407,96 +407,81 @@ bdi{unicode-bidi:isolate}
 }
 @media (prefers-reduced-motion:reduce){ .stamp::before{animation:none} }
 
-/* .bb-lit marks a board band that ends in the lights, so its bottom padding
-   goes and the photograph becomes the section's actual edge. A class rather
-   than :has() — the Android WebView tail this site serves predates :has().
-   (Lost once in a rewrite of this block, which left 48px of board below the
-   photograph and a visible hard edge.) */
-.bb-lit{padding-block-end:0}
+/* .bb-lit marks a board band that OPENS with the photograph, so its TOP
+   padding goes and the picture becomes the section's own leading edge. A
+   class rather than :has() — the Android WebView tail this site serves
+   predates :has(). */
+.bb-lit{padding-block-start:0}
 
-/* ---- the headlights: DESIGN.md §14.4 ----
-   The board closes in two headlights coming out of the dark. It sits INSIDE
-   the board band, so it is the bottom edge of the signature element rather
-   than a second dark thing on the page.
+/* ---- the brake-light band: DESIGN.md §14.4 ----
+   The board opens on a photograph of two brake lights in smoke. It is the
+   first thing on the page after the tape, it is INSIDE the board band (so it
+   is the leading edge of the signature element rather than a second dark
+   thing on the page), and it is the only photograph on the site the eye is
+   meant to rest on.
 
-   The lamp is built in three layers, because one flat radial read as a blurry
-   patch painted over the photograph rather than as light:
+   It replaced a pair of CSS-drawn amber headlights over a dim 1200x200 crop.
+   That construction lost twice: the crop was soft, and three stacked radial
+   gradients read as a glow effect painted onto a photograph rather than as
+   light in it. A real photograph, graded to the board's own black
+   (make_images.py:_brake_lights), does the job with no gradients at all —
+   and takes an animation with it, so the board now has no moving parts
+   except the tape.
 
-     core   — small and dense, and it NEVER changes. A real lamp's filament
-              does not blink; only its halo varies.
-     flare  — a thin horizontal streak. This is the layer that makes the eye
-              accept it as a light source rather than a glow effect.
-     bloom  — the large soft halo, and the ONLY animated thing here.
-
-   The bloom breathes on `tick-pulse` — the SAME keyframe and the same 2.4s
-   rhythm as the tape's dot and the board's date stamp. One motion idea, three
-   places, not three animations. Opacity is compositor-only, so this costs no
-   layout and no repaint; an animated `filter: brightness()` on a 1200px
-   photograph would cost both. */
-.lights{
+   HEIGHT, not aspect-ratio. The source band is 4.6:1; honoured as a ratio it
+   collapses to an 81px sliver on a 375px phone, which is not an image, it is
+   a rule. A fixed height per breakpoint with object-fit:cover keeps the band
+   the same weight at every width and crops the sides instead — the lamps sit
+   between 27% and 63% of the frame, so the narrowest centred crop (54% of
+   the width at 375px) still holds both of them. The height is declared, so
+   the space is reserved before the image decodes: no CLS. */
+.bb-photo{
   position:relative;
-  margin-top:var(--s3);
-  /* Never upscaled. The source is 1200px wide and that is the honest
-     ceiling, so above 1200 the band stops growing and the board fills the
-     rest. Measured at a ~2000px viewport the photograph was being stretched
-     1.7x, which is what made it look soft and cheap. The photograph's own
-     surround is black and the two edges below fade into --board, so a capped
-     band still reads as full-bleed. */
-  max-width:1200px;margin-inline:auto;
-  aspect-ratio:6/1;          /* matches the source — see the note below */
+  /* The band grows with the viewport instead of holding one height, because
+     a fixed height plus object-fit:cover means every extra pixel of width is
+     paid for by cropping the frame tighter. Measured at 1920 with a fixed
+     244px: the crop had zoomed to a close-up of a bumper and the smoke that
+     gives the shot its depth was outside the frame. 17vw tracks the source's
+     own proportions closely enough that the crop stays roughly constant.
+       floor 150px — below it the band stops being an image and becomes a
+         rule. A phone pays for the floor by cropping the sides, which is the
+         right trade: the lamps sit between 27% and 63% of the frame, so the
+         narrowest centred crop (54% of the width at 375px) holds both.
+       ceiling 260px — a band, not a hero. */
+  --bh:clamp(150px,17vw,260px);
+  height:var(--bh);
+  /* The board's text starts inside the photograph's last sixth, where the
+     mask has taken it down to a few percent alpha. Two reasons, one look:
+     the headline reads as coming out of the smoke instead of sitting under a
+     picture of it, and a phone gets ~24px of the fold back — measured, the
+     figure had been pushed to y=700 of an 812px viewport. Derived from --bh
+     rather than typed, so the two cannot drift apart. */
+  margin-block-end:calc(var(--bh) * -0.16);
+  /* Past 1600 the source is being stretched more than a third and it starts
+     to soften, so the band stops growing and the board takes the rest. The
+     seams below hide the join. */
+  max-width:1600px;margin-inline:auto;
   overflow:hidden;
-  /* fade the top edge so the lights emerge from the board instead of
-     appearing as a pasted-on rectangle */
-  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 45%);
-  mask-image:linear-gradient(to bottom,transparent 0,#000 45%);
 }
-/* The two side seams, where the capped photograph meets the board. Overlays
+/* The bottom edge dissolves into the board, so the smoke thins out rather
+   than stopping on a cut line. Masks take an alpha channel, not a colour —
+   the #000 here is opacity, and is the one place in this stylesheet that
+   uses a hex outside the token set (DESIGN.md §2). */
+.bb-photo{
+  -webkit-mask-image:linear-gradient(to bottom,#000 58%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 58%,transparent 100%);
+}
+.bb-photo img{width:100%;height:100%;object-fit:cover;display:block}
+/* The two side seams, where a capped photograph meets the board. Overlays
    rather than a second mask layer: mask-composite support is patchier than
-   this needs to be for two gradients. */
-.lights::before,.lights::after{
-  content:"";position:absolute;inset-block:0;width:10%;z-index:2;
+   this needs to be for two gradients. Below 1600 the band is full-bleed and
+   these sit over the board's own colour, so they cost nothing. */
+.bb-photo::before,.bb-photo::after{
+  content:"";position:absolute;inset-block:0;width:6%;z-index:2;
   pointer-events:none;
 }
-.lights::before{left:0;background:linear-gradient(to right,var(--board),transparent)}
-.lights::after{right:0;background:linear-gradient(to left,var(--board),transparent)}
-.lights img{width:100%;height:100%;object-fit:cover;display:block}
-
-.lights .glows{position:absolute;inset:0;pointer-events:none}
-/* One base opacity for the whole lamp; every layer below is relative to it.
-   Keeping the strength HERE means the gradients need no alpha value, so the
-   stylesheet still carries no rgba(). */
-.lamp{
-  position:absolute;top:43.5%;width:20%;aspect-ratio:1;
-  transform:translate(-50%,-50%);opacity:.6;
-}
-/* PHYSICAL left, not an inline-logical property: these two numbers are the
-   measured centres of the lamps in the photograph (x=185 and x=1036 of 1200),
-   so they must not flip with text direction. */
-.lamp-a{left:15.4%}
-.lamp-b{left:86.3%}
-/* the core — dense, and static */
-.lamp::before{
-  content:"";position:absolute;inset:36%;border-radius:50%;
-  background:radial-gradient(closest-side,var(--amber),transparent);
-  opacity:.8;
-}
-/* the flare — a short horizontal kick either side of the lamp, and static.
-   It was -70% and opacity .3 first, which reached far enough that the two
-   lamps' streaks met in the middle and drew one continuous hairline across
-   the whole band. That read as a stray rule, not as light. */
-.lamp::after{
-  content:"";position:absolute;inset-inline:-22%;top:calc(50% - 1px);height:2px;
-  background:linear-gradient(to right,transparent,var(--amber),transparent);
-  opacity:.2;
-}
-/* the bloom — the one thing that moves */
-.glow{
-  position:absolute;inset:0;border-radius:50%;
-  background:radial-gradient(closest-side,var(--amber),transparent);
-  animation:tick-pulse 2.4s ease-in-out infinite;
-}
-/* Under reduced motion the global rule freezes the bloom at its base state,
-   which leaves the lamps simply on. That is the right still frame. */
+.bb-photo::before{left:0;background:linear-gradient(to right,var(--board),transparent)}
+.bb-photo::after{right:0;background:linear-gradient(to left,var(--board),transparent)}
 
 /* The headline figure — DESIGN.md §4. One per page. */
 .figure-block{

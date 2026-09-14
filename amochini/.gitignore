@@ -2,3 +2,4 @@
 # uploadable output is reviewable in the repo alongside its source.
 *.pyc
 __pycache__/
+build/.contrast/

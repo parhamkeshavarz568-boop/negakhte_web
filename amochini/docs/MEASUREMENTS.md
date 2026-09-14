@@ -190,8 +190,9 @@ reflowed every heading and put the home page at CLS 0.001 instead of 0.
 | scroll-height drift | **0 px** on all 24 |
 | LCP | 40–156 ms, all 24 |
 | horizontal overflow at 375 / 768 / 1440 | **none** — `scrollWidth == innerWidth` at every width |
-| heaviest first load | **140.6 KB** against a 150 KB budget |
+| heaviest first load | **147.6 KB** against a 150 KB budget (desktop home, carrying the brake-light band) |
 | WCAG AA text contrast, 8 pages × 2 viewports, computed against the real ground | **0 failures** |
+| WCAG AA text contrast over the board band's photograph, 4 widths, worst pixel per text box (`build/check_contrast.py`) | **0 failures** — worst 10.25∶1 |
 | WCAG 2.5.8 target size (24×24, inline-text exemption applied) | **0 failures** |
 
 Today's figure clears the fold on a 375×667 iPhone SE: the tape lands at

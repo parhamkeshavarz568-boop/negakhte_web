@@ -134,7 +134,7 @@ def main():
     css = open(os.path.join(HERE, "assets", "site.css"), encoding="utf-8").read()
     stripped = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
     stripped = re.sub(r"\n{3,}", "\n\n", stripped)
-    for must in ("--board:#1a150f", ".lights{", "@keyframes tick-pulse",
+    for must in ("--board:#1a150f", ".bb-photo{", "@keyframes tick-pulse",
                  ".lattice > *{", ".board-band"):
         assert must in stripped, f"comment strip broke the stylesheet: {must!r}"
     write("assets/css/site.css", stripped)
