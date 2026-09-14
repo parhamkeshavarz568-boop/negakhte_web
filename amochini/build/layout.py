@@ -142,8 +142,15 @@ def head(*, title, description, canonical, jsonld=(), og_image=None,
         '<link rel="alternate icon" href="/favicon.ico" sizes="32x32">',
         '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
         '<link rel="manifest" href="/site.webmanifest">',
-        # --- font: self-hosted, preloaded, no third-party origin ---
+        # --- fonts: self-hosted, preloaded, no third-party origin ---
+        # Both faces are preloaded. The display face has no metric-matched
+        # stand-in (Vazirmatn's synthetic fallbacks are matched to Vazirmatn,
+        # and no local face matches Lalezar's much wider advances), so a swap
+        # after first paint reflows every heading. 19.5 KB, in parallel with
+        # the 57 KB text face, is cheaper than the reflow.
         '<link rel="preload" href="/assets/fonts/vazirmatn-subset.woff2" as="font" '
+        'type="font/woff2" crossorigin>',
+        '<link rel="preload" href="/assets/fonts/lalezar-display.woff2" as="font" '
         'type="font/woff2" crossorigin>',
         '<link rel="stylesheet" href="/assets/css/site.css">',
     ]
@@ -188,7 +195,7 @@ def header(active="/"):
 
 <header class="masthead">
   <div class="wrap">
-    <a href="/" class="logo">عمو<span>چینی</span>
+    <a href="/" class="logo">عمو <span>چینی</span>
       <small>{e(SITE["slogan"])}</small>
     </a>
 
@@ -292,7 +299,7 @@ def footer():
 <footer>
   <div class="wrap cols">
     <div>
-      <div class="f-logo">عمو<span>چینی</span></div>
+      <div class="f-logo">عمو <span>چینی</span></div>
       <p class="f-claim">{e(SUPPLIER["claim_fa"])}</p>
       <ul class="contact">
         <li>

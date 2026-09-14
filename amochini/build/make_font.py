@@ -87,8 +87,92 @@ def main():
         print(f"ERROR: {lic_src} is missing. SIL OFL 1.1 requires the licence "
               f"to ship with the font; refusing to build without it.")
         return 1
-    shutil.copy(lic_src, os.path.join(OUT, "OFL.txt"))
-    print(f"wrote {os.path.join(OUT, 'OFL.txt')}")
+    shutil.copy(lic_src, os.path.join(OUT, "OFL-Vazirmatn.txt"))
+    print(f"wrote {os.path.join(OUT, 'OFL-Vazirmatn.txt')}")
+    return build_display()
+
+
+# --------------------------------------------------------------- display face
+# Lalezar — the display face named in DESIGN.md §3. One static weight, used
+# only for h1, section heads and the board's headline figure, so it needs the
+# Persian alphabet and the digits and nothing else: no Arabic look-alikes (you
+# cannot type into a heading), no harakat, no Latin (ASMCO is set in Vazirmatn).
+# That takes the woff2 to ~19 KB, which is what makes a second face affordable
+# at all on this page budget.
+LALEZAR_SRC = os.path.join(HERE, "original", "Lalezar-Regular.ttf")
+LALEZAR_DEST = os.path.join(OUT, "lalezar-display.woff2")
+LALEZAR_UNICODES = ",".join([
+    "U+0020",
+    "U+00AB,U+00BB",                # « »
+    "U+060C,U+061F",                # ، ؟
+    "U+0621-0628",                  # hamza forms, alef, beh
+    "U+062A-063A",                  # teh .. ghain
+    "U+0640-0642",                  # tatweel, feh, qaf
+    "U+0644-0648",                  # lam .. waw
+    "U+064A",                       # ي
+    "U+066A-066C",                  # ٪ ٫ ٬ — percent, CLDR decimal/thousands
+    "U+067E,U+0686,U+0698",         # پ چ ژ
+    "U+06A9,U+06AF",                # ک گ
+    "U+06CC",                       # ی
+    "U+06F0-06F9",                  # ۰-۹
+    "U+200C",                       # ZWNJ — see add_zwnj()
+])
+
+
+def add_zwnj(src, dst):
+    """Give Lalezar a zero-width U+200C glyph.
+
+    Upstream Lalezar has no ZWNJ in its cmap. ZWNJ is load-bearing in Persian —
+    «دسته‌بندی» without it joins into a different word — and while the character
+    is a formatting control, leaving it unmapped hands the shaping of that one
+    position to a fallback face, which in Chromium on Android can break the
+    surrounding cursive join. Mapping it to an empty zero-advance glyph keeps
+    the whole run inside one font.
+    """
+    from fontTools.ttLib import TTFont
+    from fontTools.pens.ttGlyphPen import TTGlyphPen
+    f = TTFont(src)
+    name = "uni200C"
+    if name not in f.getGlyphOrder():
+        order = f.getGlyphOrder() + [name]
+        f.setGlyphOrder(order)
+        f.glyphOrder = order
+        f["glyf"].glyphOrder = order
+        f["glyf"].glyphs[name] = TTGlyphPen(None).glyph()
+        f["hmtx"].metrics[name] = (0, 0)
+        for t in f["cmap"].tables:
+            if t.isUnicode():
+                t.cmap[0x200C] = name
+    f.save(dst)
+
+
+def build_display():
+    if not os.path.isfile(LALEZAR_SRC):
+        print(f"display source not found: {LALEZAR_SRC}\n"
+              f"Get Lalezar-Regular.ttf from\n"
+              f"  https://github.com/google/fonts/tree/main/ofl/lalezar")
+        return 1
+    tmp = os.path.join(OUT, ".lalezar-zwnj.ttf")
+    add_zwnj(LALEZAR_SRC, tmp)
+    subprocess.run([
+        "pyftsubset", tmp,
+        f"--output-file={LALEZAR_DEST}", "--flavor=woff2",
+        f"--unicodes={LALEZAR_UNICODES}",
+        # Only the lookups Persian shaping actually needs. Dropping aalt/dlig
+        # saves ~5 KB and neither fires in any string we set in this face.
+        "--layout-features=ccmp,init,medi,fina,rlig,locl,liga",
+        "--name-IDs=0,1,2,3,4,5,6,13,14",
+        "--drop-tables+=DSIG",
+    ], check=True)
+    os.remove(tmp)
+    print(f"wrote {LALEZAR_DEST}  {os.path.getsize(LALEZAR_DEST)/1024:.1f} KB")
+    lic = os.path.join(HERE, "original", "OFL-Lalezar.txt")
+    if not os.path.isfile(lic):
+        print(f"ERROR: {lic} is missing. SIL OFL 1.1 requires the licence to "
+              f"ship with the font; refusing to build without it.")
+        return 1
+    shutil.copy(lic, os.path.join(OUT, "OFL-Lalezar.txt"))
+    print(f"wrote {os.path.join(OUT, 'OFL-Lalezar.txt')}")
     return 0
 
 

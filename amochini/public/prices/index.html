@@ -23,6 +23,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/vazirmatn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/lalezar-display.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css">
 <script type="application/ld+json">
 {
@@ -130,7 +131,7 @@
 
 <header class="masthead">
   <div class="wrap">
-    <a href="/" class="logo">عمو<span>چینی</span>
+    <a href="/" class="logo">عمو <span>چینی</span>
       <small>با عمو چینی همه قطعات پیدا میشه</small>
     </a>
 
@@ -169,16 +170,19 @@
 
 <nav class="crumbs wrap" aria-label="مسیر صفحه"><ol><li><a href="/">خانه</a></li><li><span aria-current="page">قیمت روز</span></li></ol></nav>
 <main id="main">
-<div class="page-head"><div class="wrap">
+<section class="board-band page-head"><div class="wrap">
   <h1>قیمت روز قطعات ترمز</h1>
   <p>قیمت هر کالا در هر بار تغییر ثبت می‌شود، پس می‌توانید ببینید قیمت چه زمانی
      و چه مقدار تغییر کرده است.</p>
   <p class="meta">آخرین بروزرسانی: ۲۳ شهریور ۱۴۰۵
      — ۱۱۶ قیمت ثبت‌شده برای
      ۱۱۶ کالا</p>
-</div></div>
+</div></section>
 
-<div class="wrap">
+<!-- The full index keeps its table on paper: 130 rows of reversed-out text is
+     not readable, and the band above already carries the signature. The
+     .board-page class resets the contextual chart palette to the light one. -->
+<div class="wrap board-page">
   
   <p class="board-note"><b>ثبت قیمت‌ها از امروز آغاز شده است.</b> نمودار تغییر قیمت و درصد افزایش یا کاهش، از دومین ثبت قیمت به بعد برای هر کالا نمایش داده می‌شود. تا آن زمان تنها قیمت روز و تاریخ ثبت آن نشان داده می‌شود — نموداری از داده‌ای که وجود ندارد ساخته نمی‌شود.</p>
 
@@ -207,10 +211,10 @@
       <thead>
         <tr>
           <th scope="col">کالا</th>
-          <th scope="col">کد</th>
+          <th scope="col" class="h-sku">کد</th>
           <th scope="col">قیمت (تومان)</th>
           <th scope="col">تغییر</th>
-          <th scope="col">روند</th>
+          <th scope="col" class="h-spark">روند</th>
           <th scope="col">تاریخ ثبت</th>
         </tr>
       </thead>
@@ -251,7 +255,7 @@
 <footer>
   <div class="wrap cols">
     <div>
-      <div class="f-logo">عمو<span>چینی</span></div>
+      <div class="f-logo">عمو <span>چینی</span></div>
       <p class="f-claim">عرضه‌کننده قطعات ASMCO</p>
       <ul class="contact">
         <li>

@@ -105,7 +105,7 @@ def sparkline(series, *, w=72, h=24, up_bad=True):
     d = " ".join(f"{'M' if i == 0 else 'L'}{x:.1f} {y:.1f}"
                  for i, (x, y) in enumerate(coords))
     rising = vals[-1] > vals[0]
-    tone = "var(--warn)" if (rising == up_bad) else "var(--ok)"
+    tone = "var(--px-rise)" if (rising == up_bad) else "var(--px-fall)"
     cx, cy = coords[-1]
     return (
         f'<svg class="spark" viewBox="0 0 {w} {h}" width="{w}" height="{h}" '
@@ -147,8 +147,12 @@ def history_chart(series, *, up_bad=True, w=520, h=150):
             + " ".join(f"L{x:.1f} {y:.1f}" for x, y, _d, _v in pts)
             + f" L{pts[-1][0]:.1f} {base:.1f} Z")
     rising = vals[-1] > vals[0]
-    tone = "var(--up-ink)" if (rising == up_bad) else "var(--dn-ink)"
-    fill = "var(--up-bg)" if (rising == up_bad) else "var(--dn-bg)"
+    # One colour, two uses. The area under the curve is the stroke colour at
+    # 12% alpha rather than a separate pale tint, so the chart adds no value
+    # to the palette — DESIGN.md §2 has no chip/fill tints at all. Also works
+    # on both grounds, because --px-rise/--px-fall are contextual.
+    tone = "var(--px-rise)" if (rising == up_bad) else "var(--px-fall)"
+    fill = tone
 
     def fa(n_):
         return "".join("۰۱۲۳۴۵۶۷۸۹"[int(c)] if c.isdigit() else c for c in str(n_))
@@ -166,21 +170,27 @@ def history_chart(series, *, up_bad=True, w=520, h=150):
             f'<title>{jalali_str(d)} — {toman(v)} تومان</title></circle>')
         if last:
             dots += (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4.5" fill="{tone}" '
-                     f'stroke="var(--surface)" stroke-width="2"/>')
+                     f'stroke="var(--ground)" stroke-width="2"/>')
     # Selective direct labels: the extremes and the two end dates only.
     labels = (
         f'<text class="hc-y" x="{w - padx}" y="{padt - 3}" text-anchor="end">'
         f'{toman(hi)}</text>'
         f'<text class="hc-y" x="{w - padx}" y="{base - 2}" text-anchor="end">'
         f'{toman(lo)}</text>'
-        f'<text class="hc-x" x="{pts[0][0]:.1f}" y="{h - 8}" text-anchor="start">'
+        # text-anchor="middle" for the date labels, not start/end: SVG's
+        # start/end resolve against the text's own direction, so in an RTL
+        # document they anchored from the wrong side and the first label was
+        # clipped off the left of the box. "middle" has no side to get wrong,
+        # so the label keeps its RTL word order («۲۳ شهریور», not the reverse)
+        # while staying inside the plot.
+        f'<text class="hc-x" x="{pts[0][0] + 34:.1f}" y="{h - 8}" text-anchor="middle">'
         f'{fa(jalali_str(series[0][0], with_year=False))}</text>'
-        f'<text class="hc-x" x="{pts[-1][0]:.1f}" y="{h - 8}" text-anchor="end">'
+        f'<text class="hc-x" x="{pts[-1][0] - 34:.1f}" y="{h - 8}" text-anchor="middle">'
         f'{fa(jalali_str(series[-1][0], with_year=False))}</text>')
     return (
         f'<svg class="hchart" viewBox="0 0 {w} {h}" role="group" '
         f'aria-label="نمودار تغییر قیمت" preserveAspectRatio="none">'
-        f'<path d="{area}" fill="{fill}" stroke="none"/>'
+        f'<path d="{area}" fill="{fill}" fill-opacity="0.12" stroke="none"/>'
         f'<path d="{line}" fill="none" stroke="{tone}" stroke-width="2" '
         f'stroke-linecap="round" stroke-linejoin="round"/>'
         f'{dots}{labels}</svg>')

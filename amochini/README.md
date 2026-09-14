@@ -1,5 +1,11 @@
 # عمو چینی — amochini.ir
 
+**Read `DESIGN.md` before changing anything visual.** It is the design system:
+six colours, two typefaces, five type sizes, five spacing steps, one radius, no
+shadows, one signature element and one moment of motion. If a change needs a
+value that is not in that file, the value gets added there first.
+
+
 Static site for an Iranian auto-parts retailer selling brake components
 (لنت ترمز, دیسک چرخ, کاسه چرخ) for Chinese cars sold in Iran.
 
@@ -158,5 +164,7 @@ method: [docs/MEASUREMENTS.md](docs/MEASUREMENTS.md).
 
 ## Licence
 
-The site content belongs to عمو چینی. Vazirmatn is SIL OFL 1.1 — the licence
-ships at `public/assets/fonts/OFL.txt` and must stay with the font.
+The site content belongs to عمو چینی. Both typefaces are SIL OFL 1.1 —
+Vazirmatn (Saber Rastikerdar) and Lalezar (Borna Izadpanah). Their licences
+ship at `public/assets/fonts/OFL-Vazirmatn.txt` and
+`public/assets/fonts/OFL-Lalezar.txt` and must stay with the fonts.

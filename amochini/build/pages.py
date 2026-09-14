@@ -480,6 +480,31 @@ def product_page(p, all_p):
 {header()}
 {crumbs(cr)}
 <main id="main">
+<!-- The board, once per page (DESIGN.md §8). On a product page it carries
+     this product's own price at --t-figure, its stamp, and the two actions —
+     so the name, the number and the phone button are the first thing seen,
+     above the photograph rather than beside it. -->
+<section class="board-band bb-split" aria-labelledby="p-h">
+  <div class="wrap">
+    <div class="bb-lede">
+      <h1 id="p-h">{e(p["title"])}</h1>
+      <p class="sub">{bdi(SUPPLIER["part_brand"])} · کد کالا: {bdi(p["sku"])} — {e(v["fa"])}</p>
+      <span class="stock{stock_cls}">{e(stock_txt)}</span>
+    </div>
+    <div class="bb-table">
+      <div class="price-box">
+        {price_block(p, big=True)}
+        <div class="price-row">{price_chip(p)}</div>
+      </div>
+      <div class="cta">
+        <a class="call" href="tel:{e(CONTACT["phone_tel"])}">تماس و سفارش {bdi(CONTACT["phone_display"])}</a>
+        <a class="wa" href="https://wa.me/{e(wa)}?text={e("سلام، درباره " + p["title"] + " (" + p["sku"] + ") سوال داشتم.")}"
+           rel="noopener" target="_blank">سفارش در واتساپ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="wrap">
   <div class="product">
     <div class="gallery">
@@ -488,24 +513,7 @@ def product_page(p, all_p):
     </div>
 
     <div class="info">
-      <h1>{e(p["title"])}</h1>
-      <p class="sub">{bdi(SUPPLIER["part_brand"])} · کد کالا: {bdi(p["sku"])} — {e(v["fa"])}</p>
-
-      <div class="price-box">
-        {price_block(p, big=True)}
-        <div class="price-row">
-          <span class="stock{stock_cls}">{e(stock_txt)}</span>
-          {price_chip(p)}
-        </div>
-      </div>
-
       {price_history_block(p)}
-
-      <div class="cta">
-        <a class="call" href="tel:{e(CONTACT["phone_tel"])}">تماس و سفارش: {bdi(CONTACT["phone_display"])}</a>
-        <a class="wa" href="https://wa.me/{e(wa)}?text={e("سلام، درباره " + p["title"] + " (" + p["sku"] + ") سوال داشتم.")}"
-           rel="noopener" target="_blank">سفارش در واتساپ</a>
-      </div>
 
       <table class="spec">
         <caption>مشخصات فنی</caption>
@@ -599,11 +607,11 @@ def category_page(slug, prods, all_p):
 {header(url)}
 {crumbs(cr)}
 <main id="main">
-<div class="page-head"><div class="wrap">
+<section class="board-band page-head"><div class="wrap">
   <h1>{e(c["h1"])}</h1>
   <p>{e(c["blurb"])} — {e(brand_names)} و دیگر خودروهای چینی.</p>
   <p class="meta">{to_fa_digits(n)} کالا در این دسته{(" — " + rng) if rng else ""}</p>
-</div></div>
+</div></section>
 
 <div class="wrap shop">
   <h2 class="sr-only">فهرست محصولات</h2>
@@ -616,7 +624,7 @@ def category_page(slug, prods, all_p):
   {faq_block(qa)}
   <section class="faq">
     <h2>{e(c["fa"])} بر اساس خودرو</h2>
-    <p class="brandlinks" style="display:flex;flex-wrap:wrap;gap:10px;padding-top:6px">{brand_links}</p>
+    <p class="brandlinks">{brand_links}</p>
   </section>
 </div>
 </main>
@@ -702,30 +710,30 @@ def brand_page(slug, prods, all_p):
 
     sections = ""
     for c, items in by_cat.items():
-        sections += (f'<h2 class="section-title"><b>{e(CATEGORIES[c]["fa"])}</b> '
-                     f'{e(b["fa"])}</h2>'
+        sections += (f'<h2 class="section-title"><span class="st-text">'
+                     f'<b>{e(CATEGORIES[c]["fa"])}</b> {e(b["fa"])}</span></h2>'
                      f'<div class="grid-products">{"".join(card(p) for p in items)}</div>'
-                     f'<p style="text-align:center;margin:18px 0 34px">'
-                     f'<a href="/{e(c)}/" style="color:var(--gold-ink);font-weight:500">'
-                     f'مشاهده همه {e(CATEGORIES[c]["fa"])} ›</a></p>')
+                     f'<p class="linkrow">'
+                     f'<a href="/{e(c)}/">همه {e(CATEGORIES[c]["fa"])} '
+                     f'{e(b["fa"])}</a></p>')
 
     model_list = ("".join(f"<li>{e(m)}</li>" for m in models)) or "<li>—</li>"
     return f'''{head(title=title, description=desc, canonical=url, jsonld=jsonld)}
 {header("/brands/")}
 {crumbs(cr)}
 <main id="main">
-<div class="page-head"><div class="wrap">
+<section class="board-band page-head"><div class="wrap">
   <h1>قطعات ترمز {e(b["fa"])}</h1>
   <p>{e(cats_fa)} برای خودروهای {e(b["fa"])}{(" — مدل‌های " + e(models_fa)) if models_fa else ""}.</p>
   <p class="meta">{to_fa_digits(n)} کالا</p>
-</div></div>
+</div></section>
 
 <div class="wrap shop">{sections}</div>
 
 <div class="wrap">
   <section class="faq">
     <h2>مدل‌های {e(b["fa"])} که قطعه آن‌ها را داریم</h2>
-    <ul style="columns:2;padding-inline-start:20px;padding-top:8px">{model_list}</ul>
+    <ul class="cols2">{model_list}</ul>
   </section>
   {faq_block(qa)}
 </div>
@@ -750,11 +758,11 @@ def brands_index(groups):
 {header(url)}
 {crumbs(cr)}
 <main id="main">
-<div class="page-head"><div class="wrap">
+<section class="board-band page-head"><div class="wrap">
   <h1>قطعات ترمز بر اساس خودرو</h1>
   <p>خودروی خود را انتخاب کنید تا لنت ترمز، دیسک چرخ و کاسه چرخ مناسب آن را ببینید.</p>
-</div></div>
-<div class="wrap" style="padding-top:26px">
+</div></section>
+<div class="wrap">
   <h2 class="sr-only">فهرست برندهای خودرو</h2>
   <div class="brandgrid">{cards}</div>
 </div>
@@ -858,7 +866,7 @@ def slider(prods, *, title_html, label, slug="s1", eager_first=0):
     return f'''<section class="slider" id="{e(slug)}"
          aria-roledescription="carousel" aria-label="{e(label)}">
   <div class="slider-head">
-    <h2 class="section-title">{title_html}
+    <h2 class="section-title"><span class="st-text">{title_html}</span>
       <span class="count">{to_fa_digits(len(prods))} کالا</span></h2>
     <div class="slider-nav" data-for="{e(slug)}" hidden>
       <button type="button" class="s-btn s-prev" aria-label="قطعات قبلی" aria-controls="{e(slug)}-track">
@@ -881,14 +889,22 @@ def slider(prods, *, title_html, label, slug="s1", eager_first=0):
 
 # --------------------------------------------------------------------- home
 def home(all_p, groups):
+    """The entry page.
+
+    Structure is the whole argument here (DESIGN.md §8): there is no
+    photographic hero, because this site has four stock photos for 130
+    products and its subject is numbers. The board IS the hero — a full-bleed
+    dark band carrying the headline, today's biggest move at --t-figure, the
+    vehicle finder and ten live prices. Everything below it is quiet paper.
+    """
     url = "/"
-    title = f"{SITE['name_fa']} | لنت ترمز، دیسک و کاسه چرخ خودروهای چینی"
+    title = f"{SITE['name_fa']} | قیمت روز لنت ترمز، دیسک و کاسه چرخ خودروهای چینی"
     desc = SITE["description"]
     cr = [(None, "خانه")]
 
     counts = {c: sum(1 for p in all_p if p["category"] == c) for c in CAT_ORDER}
     # brake-drums borrows a disc photo. The draft's third card was a چراغ
-    # (headlight) card, and its photo came with it — a headlight standing in for
+    # (headlight) card and its photo came with it — a headlight standing in for
     # brake drums is actively misleading, whereas a disc at least shows a brake
     # part. Still a placeholder: a real کاسه چرخ photo is on the owner's list.
     cat_imgs = {"brake-pads": "cat-brake-pads", "brake-discs": "cat-brake-discs",
@@ -900,10 +916,9 @@ def home(all_p, groups):
       <div>
         <h3><a href="/{e(c)}/">{e(cc["fa"])}</a></h3>
         <p class="cat-count">{to_fa_digits(counts[c])} کالا</p>
-        <a href="/{e(c)}/" class="all">نمایش همه ›</a>
       </div>
       <div class="thumb">
-        {picture(cat_imgs[c], alt=cc["fa"], box=108, sizes="108px",
+        {picture(cat_imgs[c], alt=cc["fa"], box=96, sizes="96px",
                  eager=(c == CAT_ORDER[0]))}
       </div>
     </article>'''
@@ -915,9 +930,9 @@ def home(all_p, groups):
     cat_opts = "".join(f'<option value="{e(c)}">{e(CATEGORIES[c]["fa"])}</option>'
                        for c in CAT_ORDER)
 
-    # A slider can hold more than a grid row can, so show a real selection:
-    # the priced, in-stock items spread across all three categories rather
-    # than the first eight rows of the catalogue (which were all drums/discs).
+    # A slider holds more than a grid row can, so show a real selection: the
+    # priced, in-stock items spread across all three categories rather than the
+    # first fifteen rows of the catalogue (which were all drums and discs).
     def _spread(items, n):
         by_cat, out = {}, []
         for x in items:
@@ -931,14 +946,43 @@ def home(all_p, groups):
         return out
     featured = _spread([p for p in all_p if p["in_stock"]], 15)
 
-    # A price-board teaser on the home page: whatever moved most recently,
-    # else simply the first priced items. Products and their prices are the
-    # point of this site, so they lead rather than sitting below the fold.
     priced = [x for x in all_p if x["price_irr"] is not None]
     movers = sorted([x for x in priced
                      if x["price"].get("direction") in ("up", "down")],
                     key=lambda x: -abs(x["price"]["change_pct"]))
     board_pick = (movers or priced)[:10]
+
+    # ---- the headline figure. One per page (DESIGN.md §4), and it is a real
+    # measured number with a real product attached to it, not a slogan.
+    lead = movers[0] if movers else (priced[0] if priced else None)
+    if lead is not None:
+        st = lead["price"]
+        d = st.get("direction")
+        if d in ("up", "down"):
+            pct = abs(st["change_pct"])
+            num = ("کمتر از ۰٫۱" if pct < 0.05
+                   else to_fa_digits(f"{pct:.1f}".rstrip("0").rstrip("."))
+                        .replace(".", "\u066B"))
+            dcls = "is-up" if d == "up" else "is-down"
+            arrow = "▲" if d == "up" else "▼"
+            fb_label = f'بیشترین تغییر در {to_fa_digits(st.get("span_days") or 0)} روز گذشته'
+            fb_delta = (f'<span class="fb-delta {dcls}">'
+                        f'<span aria-hidden="true">{arrow}</span> <bdi>{num}٪</bdi></span>')
+        else:
+            fb_label = "قیمت ثبت‌شده"
+            fb_delta = ""
+        figure = f'''<div class="figure-block">
+        <span class="fb-label">{e(fb_label)}</span>
+        <span class="fb-value">{money(lead["price_irr"], unit=False)}<small>تومان</small></span>
+        {fb_delta}
+        <span class="fb-name"><a href="{e(lead["url"])}">{e(lead["title"])}</a></span>
+      </div>'''
+    else:
+        # Empty state — DESIGN.md §11. A real sentence, never a zero.
+        figure = ('<div class="figure-block"><span class="fb-label">قیمت روز</span>'
+                  '<span class="fb-name">هنوز قیمتی ثبت نشده است. '
+                  'برای استعلام تلفنی تماس بگیرید.</span></div>')
+
     board_rows = "".join(
         f'<tr><td class="c-name"><a href="{e(x["url"])}">{e(x["title"])}</a></td>'
         f'<td class="c-price"><data value="{x["price_irr"]}">'
@@ -946,13 +990,17 @@ def home(all_p, groups):
         f'<td class="c-trend">{price_chip(x)}</td>'
         f'<td class="c-spark">{PR.sparkline(x["price"].get("history", []))}</td></tr>'
         for x in board_pick)
+    stamp = (to_fa_digits(PR.jalali_str(PRICE_META["latest"]))
+             if PRICE_META["latest"] else "")
+
     qa = [
         ("چطور قطعه مناسب خودروی چینی‌ام را پیدا کنم؟",
          "از جستجوگر بالای صفحه، برند خودرو و نوع قطعه را انتخاب کنید. اگر مدل "
          "دقیق را نمی‌دانید، کارت خودرو یا شماره شاسی را برای ما بفرستید."),
         ("قیمت‌ها به‌روز هستند؟",
-         "قیمت‌های درج‌شده قیمت روز است، اما بازار قطعات نوسان دارد. پیش از "
-         "سفارش، قیمت نهایی را تلفنی یا در واتساپ تأیید کنید."),
+         "قیمت‌های درج‌شده قیمت روز است و تاریخ ثبت هر قیمت زیر آن آمده. بازار "
+         "قطعات نوسان دارد، پس پیش از سفارش قیمت نهایی را تلفنی یا در واتساپ "
+         "تأیید کنید."),
         ("ارسال به شهرستان دارید؟",
          "بله، ارسال به سراسر ایران انجام می‌شود."),
         ("قطعات اصلی هستند یا طرح؟",
@@ -964,66 +1012,69 @@ def home(all_p, groups):
     return f'''{head(title=title, description=desc, canonical=url, jsonld=jsonld)}
 {header("/")}
 <main id="main">
-<section class="hero">
-  <div class="art">
-    {picture("hero-bg", alt="", box=1500, sizes="100vw", eager=True)}
-  </div>
-  <div class="inner">
-    <h1>قطعات ترمز خودروهای چینی، با قیمت روز</h1>
-    <p>{e(SITE["slogan"])}</p>
-    <ul class="hero-trust">
-      <li><span aria-hidden="true">◆</span> {e(SUPPLIER["claim_fa"])}</li>
-      <li><span aria-hidden="true">◆</span> قیمت روز، با تاریخ ثبت</li>
-      <li><span aria-hidden="true">◆</span> ارسال به سراسر ایران</li>
-    </ul>
+{ticker(board_pick)}
 
-    <form class="finder" id="finder" action="/brake-pads/" method="get">
-      <label class="sr-only" for="f-brand">خودرو</label>
-      <select id="f-brand" name="brand"><option value="">خودرو را انتخاب کنید</option>{brand_opts}</select>
-      <label class="sr-only" for="f-cat">نوع قطعه</label>
-      <select id="f-cat" name="cat"><option value="">نوع قطعه</option>{cat_opts}</select>
-      <label class="sr-only" for="f-axle">محور</label>
-      <select id="f-axle" name="axle"><option value="">محور</option><option value="front">جلو</option><option value="rear">عقب</option></select>
-      <button type="submit">جستجوی قطعه</button>
-    </form>
+<section class="board-band bb-split" aria-labelledby="bb-h">
+  <div class="wrap">
+    <div class="bb-lede">
+      <h1 id="bb-h">قیمت روز قطعات ترمز خودروهای چینی</h1>
+      <p class="sub">{e(SUPPLIER["claim_fa"])}. لنت ترمز، دیسک و کاسه چرخ —
+        با قیمت روز و تاریخ ثبت، برای {to_fa_digits(len(groups))} برند خودرو.</p>
+      {f'<p class="stamp">آخرین بروزرسانی {e(stamp)}</p>' if stamp else ""}
+
+      {figure}
+
+      <ul class="claims">
+        <li><b>ASMCO</b> قطعات اصلی، با تضمین اصالت و امکان مرجوعی</li>
+        <li><b>تاریخ‌دار</b> هر قیمت با روز ثبتش نشان داده می‌شود</li>
+        <li><b>ارسال</b> به سراسر ایران، سفارش تلفنی و واتساپ</li>
+      </ul>
+    </div>
+
+    <div class="bb-table">
+      <h2 class="bb-th">امروز چه چیزی تغییر کرد</h2>
+      <div class="board-scroll">
+        <table class="board">
+          <caption class="sr-only">قطعاتی که قیمتشان بیش از همه تغییر کرده است</caption>
+          <thead><tr>
+            <th scope="col">کالا</th><th scope="col">قیمت (تومان)</th>
+            <th scope="col">تغییر</th><th scope="col" class="h-spark">روند</th>
+          </tr></thead>
+          <tbody>{board_rows}</tbody>
+        </table>
+      </div>
+      <a class="board-all" href="/prices/">جدول کامل {to_fa_digits(len(priced))} قیمت</a>
+    </div>
+
+    <div class="bb-foot">
+      <p class="fd-label" id="fd-label">قطعه خودروی خود را پیدا کنید</p>
+      <form class="finder" id="finder" action="/brake-pads/" method="get"
+            aria-labelledby="fd-label">
+        <label class="sr-only" for="f-brand">خودرو</label>
+        <select id="f-brand" name="brand"><option value="">خودرو را انتخاب کنید</option>{brand_opts}</select>
+        <label class="sr-only" for="f-cat">نوع قطعه</label>
+        <select id="f-cat" name="cat"><option value="">نوع قطعه</option>{cat_opts}</select>
+        <label class="sr-only" for="f-axle">محور</label>
+        <select id="f-axle" name="axle"><option value="">محور</option><option value="front">جلو</option><option value="rear">عقب</option></select>
+        <button type="submit">جستجوی قطعه</button>
+      </form>
+    </div>
   </div>
 </section>
 
-{ticker(board_pick)}
 {stat_band(all_p, groups)}
 
 <div class="wrap">
-  <h2 class="section-title"><b>دسته‌بندی</b>‌های محصولات</h2>
+  <h2 class="section-title"><span class="st-text"><b>دسته‌بندی</b>‌های محصولات</span></h2>
   <section class="cats">{cats_html}</section>
-</div>
 
-<div class="wrap">
   {slider(featured, title_html="<b>پرفروش‌ترین</b> قطعات",
           label="پرفروش‌ترین قطعات ترمز", slug="top", eager_first=3)}
-  <p style="text-align:center">
-    <a class="more-btn" href="/brake-discs/">مشاهده همه محصولات</a>
-  </p>
-</div>
+  <p class="linkrow"><a href="/brake-discs/">همه دیسک‌های چرخ</a></p>
 
-<div class="wrap">
-  <h2 class="section-title"><b>قیمت</b> روز
-    <span class="count">آخرین بروزرسانی: {e(to_fa_digits(PR.jalali_str(PRICE_META["latest"]))) if PRICE_META["latest"] else "—"}</span></h2>
-  <div class="board-scroll">
-    <table class="board">
-      <caption class="sr-only">نمونه‌ای از قیمت روز قطعات</caption>
-      <thead><tr>
-        <th scope="col">کالا</th><th scope="col">قیمت (تومان)</th>
-        <th scope="col">تغییر</th><th scope="col">روند</th>
-      </tr></thead>
-      <tbody>{board_rows}</tbody>
-    </table>
-  </div>
-  <p style="text-align:center;margin-block:var(--s5) var(--s7)">
-    <a class="more-btn" href="/prices/">مشاهده جدول کامل قیمت‌ها</a>
-  </p>
-
-  <h2 class="section-title"><b>خرید</b> بر اساس خودرو</h2>
+  <h2 class="section-title"><span class="st-text"><b>خرید</b> بر اساس خودرو</span></h2>
   <div class="brandgrid">{"".join(f'<a href="/brands/{e(s)}/">{e(BRANDS[s]["fa"])}<small>{to_fa_digits(len(v))} کالا</small></a>' for s, v in sorted(groups.items(), key=lambda kv: -len(kv[1])))}</div>
+
   {faq_block(qa)}
 </div>
 </main>
@@ -1113,16 +1164,19 @@ def price_index(products):
 {header(url)}
 {crumbs(cr)}
 <main id="main">
-<div class="page-head"><div class="wrap">
+<section class="board-band page-head"><div class="wrap">
   <h1>قیمت روز قطعات ترمز</h1>
   <p>قیمت هر کالا در هر بار تغییر ثبت می‌شود، پس می‌توانید ببینید قیمت چه زمانی
      و چه مقدار تغییر کرده است.</p>
   <p class="meta">آخرین بروزرسانی: {stamp}
      — {to_fa_digits(meta["observations"])} قیمت ثبت‌شده برای
      {to_fa_digits(meta["skus"])} کالا</p>
-</div></div>
+</div></section>
 
-<div class="wrap">
+<!-- The full index keeps its table on paper: 130 rows of reversed-out text is
+     not readable, and the band above already carries the signature. The
+     .board-page class resets the contextual chart palette to the light one. -->
+<div class="wrap board-page">
   {f'<div class="tiles">{tiles}</div>' if tiles else ''}
   {board_note}
 
@@ -1151,10 +1205,10 @@ def price_index(products):
       <thead>
         <tr>
           <th scope="col">کالا</th>
-          <th scope="col">کد</th>
+          <th scope="col" class="h-sku">کد</th>
           <th scope="col">قیمت (تومان)</th>
           <th scope="col">تغییر</th>
-          <th scope="col">روند</th>
+          <th scope="col" class="h-spark">روند</th>
           <th scope="col">تاریخ ثبت</th>
         </tr>
       </thead>
@@ -1185,9 +1239,9 @@ def about():
 {header(url)}
 {crumbs(cr)}
 <main id="main">
-<div class="page-head"><div class="wrap"><h1>درباره {e(SITE["name_fa"])}</h1>
-<p>{e(SITE["tagline"])}</p></div></div>
-<div class="wrap"><div class="prose" style="background:#fff;padding:26px;margin-block:26px;max-width:none">
+<section class="board-band page-head"><div class="wrap"><h1>درباره {e(SITE["name_fa"])}</h1>
+<p>{e(SITE["tagline"])}</p></div></section>
+<div class="wrap"><div class="prose">
   <p>عمو چینی روی یک چیز تمرکز دارد: قطعات سیستم ترمز خودروهای چینی که در ایران
   تردد می‌کنند. لنت ترمز، دیسک چرخ و کاسه چرخ — برای ام‌وی‌ام، جک، لیفان، چری،
   هایما، برلیانس، چانگان، جیلی، بست و دیگر برندها.</p>
@@ -1210,7 +1264,7 @@ def about():
 
   <h2>سفارش</h2>
   <p>سفارش‌ها تلفنی و از طریق واتساپ ثبت می‌شوند. برای استعلام قیمت روز و
-  موجودی، <a href="/contact/" style="color:var(--gold-ink)">با ما تماس بگیرید</a>.</p>
+  موجودی، <a href="/contact/">با ما تماس بگیرید</a>.</p>
 </div></div>
 </main>
 {footer()}'''
@@ -1230,27 +1284,24 @@ def contact():
 {header(url)}
 {crumbs(cr)}
 <main id="main">
-<div class="page-head"><div class="wrap"><h1>تماس با ما</h1>
-<p>برای استعلام قیمت روز، بررسی موجودی یا مشاوره فنی تماس بگیرید.</p></div></div>
-<div class="wrap"><div class="prose" style="background:#fff;padding:26px;margin-block:26px;max-width:none">
-  <table class="spec" style="margin-top:0">
+<section class="board-band page-head"><div class="wrap"><h1>تماس با ما</h1>
+<p>برای استعلام قیمت روز، بررسی موجودی یا مشاوره فنی تماس بگیرید.</p></div></section>
+<div class="wrap"><div class="prose">
+  <table class="spec">
     <caption>راه‌های ارتباطی</caption>
     <tbody>
       <tr><th scope="row">تلفن</th><td><a href="tel:{e(CONTACT["phone_tel"])}">{bdi(CONTACT["phone_display"])}</a></td></tr>
       <tr><th scope="row">همراه / واتساپ</th><td><a href="tel:{e(CONTACT["mobile_tel"])}">{bdi(CONTACT["mobile_display"])}</a></td></tr>
       <tr><th scope="row">ایمیل</th><td><a href="mailto:{e(CONTACT["email"])}">{bdi(CONTACT["email"])}</a></td></tr>
       <tr><th scope="row">نشانی</th><td>{e(CONTACT["street"])}{("، " + e(CONTACT["city"])) if CONTACT["city"] else ""}<br>
-        <a href="{e(CONTACT["map_url"])}" rel="noopener" target="_blank"
-           style="color:var(--gold-ink);font-weight:600">مشاهده روی نقشه گوگل ›</a></td></tr>
+        <a href="{e(CONTACT["map_url"])}" rel="noopener" target="_blank">مشاهده روی نقشه گوگل</a></td></tr>
       <tr><th scope="row">ساعات کاری</th><td>{e(CONTACT["hours_display"])}</td></tr>
     </tbody>
   </table>
 
-  <div class="cta" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px">
-    <a class="call" style="background:var(--yellow);color:#1a1a1a;padding:14px 26px;font-weight:500;flex:1 1 200px;text-align:center"
-       href="tel:{e(CONTACT["phone_tel"])}">تماس تلفنی</a>
-    <a class="wa" style="background:#1f1f1f;color:#fff;padding:14px 26px;font-weight:500;flex:1 1 200px;text-align:center"
-       href="https://wa.me/{e(wa)}" rel="noopener" target="_blank">گفتگو در واتساپ</a>
+  <div class="cta">
+    <a class="call" href="tel:{e(CONTACT["phone_tel"])}">تماس تلفنی</a>
+    <a class="wa" href="https://wa.me/{e(wa)}" rel="noopener" target="_blank">گفتگو در واتساپ</a>
   </div>
 
   <h2>پیش از تماس این‌ها را آماده داشته باشید</h2>
@@ -1275,7 +1326,7 @@ def not_found():
   <h1>۴۰۴</h1>
   <h2>این صفحه پیدا نشد</h2>
   <p>ممکن است نشانی تغییر کرده باشد. از دسته‌بندی‌ها شروع کنید یا جستجو کنید.</p>
-  <p style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+  <p class="nf-links">
     <a class="btn" href="/">صفحه اصلی</a>
     <a class="btn" href="/brake-pads/">لنت ترمز</a>
     <a class="btn" href="/brake-discs/">دیسک چرخ</a>
