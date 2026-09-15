@@ -246,7 +246,7 @@ bdi{unicode-bidi:isolate}
 }
 .ticker-all:hover{color:var(--paper)}
 
-.ticker-win{flex:1;overflow:hidden;min-width:0;position:relative}
+.ticker-win{flex:1;overflow:hidden;min-width:0;position:relative;direction:ltr}
 @supports (mask-image:linear-gradient(#000,#000)) or (-webkit-mask-image:linear-gradient(#000,#000)){
   .ticker-win{
     -webkit-mask-image:linear-gradient(to right,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%);
@@ -254,14 +254,46 @@ bdi{unicode-bidi:isolate}
   }
 }
 .ticker-track{
+  
+  --copies:3;
   display:flex;width:max-content;
   
   direction:ltr;
   animation:ticker-slide 64s linear infinite;
 }
-.ticker:hover .ticker-track,
-.ticker:focus-within .ticker-track{animation-play-state:paused}
-@keyframes ticker-slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.tape-stop{
+  
+  position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;
+}
+.tape-btn{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;
+  width:34px;background:var(--board);cursor:pointer;z-index:2;
+  border-inline-start:1px solid var(--rule-board);
+}
+
+.tape-btn::before,.tape-btn::after{
+  content:"";width:3px;height:11px;background:var(--amber);
+}
+.tape-btn::before{margin-inline-end:3px}
+.tape-btn:hover::before,.tape-btn:hover::after{background:var(--paper)}
+
+.tape-stop:checked ~ .tape-btn::after{display:none}
+.tape-stop:checked ~ .tape-btn::before{
+  width:0;height:0;margin:0;background:none;
+  border-block:6px solid transparent;
+  border-inline-end:9px solid var(--amber);
+}
+.tape-stop:checked ~ .tape-btn:hover::before{border-inline-end-color:var(--paper)}
+.tape-stop:focus-visible ~ .tape-btn{box-shadow:var(--focus)}
+.tape-stop:checked ~ .ticker-win .ticker-track{animation-play-state:paused}
+
+.ticker:hover .ticker-track{animation-play-state:paused}
+
+@keyframes ticker-slide{
+  from{transform:translateX(0)}
+  to{transform:translateX(calc(-100% / var(--copies)))}
+}
 .tick{
   display:inline-flex;align-items:center;gap:var(--s2);
   padding:var(--s1) var(--s3);white-space:nowrap;
@@ -269,10 +301,7 @@ bdi{unicode-bidi:isolate}
   font-size:var(--t-label);letter-spacing:0;
 }
 
-.tick-name{
-  color:var(--chalk);font-weight:400;letter-spacing:.04em;
-  max-width:26ch;overflow:hidden;text-overflow:ellipsis;
-}
+.tick-name{color:var(--chalk);font-weight:400;letter-spacing:.04em}
 .tick-price{
   color:var(--paper);font-weight:800;font-variant-numeric:tabular-nums;
 }
@@ -285,12 +314,13 @@ bdi{unicode-bidi:isolate}
   
   .ticker-track{animation:none;width:max-content}
   .ticker-win{overflow-x:auto;scrollbar-width:thin}
-  .ticker-track .tick[aria-hidden="true"]{display:none}
+  
+  .ticker-track .tick[data-dup]{display:none}
   .ticker-tag .dot{animation:none}
 }
 @media (max-width:600px){
+  
   .ticker-all{display:none}
-  .tick-name{max-width:16ch}
 }
 
 .board-band{

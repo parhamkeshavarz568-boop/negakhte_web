@@ -316,7 +316,23 @@ bdi{unicode-bidi:isolate}
    rather than a gradient overlay: the previous single gradient was pinned to
    inset-inline-end, which in RTL is the LEFT edge — the side items exit, not
    the side they enter. A symmetric mask has no side to get wrong. */
-.ticker-win{flex:1;overflow:hidden;min-width:0;position:relative}
+/* direction:ltr ON THE WINDOW, not only on the track.
+   This is the bug that made the tape run out and go blank. `direction` on an
+   element lays out its CONTENTS; it does not change how that element is
+   placed inside its own parent. The track had direction:ltr, but the window
+   around it inherited the page's rtl — so an overflowing child was anchored
+   to the window's RIGHT edge and hung off to the left. Measured at 390px:
+   the window sat at x=0..310 while the track sat at x=-5352..287. From
+   there, animating translateX(0) -> -50% moves the track FURTHER left, so
+   items leave past the left edge and nothing follows them in from the right.
+   The tape emptied, stayed empty for the rest of the 64s cycle, and snapped
+   back at the end.
+   With the window itself ltr the track anchors at the LEFT, the first copy
+   fills the window, and the translate brings the next one in behind it. How
+   far it translates, and how many copies that needs, is the separate piece of
+   arithmetic on .ticker-track below — this rule only fixes which edge the
+   track hangs from. */
+.ticker-win{flex:1;overflow:hidden;min-width:0;position:relative;direction:ltr}
 @supports (mask-image:linear-gradient(#000,#000)) or (-webkit-mask-image:linear-gradient(#000,#000)){
   .ticker-win{
     -webkit-mask-image:linear-gradient(to right,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%);
@@ -324,15 +340,69 @@ bdi{unicode-bidi:isolate}
   }
 }
 .ticker-track{
+  /* How many copies of the price list the track holds. MIRRORED in
+     pages.py:TICKER_COPIES, which emits the copies and also writes the count
+     into data-copies so build/check_tape.py fails if the two drift apart.
+     A marquee of N copies translated by one copy's width covers its window
+     only while  window <= (N-1) x copyWidth. One copy of ten prices measures
+     ~2994px, so N=2 meant "window <= 2994": fine to 2560, and a hole opened
+     at 3440 (a common ultrawide) and at 3840 — measured, a gap from 95% of
+     the cycle at 3440 and from 80% at 3840.
+     N=3 doubles that to ~5988px of window. Not "past any real display",
+     which is what this comment claimed first and is wrong: an 8K panel run
+     at DPR 1 is 7680 CSS px and would show a hole. It is past every display
+     this shop's buyers use, and pages.py raises the copy count further when
+     the feed is short, which is the case that actually shrinks copyWidth. */
+  --copies:3;
   display:flex;width:max-content;
   /* forced LTR so items slide leftward and enter from the right, which is
      where a Persian reader's eye starts. Each item is dir="rtl" internally. */
   direction:ltr;
   animation:ticker-slide 64s linear infinite;
 }
-.ticker:hover .ticker-track,
-.ticker:focus-within .ticker-track{animation-play-state:paused}
-@keyframes ticker-slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* THE STOP CONTROL — WCAG 2.2.2. Motion that starts on load and runs more
+   than five seconds needs a pause/stop/hide mechanism, and hovering is not
+   one: it is not available to a keyboard, and it does not persist.
+   A checkbox and a label, so it needs NO JavaScript and is a real focusable
+   control with a real checked state a screen reader can announce. The
+   sibling combinator is why the input sits before .ticker-win in the markup.
+   :focus-within pausing used to be here and is deliberately gone: with a
+   control inside the strip, reaching the button to press RESUME would itself
+   have kept the tape paused. */
+.tape-stop{
+  /* Off-screen but still focusable — not display:none, not visibility. */
+  position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;
+}
+.tape-btn{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;
+  width:34px;background:var(--board);cursor:pointer;z-index:2;
+  border-inline-start:1px solid var(--rule-board);
+}
+/* Two bars while it is running. */
+.tape-btn::before,.tape-btn::after{
+  content:"";width:3px;height:11px;background:var(--amber);
+}
+.tape-btn::before{margin-inline-end:3px}
+.tape-btn:hover::before,.tape-btn:hover::after{background:var(--paper)}
+/* Stopped: one bar becomes a triangle, drawn with borders so it needs no
+   glyph — the subset font carries Persian and digits, not geometric shapes. */
+.tape-stop:checked ~ .tape-btn::after{display:none}
+.tape-stop:checked ~ .tape-btn::before{
+  width:0;height:0;margin:0;background:none;
+  border-block:6px solid transparent;
+  border-inline-end:9px solid var(--amber);
+}
+.tape-stop:checked ~ .tape-btn:hover::before{border-inline-end-color:var(--paper)}
+.tape-stop:focus-visible ~ .tape-btn{box-shadow:var(--focus)}
+.tape-stop:checked ~ .ticker-win .ticker-track{animation-play-state:paused}
+/* Kept as a convenience on top of the control, not as the mechanism. */
+.ticker:hover .ticker-track{animation-play-state:paused}
+/* calc, not a typed-out percentage: one copy is 100%/--copies exactly, and
+   -33.3333% would leave a sub-pixel jump at every wrap. */
+@keyframes ticker-slide{
+  from{transform:translateX(0)}
+  to{transform:translateX(calc(-100% / var(--copies)))}
+}
 .tick{
   display:inline-flex;align-items:center;gap:var(--s2);
   padding:var(--s1) var(--s3);white-space:nowrap;
@@ -341,10 +411,17 @@ bdi{unicode-bidi:isolate}
 }
 /* 400, not 200: at --t-label this is the same 12px ExtraLight that was
    measured unreadable elsewhere, and it is moving. */
-.tick-name{
-  color:var(--chalk);font-weight:400;letter-spacing:.04em;
-  max-width:26ch;overflow:hidden;text-overflow:ellipsis;
-}
+/* NO TRUNCATION. There was a max-width and an ellipsis here, and on a phone
+   it was actively lying: `.tick-name` sits inside dir="rtl", so
+   text-overflow clips the title's LOGICAL end — which in these titles is the
+   axle, جلو or عقب, the one word that distinguishes two otherwise identical
+   products. Measured at 390px: 8 of 10 ticks clipped, and «دیسک چرخ
+   ام‌وی‌ام 33X عقب» and «… 33X جلو» both cut to 108px and rendered as the
+   same text, two different parts with two different prices reading as one.
+   A marquee has no horizontal constraint to respect in the first place — a
+   longer title just makes the tape longer, which also widens the copy and
+   makes the covering arithmetic above safer, not worse. */
+.tick-name{color:var(--chalk);font-weight:400;letter-spacing:.04em}
 .tick-price{
   color:var(--paper);font-weight:800;font-variant-numeric:tabular-nums;
 }
@@ -362,12 +439,16 @@ bdi{unicode-bidi:isolate}
      the duplicate half is dropped so nobody scrolls the same products twice. */
   .ticker-track{animation:none;width:max-content}
   .ticker-win{overflow-x:auto;scrollbar-width:thin}
-  .ticker-track .tick[aria-hidden="true"]{display:none}
+  /* data-dup, not [aria-hidden]: every tick is aria-hidden now (the strip is
+     decorative — see ticker()'s docstring), so the repeats are marked
+     separately. */
+  .ticker-track .tick[data-dup]{display:none}
   .ticker-tag .dot{animation:none}
 }
 @media (max-width:600px){
+  /* .tick-name's max-width:16ch used to live here. It is what made two
+     different products render identically — see the note on .tick-name. */
   .ticker-all{display:none}
-  .tick-name{max-width:16ch}
 }
 
 /* ==========================================================================

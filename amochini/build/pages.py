@@ -970,24 +970,50 @@ def brands_index(groups):
 {footer()}'''
 
 
+# See the note inside ticker(). Mirrored by --copies in site.css.
+TICKER_COPIES = 3
+
+
 def ticker(prods):
-    """A live price ticker under the hero.
+    """The price tape — DESIGN.md §9, the one motion moment.
 
-    This is the one element that says what the site IS at a glance: prices,
-    moving, with dates. The headline claims «قیمت روز» — this shows it.
+    This is the element that says what the site IS at a glance: prices,
+    moving, with dates. The headline claims «قیمت روز»; this shows it.
 
-    Accessibility, because a marquee is easy to get wrong:
-      * the duplicate half is aria-hidden, so a screen reader reads each
-        product once, not twice;
-      * it pauses on hover AND on keyboard focus;
-      * under prefers-reduced-motion the animation is dropped entirely and it
-        becomes a plain horizontally-scrollable strip;
-      * it is never the only route to the data — every item links to its
-        product and the band links to the full board.
+    THE STRIP IS DECORATIVE, and that is a decision, not an oversight. Its ten
+    products are the same ten the board table renders twenty pixels below, as
+    real rows with real links — so the tape carries no information that is
+    only available inside it. It is therefore aria-hidden with every tick
+    `tabindex="-1"`, the same pattern the price charts use (their hover
+    targets are aria-hidden and the observation table is the equivalent).
 
-    The track is forced to `direction: ltr` so the items slide leftward and
-    enter from the right, where a Persian reader's eye starts. Each item keeps
-    dir="rtl" internally so its own text is laid out correctly.
+    The reason is not tidiness. A tick inside a transform-animated,
+    overflow-hidden strip CANNOT be revealed by focus: `transform` creates no
+    scrollable overflow, so `scrollLeft` stays 0 while the element is drawn at
+    negative x. Measured at 390 and 1440, past ~30% of the cycle a focused
+    tick sat between -898px and -2964px of the window's left edge with 0px
+    visible — a keyboard user's focus landing on a link that is nowhere on
+    screen, with no ring anywhere, for most of every 64s cycle. There is no
+    CSS that fixes that while the strip still animates. Taking the ticks out
+    of the tab order is the only honest answer, and it costs nothing because
+    the board is right there.
+
+    What stays keyboard-reachable is what carries meaning: the «قیمت روز» tag
+    and «جدول کامل» both link to /prices/, and the stop control below.
+
+    THE STOP CONTROL exists because WCAG 2.2.2 wants a pause/stop/hide
+    mechanism for motion that starts on load and runs more than five seconds,
+    and hovering is not a mechanism. It is a real checkbox plus a label, so it
+    works with no JavaScript at all and is a genuine focusable control with a
+    genuine checked state — `:hover` pausing is kept as a convenience on top.
+    `:focus-within` pausing was REMOVED: with a real control in the strip,
+    focusing it to press resume would have kept the tape paused by the very
+    act of reaching the button.
+
+    The track is forced `direction: ltr` — AND SO IS THE WINDOW AROUND IT.
+    That second half is the whole bug that made this tape run dry: see the
+    note on `.ticker-win` in site.css. Each tick keeps `dir="rtl"` so its own
+    text lays out correctly.
     """
     if not prods:
         return ""
@@ -1005,25 +1031,48 @@ def ticker(prods):
             pct = abs(st["change_pct"])
             delta = (("کمتر از ۰٫۱" if pct < 0.05
                       else to_fa_digits(f"{pct:.1f}".rstrip("0").rstrip("."))
-                           .replace(".", "\u066B")) + "٪")
+                           .replace(".", "٫")) + "٪")
         elif st.get("latest_date"):
             delta = to_fa_digits(PR.jalali_str(st["latest_date"], with_year=False))
         else:
             delta = ""
-        return (f'<a class="tick {tone}" href="{e(x["url"])}" dir="rtl"'
-                + (' aria-hidden="true" tabindex="-1"' if dup else '') + '>'
+        # data-dup, not aria-hidden, marks the repeats now that EVERY tick is
+        # aria-hidden: the reduced-motion rule needs to hide the copies and
+        # can no longer tell them apart by their ARIA state.
+        return (f'<a class="tick {tone}" href="{e(x["url"])}" dir="rtl" tabindex="-1"'
+                + (' data-dup="1"' if dup else '') + '>'
                 f'<span class="tick-name">{latin_bdi(x["title"])}</span>'
                 f'<span class="tick-price">{money(x["price_irr"], unit=False)}</span>'
                 f'<span class="tick-delta"><span aria-hidden="true">{arrow}</span> {delta}</span>'
                 f'</a>')
 
-    half = "".join(item(x) for x in prods)
+    # THREE copies, and the number is load-bearing arithmetic, not taste. A
+    # marquee of N copies translated by one copy's width covers its window
+    # only while  window <= (N-1) x copyWidth.  With N=2 that is
+    # "window <= one copy", and one copy of ten prices measures ~2994px: fine
+    # to 2560, but at 3440 (a common ultrawide) and at 3840 the window is
+    # wider than a copy and a hole opens in the tape. Measured: a gap from
+    # 95% of the cycle at 3440 and from 80% at 3840.
+    #   It also scales with a SHORT FEED, which is the case that actually
+    # shrinks copyWidth: three copies of ten ticks is ~5988px of covered
+    # window, but three copies of three ticks would be ~1800px and the gap
+    # would be back on a laptop. So the count is whatever it takes to put at
+    # least MIN_TICKS ticks on the track.
+    #   The count is mirrored in site.css as --copies on .ticker-track, which
+    # is what the keyframe divides by. It is also emitted as data-copies so
+    # build/check_tape.py fails if the two ever disagree.
+    MIN_TICKS = 30
+    copies = max(TICKER_COPIES, -(-MIN_TICKS // len(prods)))
+    ticks = ("".join(item(x) for x in prods)
+             + "".join(item(x, dup=True) for x in prods) * (copies - 1))
     return f'''<section class="ticker" aria-label="قیمت روز قطعات">
   <a class="ticker-tag" href="/prices/">
     <span class="dot" aria-hidden="true"></span> قیمت روز
   </a>
-  <div class="ticker-win">
-    <div class="ticker-track">{half}{"".join(item(x, dup=True) for x in prods)}</div>
+  <input type="checkbox" id="tape-stop" class="tape-stop">
+  <label class="tape-btn" for="tape-stop"><span class="sr-only">توقف نوار قیمت</span></label>
+  <div class="ticker-win" aria-hidden="true">
+    <div class="ticker-track" data-copies="{copies}">{ticks}</div>
   </div>
   <a class="ticker-all" href="/prices/">جدول کامل ›</a>
 </section>'''

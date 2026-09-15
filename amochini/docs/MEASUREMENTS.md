@@ -195,6 +195,8 @@ reflowed every heading and put the home page at CLS 0.001 instead of 0.
 | Vazirmatn subset | **54.3 KB**, down from 57.1 — the weight axis is instanced to wght 200–800, the range DESIGN.md §4 allows. Every page. |
 | WCAG AA text contrast, 8 pages × 2 viewports, computed against the real ground | **0 failures** |
 | WCAG AA text contrast over the two photographs text sits on, 6 widths, worst pixel per text box (`build/check_contrast.py`) | **0 failures** — worst 5.44∶1, the closing band's paragraph at exactly 1200px |
+| tape continuity, 21 offsets across one copy-width × 9 widths 360→3840, 4px probe (`build/check_tape.py`) | **0 gaps**; every tick reachable under reduced motion. Negative-tested against all three known failure modes |
+| tape interaction (`build/check_tape.py`) | **8/8** — no tick focusable, strip aria-hidden with nothing focusable inside it, labelled stop control present, keyboard-focusable, and it actually pauses; repeats marked by `data-dup`. Negative-tested by re-enabling tick focus |
 | WCAG 2.5.8 target size (24×24, inline-text exemption applied) | **0 failures** |
 
 Today's figure clears the fold on a 375×667 iPhone SE: the tape lands at

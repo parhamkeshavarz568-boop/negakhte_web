@@ -327,6 +327,105 @@ The tape pauses on hover and on keyboard focus. Under
 becomes a plain horizontally scrollable strip with every item reachable — not a
 frozen strip showing three of twenty.
 
+### The tape has been wrong twice, both times invisibly to the CSS
+
+The markup and the stylesheet can both be exactly right and the tape still be
+broken on screen, because a marquee depends on two things nothing in the rule
+mentions. Both failures were reported by the owner, not caught here, and
+`build/check_tape.py` now exists so a third one cannot ship.
+
+**1. Which edge the track is anchored to.** The track carried
+`direction: ltr` so its items lay out left-to-right. But `direction` lays out
+an element's *contents* — it does not change how that element is placed inside
+**its own parent**, and `.ticker-win` inherited the page's `rtl`. So the
+overflowing track was anchored to the window's **right** edge and hung off to
+the left. Measured at 390px: the window sat at x 0→310 while the track sat at
+x −5352→287. Animating `translateX(0)` → `−50%` then moved it *further* left,
+so items left past the left edge and nothing followed them in. **The tape ran
+dry a few seconds in, stayed blank for the rest of the 64s cycle, and snapped
+back.** The fix is `direction: ltr` on the **window** as well.
+
+**2. How many copies.** A marquee of N copies translated by one copy's width
+covers its window only while
+
+> `window ≤ (N − 1) × copyWidth`
+
+With the two copies a marquee "obviously" needs, that is `window ≤ one copy`.
+One copy of ten prices measures ~2994px — fine to 2560, and a hole opens at
+**3440** (a common ultrawide) and **3840**. Measured: a gap from 95% of the
+cycle at 3440 and from 80% at 3840. Three copies reach ~5988px, past any real
+display, for **0.6 KB gzipped**.
+
+The count lives in **one place conceptually and two places physically** —
+`pages.py:TICKER_COPIES` emits the copies, `--copies` on `.ticker-track` is
+what the keyframe divides by — so the markup also writes `data-copies`, and
+the check fails the moment the two disagree.
+
+**What the check asserts is the reader's property, not the CSS.** It freezes
+the animation, places the track by hand at 21 offsets across one copy-width,
+and at each offset walks the window in 4px steps requiring every step to land
+on a `.tick`. Nine widths from 360 to 3840. It was negative-tested against all
+three failure modes — the old anchoring, two copies, and a deliberate
+markup/CSS drift — and it catches each one.
+
+Under reduced motion it asserts **reachability, not scrollability**: on a wide
+screen ten prices already fit and there is nothing to scroll, which the first
+draft of the check called a failure. It scrolls to each end and requires the
+first and last tick to reach the window's edges. Edge contact, not
+containment — at 360px the first tick is ~282px against a 280px window and can
+never fit, which is not a defect.
+
+### The strip is decorative, and that is a decision
+
+Every tick is `tabindex="-1"` inside an `aria-hidden="true"` window. Not
+tidiness — **a tick inside a transform-animated, overflow-hidden strip cannot
+be revealed by focus.** `transform` creates no scrollable overflow, so
+`scrollLeft` stays 0 while the element is drawn at negative x. Measured at 390
+and 1440: past ~30% of the cycle a focused tick sat between −898px and
+−2964px of the window's left edge with **0px visible** — a keyboard user's
+focus landing on a link that is nowhere on screen, with no ring anywhere, for
+most of every 64s cycle. No CSS fixes that while the strip still animates.
+
+It costs nothing, which is what makes it the right answer rather than a
+retreat: the tape's ten products are the same ten the board table renders
+twenty pixels below, as real rows with real links. This is the pattern the
+price charts already use — their hover targets are `aria-hidden` and the
+observation table is the equivalent. What stays keyboard-reachable is what
+carries meaning: the «قیمت روز» tag and «جدول کامل», both to `/prices/`.
+
+### The stop control
+
+**WCAG 2.2.2** wants a pause/stop/hide mechanism for motion that starts on
+load and runs more than five seconds. Hovering is not a mechanism — it is
+unavailable to a keyboard and it does not persist. So the tape has a real
+control: a checkbox and a label, which means **no JavaScript at all** and a
+genuine focusable control with a genuine checked state a screen reader
+announces.
+
+`:focus-within` pausing was **removed** when this went in. With a real control
+inside the strip, reaching the button to press *resume* would itself have kept
+the tape paused. `:hover` pausing stays, as a convenience rather than as the
+mechanism.
+
+The icon is drawn with CSS boxes and borders — two bars, becoming a triangle
+when stopped — because the subset font carries Persian and digits, not
+geometric shapes, and a `▶` would have been tofu.
+
+### One more thing the tape got wrong: it truncated the only distinguishing word
+
+`.tick-name` carried `max-width` and `text-overflow: ellipsis`. Inside
+`dir="rtl"`, ellipsis clips the title's **logical end** — which in these
+titles is the axle, جلو or عقب, the one word separating two otherwise
+identical products. Measured at 390px: **8 of 10 ticks clipped**, and
+«دیسک چرخ ام‌وی‌ام 33X عقب» and «… 33X جلو» both cut to 108px and rendered as
+the same text. Two different parts, two different prices, one string on
+screen.
+
+The truncation is gone. A marquee has no horizontal constraint to respect in
+the first place — a longer title just makes the tape longer, which widens the
+copy and makes the covering arithmetic *safer*. Measured: copyWidth at 390 went
+2819 → 2994px.
+
 ---
 
 ## 10. Copy rules
