@@ -1257,7 +1257,7 @@ def home(all_p, groups):
   </div>
   <div class="wrap">
     <div class="bb-lede">
-      <h1 id="bb-h">قیمت روز قطعات ترمز خودروهای چینی</h1>
+      <h1 id="bb-h">قیمت قطعات چینی</h1>
       <p class="sub">{e(SUPPLIER["claim_fa"])}. لنت ترمز، دیسک و کاسه چرخ —
         با قیمت روز و تاریخ ثبت، برای {to_fa_digits(len(groups))} برند خودرو.</p>
 
