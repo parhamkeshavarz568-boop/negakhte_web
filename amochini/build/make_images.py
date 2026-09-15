@@ -43,7 +43,6 @@ PLAN = {
     # a 400px one — 11.7 KB to fill 40 pixels.
     "cat-brake-pads":  [80, 160, 320, 400],
     "cat-brake-discs": [80, 160, 320, 400],
-    "cat-headlight":   [160, 320, 400],
     # A tight, darkened crop of the plain-disc studio shot. There is no real
     # کاسه چرخ photo, and the untouched white-cloth original sat beside two
     # dark studio photos in the same three-card row, which read as a

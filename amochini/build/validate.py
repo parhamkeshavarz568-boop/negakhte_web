@@ -164,6 +164,30 @@ def main():
     else:
         info.append("0 orphan pages — every product is linked from somewhere")
 
+    # --- orphan image renditions -------------------------------------------
+    # make_images.py only sweeps rendition names that are in its own PLAN, so
+    # RENAMING a rendition orphans every file of the old name: they stay in
+    # public/, stay in git, and ship. That is how nine brake-lights-* files
+    # and three cat-headlight-* files survived the two renames before this
+    # check existed. Renaming is the common case, so the sweep cannot be
+    # trusted to notice — the built output has to be asked instead.
+    imgdir = os.path.join(OUT, "assets", "img")
+    families = set()
+    for f in os.listdir(imgdir):
+        m = re.match(r"(.+)-\d+\.(avif|webp|jpg|png)$", f)
+        if m:
+            families.add(m.group(1))
+    referenced = "".join(
+        open(os.path.join(d, f), encoding="utf-8", errors="ignore").read()
+        for d, _, fs in os.walk(OUT) for f in fs
+        if f.endswith((".html", ".json", ".css", ".xml")))
+    stale = sorted(n for n in families if f"{n}-" not in referenced)
+    if stale:
+        errors.append(f"{len(stale)} ORPHAN image rendition(s) shipping in "
+                      f"public/ that no page references: {stale}")
+    else:
+        info.append(f"{len(families)} image rendition families, all referenced")
+
     # --- sitemap agrees with what exists ---
     sm = open(os.path.join(OUT, "sitemap.xml"), encoding="utf-8").read()
     locs = re.findall(r"<loc>(.*?)</loc>", sm)
