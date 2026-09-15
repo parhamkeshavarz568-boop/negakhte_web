@@ -190,7 +190,8 @@ reflowed every heading and put the home page at CLS 0.001 instead of 0.
 | scroll-height drift | **0 px** on all 24 |
 | LCP | 40–156 ms, all 24 |
 | horizontal overflow at 375 / 768 / 1440 | **none** — `scrollWidth == innerWidth` at every width |
-| heaviest first load | **148.5 KB** against a 150 KB budget (desktop home, carrying the board band); mobile home 138.9 KB |
+| heaviest first load | **161.8 KB** desktop home against a 170 KB budget; **137.1 KB** mobile home against 150 |
+| why two budgets | 150 KB exists for an Iranian mobile connection and mobile keeps it. Desktop at DPR 2 asks a 1440px band for a 2880px image; capping renditions to fit one shared number shipped a visibly soft hero and the owner caught it. `measure_weight.py` now holds one budget per viewport. |
 | Vazirmatn subset | **54.3 KB**, down from 57.1 — the weight axis is instanced to wght 200–800, the range DESIGN.md §4 allows. Every page. |
 | WCAG AA text contrast, 8 pages × 2 viewports, computed against the real ground | **0 failures** |
 | WCAG AA text contrast over the board band's photograph, 4 widths, worst pixel per text box (`build/check_contrast.py`) | **0 failures** — worst 10.25∶1 |

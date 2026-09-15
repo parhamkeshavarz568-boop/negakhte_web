@@ -479,6 +479,11 @@ bdi{unicode-bidi:isolate}
    desktop composition nothing. */
 .bb-photo img{width:100%;height:100%;object-fit:cover;display:block;
   object-position:32% 50%}
+/* Below 700px the <picture> switches to a different photograph — a close-up
+   of a disc and caliper, already framed for this box (2.18:1 against the
+   band's 2.2:1). It needs no steering, so the offset above is switched off
+   rather than left to nudge a frame that has nothing spare to give. */
+@media (max-width:699px){ .bb-photo img{object-position:50% 50%} }
 /* The two side seams, where a capped photograph meets the board. Overlays
    rather than a second mask layer: mask-composite support is patchier than
    this needs to be for two gradients. Below 1600 the band is full-bleed and

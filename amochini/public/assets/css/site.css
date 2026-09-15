@@ -346,6 +346,8 @@ bdi{unicode-bidi:isolate}
 .bb-photo img{width:100%;height:100%;object-fit:cover;display:block;
   object-position:32% 50%}
 
+@media (max-width:699px){ .bb-photo img{object-position:50% 50%} }
+
 .bb-photo::before,.bb-photo::after{
   content:"";position:absolute;inset-block:0;width:6%;z-index:2;
   pointer-events:none;

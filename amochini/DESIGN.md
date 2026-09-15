@@ -569,13 +569,29 @@ from the vendored source so the recipe stays reviewable:
 - The `17vw` middle term is not decoration. A **fixed** height was tried;
   measured at 1920 it had zoomed to a close-up, because with `cover` every
   extra pixel of width is paid for by cropping tighter.
-- **`object-position: 32% 50%`.** A phone shows about half the frame's width,
-  and the *centred* half is the oil filter and the air filter — a dark blur
+- **A phone gets a different photograph, not a crop of this one.** Half of a
+  group shot is a group shot with the ends cut off. The owner supplied a
+  contact sheet of closer frames from the same shoot, and `board-band-sm` is
+  the one that reads as a brake shop in a single glance: a slotted disc and a
+  caliper. At 740×340 it is 2.18∶1 against the phone band's 2.2∶1, so there is
+  almost nothing to crop, and 740 is exactly what a 375px band wants at DPR 2.
+  It is also **smaller than the wide frame's phone rendition** — the phone
+  gets a sharper, better-composed band for fewer bytes (138.9 → 137.1 KB).
+  Switched with `<source media="(max-width:699px)">` in `picture(art=…)`.
+- **In the close-up the sign could be fixed rather than hidden.** At that
+  distance the two halves read apart: «شماره» is set in **white** and
+  «عمو چینی» in amber. Removing only the white word leaves the shop's actual
+  name, in its own colour, correctly spelled — the wall behind is flat unlit
+  texture, cloned from 78px below. The wide frame had no such luck, which is
+  why there the sign is cropped away instead.
+- **`object-position: 32% 50%`** on the wide frame. Where it *is* cropped —
+  tablets — the centred half is the oil filter and the air filter, a dark blur
   that says nothing about what this shop sells. The disc, caliper and pad set
   sit between 18% and 40%, so the crop is pulled onto them. Above ~1000px the
   band is wider in ratio than the photograph and `cover` crops vertically
   instead, where the x value does nothing, so this costs the desktop
-  composition exactly nothing.
+  composition exactly nothing. It is switched back to 50% below 700px, where
+  the close-up needs no steering.
 - Capped at `max-width: 1600px`. Past that the widest rendition (1200px) is
   stretched more than a third and softens. Two
   `linear-gradient(var(--board), transparent)` seams over the outer 6% hide
@@ -602,18 +618,25 @@ from the vendored source so the recipe stays reviewable:
   the files at 1∶1 would have bought fidelity nobody can see. All four are
   indistinguishable, with no blocking in the pad texture or the floor
   reflections. q=38 is the cheapest with headroom, 13.1 KB.
-- **This frame costs real bytes and they were found, not waved through.** At
-  the previous settings the desktop home page came to 177.6 KB against a
-  150 KB budget. Three changes, in order of how legitimate they are:
-  the crop (4.03∶1 → 4.88∶1, stop shipping rows `cover` discards); the
-  quality, chosen as above; and the **weight axis** — Vazirmatn shipped
-  `wght 100–900` while §4 allows three weights and nothing on the site
-  requests outside 200–800, so the subset is now instanced to that range,
-  57.1 → 54.3 KB on **every page**. Desktop home **148.5 KB**, mobile
-  **138.9 KB**.
-- The widest rendition is 1200px, down from 1600. At a 1600px band that is a
-  1.33× stretch on a photograph with heavy bokeh, which is the right trade for
-  13 KB.
+- **This frame costs real bytes.** Most were found, one was conceded, and the
+  difference is written down. Found: the crop (4.03∶1 → 4.88∶1, stop shipping
+  rows `cover` discards); the quality, chosen as above; the art-directed phone
+  frame; and the **weight axis** — Vazirmatn shipped `wght 100–900` while §4
+  allows three weights and nothing on the site requests outside 200–800, so
+  the subset is instanced to that range, 57.1 → 54.3 KB on **every page**.
+  Conceded: the budget is now **per viewport** — mobile 150 KB, desktop 170 —
+  because they were never the same constraint. 150 exists for an Iranian
+  mobile connection and mobile still meets it with room (**137.1 KB**).
+  Desktop at DPR 2 asks a 1440px band for a 2880px image and gets the full
+  1855px rendition; those users are on fixed lines. **161.8 KB.** The next
+  real saving is the other 73.9 KB of the base: two webfonts.
+- **Renditions go to the source's own width, 1855px.** They were capped at
+  1200 for one build, to fit a single shared byte budget, and the owner caught
+  it in one look: *"the quality here is not really great, the image is
+  blurry."* They were right — the band renders up to 1600 CSS px, so a 1200px
+  file is stretched a third on a wide screen and much worse on a HiDPI one.
+  **Saving 13 KB by shipping a visibly soft hero is not a saving**, and the
+  budget was the thing that had to give.
 - CLS **0.000** on all 24 page/viewport combinations — the declared height
   reserves the box before the image decodes.
 - The image is decorative: `alt=""` and `aria-hidden="true"`. The headline

@@ -41,6 +41,21 @@
   ],
   "ar": 1.0
  },
+ "board-band": {
+  "widths": [
+   600,
+   900,
+   1200,
+   1600,
+   1855
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 0.20485175202156333
+ },
  "disc-plain": {
   "widths": [
    80,
@@ -56,19 +71,6 @@
   ],
   "ar": 1.0
  },
- "board-band": {
-  "widths": [
-   600,
-   900,
-   1200
-  ],
-  "formats": [
-   "avif",
-   "jpg",
-   "webp"
-  ],
-  "ar": 0.205
- },
  "disc-slotted": {
   "widths": [
    80,
@@ -83,6 +85,19 @@
    "webp"
   ],
   "ar": 1.0
+ },
+ "board-band-sm": {
+  "widths": [
+   370,
+   560,
+   740
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 0.4594594594594595
  },
  "cat-brake-drums": {
   "widths": [

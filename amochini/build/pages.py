@@ -86,7 +86,7 @@ def img_w(name, want):
     return max(ok) if ok else min(sizes)
 
 
-def picture(name, *, alt, box, sizes=None, eager=False, cls=""):
+def picture(name, *, alt, box, sizes=None, eager=False, cls="", art=None):
     """A three-format <picture>.
 
     AVIF -> WebP -> JPEG, in that order: the browser takes the first type it
@@ -100,6 +100,16 @@ def picture(name, *, alt, box, sizes=None, eager=False, cls=""):
     `eager` must be True for anything in the first viewport: loading="lazy" on
     an above-the-fold image defers its request until after layout and directly
     delays LCP.
+
+    `art` art-directs: [(media, name, box, sizes), ...], offered BEFORE the
+    default sources, so a narrow screen can be given a different CROP of the
+    subject rather than a squeezed version of the wide one. <picture> takes
+    the first <source> whose media matches and whose type it supports, so the
+    narrow entries have to come first and each needs its own element per
+    format. The intrinsic ratios may differ between entries: the only caller
+    fixes the box's height in CSS, so layout does not depend on them and
+    there is no CLS risk — a caller that sizes from the image's own ratio
+    would have to think about this again.
     """
     meta = _img_meta().get(name, {})
     widths = meta.get("widths") or [box]
@@ -110,6 +120,18 @@ def picture(name, *, alt, box, sizes=None, eager=False, cls=""):
     srcset = lambda ext: ", ".join(
         f"/assets/img/{name}-{w}.{ext} {w}w" for w in use)
     src = []
+    for media, aname, abox, asizes in (art or []):
+        ameta = _img_meta().get(aname, {})
+        awidths = ameta.get("widths") or [abox]
+        ause = [w for w in awidths if w <= abox * 2] or [min(awidths)]
+        for ext, mime in (("avif", "image/avif"), ("webp", "image/webp")):
+            if ext in (ameta.get("formats") or []):
+                ss = ", ".join(f"/assets/img/{aname}-{w}.{ext} {w}w" for w in ause)
+                src.append(f'<source media="{media}" type="{mime}" srcset="{ss}"'
+                           + (f' sizes="{asizes}"' if asizes else "") + ">")
+        ss = ", ".join(f"/assets/img/{aname}-{w}.jpg {w}w" for w in ause)
+        src.append(f'<source media="{media}" srcset="{ss}"'
+                   + (f' sizes="{asizes}"' if asizes else "") + ">")
     for ext, mime in (("avif", "image/avif"), ("webp", "image/webp")):
         if ext in formats:
             src.append(f'<source type="{mime}" srcset="{srcset(ext)}"'
@@ -1229,8 +1251,9 @@ def home(all_p, groups):
 
 <section class="board-band bb-split bb-lit" aria-labelledby="bb-h">
   <div class="bb-photo" aria-hidden="true">
-    {picture("board-band", alt="", box=1200, eager=True,
-             sizes="(min-width:1200px) 1200px, 100vw")}
+    {picture("board-band", alt="", box=1600, eager=True,
+             sizes="(min-width:1600px) 1600px, 100vw",
+             art=[("(max-width:699px)", "board-band-sm", 740, "100vw")])}
   </div>
   <div class="wrap">
     <div class="bb-lede">

@@ -208,7 +208,8 @@ Photographs supplied by the owner, vendored at
 
 | file | used | where |
 |---|---|---|
-| `hero-parts.png` | **yes** | cut and graded to `board-band`, opening the board band (DESIGN.md §14.4) |
+| `hero-parts.png` | **yes** | cut and graded to `board-band`, the band at 700px and up (DESIGN.md §14.4) |
+| `hero-tiles.png` | **yes** | a contact sheet of six closer frames; the caliper frame becomes `board-band-sm`, the band below 700px |
 | `hongqi-h9.jpg` | no | a Hongqi H9+ on a bright studio ground — see below |
 | `headlights-amber-on-black.jpg` | no | was the band two frames ago; soft, and the lighting read as baked in |
 | `headlights-white-bmw.jpg` | no | recognisable BMW front end |
@@ -226,7 +227,10 @@ places. The shop is «عمو چینی». The build deals with both kinds:
 - the **wall sign**, the only one large enough to read at band size, is
   outside the crop;
 - the three small repeats, on a box, an oil filter and the battery, are
-  softened to unreadable in `_board_band()`.
+  softened to unreadable in `_board_band()`;
+- in the close-up used below 700px the sign is near enough to read the halves
+  apart — «شماره» is white, «عمو چینی» amber — so `_board_band_sm()` removes
+  only the white word and the sign ends up **correct** rather than hidden.
 
 **This is a symptom, not the problem.** A photograph whose own text does not
 spell the shop's name is very likely generated rather than taken, and the

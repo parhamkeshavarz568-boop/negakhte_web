@@ -50,7 +50,15 @@ PLAN = {
     "cat-brake-drums": [80, 160, 320, 400],
     # The band that opens the board (DESIGN.md §14.4). Derived, not a file on
     # disk — see _board_band() below.
-    "board-band":      [600, 900, 1200],
+    # Up to the source's own width. 1200 was the ceiling for one build and
+    # the owner caught it immediately: the band renders up to 1600 CSS px, so
+    # a 1200px file is stretched a third on a wide screen and twice that on a
+    # HiDPI one. Saving 13 KB by shipping a visibly soft hero is not a saving.
+    "board-band":      [600, 900, 1200, 1600, 1855],
+    # The phone's own frame — see _board_band_sm(). 740 is the source's width
+    # and a 375px band at DPR 2 wants 750, so this is as close to exact as an
+    # art-directed crop gets.
+    "board-band-sm":   [370, 560, 740],
     "disc-drilled":    [80, 160, 400, 600, 700],
     "disc-slotted":    [80, 160, 400, 600, 700],
     "disc-plain":      [80, 160, 400, 600, 700],
@@ -140,15 +148,70 @@ def _board_band():
     for box in BAND_WORDMARKS:
         _soften(im, box)
     im = im.crop(BAND_CROP)
+    return im.point(_band_lut())
+
+
+def _band_lut():
+    """Gamma + mix toward --board, per channel. Both band frames share it, so
+    the phone's close-up and the desktop's wide shot cannot drift apart."""
     lut = []
     for floor in BOARD_RGB:
         lut += [min(255, int(floor + (1 - BAND_MIX)
                              * (v / 255.0) ** BAND_GAMMA * (255 - floor) + .5))
                 for v in range(256)]
-    return im.point(lut)
+    return lut
 
 
-PREP = {"board-band": _board_band}
+# --------------------------------------------------------------------------
+#  board-band-sm — the phone's frame, art-directed rather than cropped.
+# --------------------------------------------------------------------------
+#  A phone shows about half the wide frame's width, and half of a group shot
+#  is a group shot with the ends cut off: recognisable to someone who already
+#  knows what it is, and mush to everyone else. The owner supplied a contact
+#  sheet of closer frames from the same shoot; this is the one that is a brake
+#  shop in a single glance — a slotted disc and a caliper, with the wall sign
+#  behind. At 740x340 it is 2.18:1 against the phone band's 2.2:1, so there is
+#  almost nothing to crop, and 740 is what a 375px band wants at DPR 2. It is
+#  also SMALLER than the wide frame's phone rendition, so the phone gets a
+#  sharper and better-composed band for fewer bytes.
+#
+#  THE SIGN IS RETOUCHED, and here it can be done properly rather than hidden.
+#  In the wide frame the wrong string had to be cropped or blurred away; in
+#  this one the sign is close enough to read the two halves apart — «شماره» is
+#  set in WHITE and «عمو چینی» in amber. Removing only the white word leaves
+#  the shop's actual name, in its own colour, correctly spelled. The gap is
+#  filled by cloning wall from 78px below, which is flat unlit texture.
+SM_TILE = (932, 0, 1672, 340)      # the caliper frame in the contact sheet
+SM_WRONG_WORD = (583, 183, 722, 247)   # «شماره», in tile coordinates
+SM_CLONE_DY = 78                   # clean wall, straight down
+
+
+def _clone_over(im, box, dy, feather=7):
+    """Cover `box` with wall cloned from `dy` pixels below, feathered in."""
+    from PIL import ImageDraw
+    x0, y0, x1, y1 = box
+    pad = feather * 2
+    outer = (x0 - pad, y0 - pad, x1 + pad, y1 + pad)
+    canvas = im.crop(outer).copy()
+    canvas.paste(im.crop((x0, y0 + dy, x1, y1 + dy))
+                   .filter(ImageFilter.GaussianBlur(1.2)), (pad, pad))
+    canvas = canvas.filter(ImageFilter.GaussianBlur(0.6))
+    mask = Image.new("L", (outer[2] - outer[0], outer[3] - outer[1]), 0)
+    ImageDraw.Draw(mask).rectangle(
+        (pad, pad, pad + (x1 - x0), pad + (y1 - y0)), fill=255)
+    im.paste(canvas, outer[:2], mask.filter(ImageFilter.GaussianBlur(feather)))
+    return im
+
+
+def _board_band_sm():
+    im = Image.open(os.path.join(SRC, "supplied", "hero-tiles.png")).convert("RGB")
+    assert im.size == (1672, 941), f"contact sheet changed: {im.size}"
+    im = im.crop(SM_TILE)
+    _clone_over(im, SM_WRONG_WORD, SM_CLONE_DY)
+    return im.point(_band_lut())
+
+
+PREP = {"board-band": _board_band, "board-band-sm": _board_band_sm}
 
 
 def main():
@@ -175,7 +238,7 @@ def main():
             h = max(1, round(oh * w / ow))
             r = im.resize((w, h), Image.LANCZOS)
             q = (Q_HERO if name.startswith("hero")
-                 else Q_BAND if name == "board-band"
+                 else Q_BAND if name.startswith("board-band")
                  else Q)
             made = {}
             if HAVE_AVIF:
