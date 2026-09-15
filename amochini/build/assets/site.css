@@ -431,12 +431,20 @@ bdi{unicode-bidi:isolate}
 .tick.t-flat .tick-delta{color:var(--chalk)}
 
 @media (prefers-reduced-motion:reduce){
-  /* No animation — but the track must KEEP width:max-content, or as a flex
-     item it shrinks to the window and the remaining items become
-     unreachable. Measured: with width:auto the window reported
-     scrollWidth == clientWidth, so reduced-motion users saw 3 of 20 items
-     and could not scroll to the rest. It is now a plain swipeable strip, and
-     the duplicate half is dropped so nobody scrolls the same products twice. */
+  /* No animation — a plain swipeable strip, with the repeats dropped so
+     nobody swipes past the same products twice.
+       The track KEEPS width:max-content, and the reason recorded here used
+     to be reduced-motion reachability: with width:auto the track shrank to
+     the window and stranded items nobody could scroll to. That justification
+     went stale the moment the ticks stopped being focusable (see ticker()'s
+     docstring) — but the DECLARATION is more load-bearing than ever, for a
+     different reason, and the comment is corrected rather than deleted
+     precisely so nobody removes the line while trusting an obsolete note.
+       The real reason now: translateX(calc(-100% / var(--copies))) is a
+     percentage of the TRACK. With width:auto the track collapses to the
+     window, so measured it travels ~92px per cycle instead of ~2994px and
+     the marquee visibly stops working — for the default, non-reduced-motion
+     majority, not for the users this block is about. */
   .ticker-track{animation:none;width:max-content}
   .ticker-win{overflow-x:auto;scrollbar-width:thin}
   /* data-dup, not [aria-hidden]: every tick is aria-hidden now (the strip is
