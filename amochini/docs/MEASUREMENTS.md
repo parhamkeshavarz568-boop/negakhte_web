@@ -194,7 +194,7 @@ reflowed every heading and put the home page at CLS 0.001 instead of 0.
 | why two budgets | 150 KB exists for an Iranian mobile connection and mobile keeps it. Desktop at DPR 2 asks a 1440px band for a 2880px image; capping renditions to fit one shared number shipped a visibly soft hero and the owner caught it. `measure_weight.py` now holds one budget per viewport. |
 | Vazirmatn subset | **54.3 KB**, down from 57.1 — the weight axis is instanced to wght 200–800, the range DESIGN.md §4 allows. Every page. |
 | WCAG AA text contrast, 8 pages × 2 viewports, computed against the real ground | **0 failures** |
-| WCAG AA text contrast over the board band's photograph, 4 widths, worst pixel per text box (`build/check_contrast.py`) | **0 failures** — worst 10.25∶1 |
+| WCAG AA text contrast over the two photographs text sits on, 6 widths, worst pixel per text box (`build/check_contrast.py`) | **0 failures** — worst 5.44∶1, the closing band's paragraph at exactly 1200px |
 | WCAG 2.5.8 target size (24×24, inline-text exemption applied) | **0 failures** |
 
 Today's figure clears the fold on a 375×667 iPhone SE: the tape lands at

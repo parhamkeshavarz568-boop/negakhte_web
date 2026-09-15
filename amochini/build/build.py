@@ -137,6 +137,21 @@ def main():
     for must in ("--board:#1a150f", ".bb-photo{", "@keyframes tick-pulse",
                  ".lattice > *{", ".board-band"):
         assert must in stripped, f"comment strip broke the stylesheet: {must!r}"
+    # The grey-block bug, refused at the source. Drawing a grid's rules as a
+    # --rule BACKGROUND showing through a 1px gap looks identical to .lattice
+    # until a row is short, and then the empty trailing slots paint as solid
+    # grey rectangles. It has been found and "fixed" three times — under the
+    # category grid, under the brand grid, and under the stat band, where a
+    # more specific rule kept it alive after the markup had moved to .lattice.
+    # Borders belong to cells. Nothing in this stylesheet may do it the other
+    # way; if a grid genuinely needs a coloured ground, give it its own token
+    # and update this guard deliberately.
+    for rule in re.findall(r"[^{}]*\{[^{}]*\}", stripped):
+        flat = rule.replace(" ", "").replace("\n", "")
+        if "gap:1px" in flat and "background:var(--rule)" in flat:
+            raise AssertionError(
+                "grey-block pattern is back — a 1px gap over a --rule "
+                f"background. Use .lattice instead:\n{rule.strip()[:200]}")
     write("assets/css/site.css", stripped)
     shutil.copy(os.path.join(HERE, "assets", "site.js"),
                 os.path.join(OUT, "assets", "js", "site.js"))

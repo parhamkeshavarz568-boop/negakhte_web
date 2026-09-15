@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Worst-case text contrast over the board band's photograph.
+Worst-case text contrast over the two photographs text sits on.
 
     cd amochini/public && python3 -m http.server 8907 &
     PORT=8907 python3 build/check_contrast.py
 
 Every other surface on this site is a flat token, so its contrast is a
-property of the palette and is settled in DESIGN.md §2. The board band is the
-one place where text sits over a PHOTOGRAPH (§14.4), and there the ground is
-different under every glyph. Reasoning about it is not good enough.
+property of the palette and is settled in DESIGN.md §2. Two bands put text
+over a PHOTOGRAPH — the board's (§14.4) and the closing band's (§14.9) — and
+there the ground is different under every glyph. Reasoning about it is not
+good enough.
 
 Method: hide the band's text, screenshot the bare ground, then read the
 BRIGHTEST pixel inside each text box — the worst ground any glyph in that box
@@ -28,7 +29,12 @@ from PIL import Image
 PORT = os.environ.get("PORT", "8907")
 BASE = f"http://localhost:{PORT}"
 CHROME = os.environ.get("CHROME", "/opt/pw-browsers/chromium")
-VIEWPORTS = [(375, 812), (768, 1024), (1440, 900), (1920, 1080)]
+# 1000 is the breakpoint where the closing band switches from a stacked
+# picture to an overlaid one, so it is measured from both sides of it.
+# 1200 is where the closing band switches from a stacked picture to an
+# overlaid one, so it is measured from both sides of that line.
+VIEWPORTS = [(375, 812), (768, 1024), (1199, 900), (1200, 900),
+             (1440, 900), (1920, 1080)]
 AA = 4.5
 
 # selector, the element's own colour, label. Colours are the §2 tokens the
@@ -41,6 +47,20 @@ TARGETS = [
     (".fb-value",          "#f2f5f7", "figure        --paper"),
     (".bb-th",             "#f2f5f7", "table heading --paper"),
 ]
+CLOSING = [
+    ("#lb-h",              "#f2f5f7", "closing h2    --paper"),
+    (".lamp-band p",       "#a8a49f", "closing text  --chalk"),
+    (".lamp-band .wa",     "#f2f5f7", "whatsapp btn  --paper"),
+]
+# Two passes, because the two bands are never on screen together and a
+# screenshot only holds what is. Scrolling to the closing band to measure it
+# took the board band off-screen, and the check reported five "off-screen"
+# rows as though that were fine — silently measuring nothing is the one thing
+# a check must not do. Each pass scrolls to its own band; its photograph is
+# lazy, so it also has to be given time to decode or the ground reads as bare
+# board and everything passes.
+PASSES = [(TARGETS, None, ".board-band .wrap *"),
+          (CLOSING, ".lamp-band", ".lb-body *")]
 
 
 def _lin(c):
@@ -72,22 +92,29 @@ def main():
         for w, h in VIEWPORTS:
             page = br.new_page(viewport={"width": w, "height": h})
             page.goto(BASE + "/", wait_until="networkidle")
-            boxes = {}
-            for sel, _, _ in TARGETS:
+            for targets, scroll_to, hide in PASSES:
+              if scroll_to:
+                page.query_selector(scroll_to).scroll_into_view_if_needed()
+                page.wait_for_timeout(700)
+              boxes = {}
+              for sel, _, _ in targets:
                 el = page.query_selector(sel)
                 boxes[sel] = el.bounding_box() if el else None
-            # Hide the text, keep the layout: the photograph and the band must
-            # not move, or the boxes measured above stop meaning anything.
-            page.add_style_tag(
-                content=".board-band .wrap *{visibility:hidden!important}")
-            shot = os.path.join(shots, f"bare-{w}.png")
-            page.screenshot(path=shot)
-            page.close()
-            im = Image.open(shot).convert("RGB")
-            for sel, fg, label in TARGETS:
+              # Hide the text, keep the layout: the photograph and the band
+              # must not move, or the boxes measured above stop meaning
+              # anything. The style tag is removed again so the next pass
+              # measures a page that still has its text in it.
+              handle = page.add_style_tag(
+                  content=hide + "{visibility:hidden!important}")
+              shot = os.path.join(shots, f"bare-{w}-{len(rows)}.png")
+              page.screenshot(path=shot)
+              page.evaluate("(el)=>el.remove()", handle)
+              im = Image.open(shot).convert("RGB")
+              measured = 0
+              for sel, fg, label in targets:
                 bb = boxes[sel]
-                if not bb or bb["y"] >= h:
-                    rows.append((w, label, "—", None, "below the fold"))
+                if not bb or bb["y"] >= h or bb["y"] + bb["height"] <= 0:
+                    rows.append((w, label, "—", None, "off-screen"))
                     continue
                 x0, y0 = max(0, int(bb["x"])), max(0, int(bb["y"]))
                 x1 = min(im.width, int(bb["x"] + bb["width"]))
@@ -98,8 +125,13 @@ def main():
                 worst = max(list(im.crop((x0, y0, x1, y1)).convert("RGB").getdata()), key=luminance)
                 r = ratio(rgb(fg), worst)
                 rows.append((w, label, "#%02x%02x%02x" % worst, r, ""))
+                measured += 1
                 if r < AA:
                     fails.append((w, label, r))
+              # A pass that measured nothing measured nothing; it did not pass.
+              if not measured:
+                fails.append((w, f"NO BOX MEASURED in pass {hide!r}", 0.0))
+            page.close()
         br.close()
 
     print(f"{'vw':>5s}  {'element':22s} {'worst ground':>13s} {'ratio':>7s}")

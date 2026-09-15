@@ -99,6 +99,19 @@
   ],
   "ar": 0.4594594594594595
  },
+ "headlamps": {
+  "widths": [
+   600,
+   900,
+   1200
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 0.625
+ },
  "cat-brake-drums": {
   "widths": [
    80,

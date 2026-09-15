@@ -756,3 +756,71 @@ after it first went to 150.8.
 **The wordmark stays as text** beside it. The link needs an accessible name,
 the brand needs to be selectable and searchable, and the mark carries `alt=""`
 because the name is right there.
+
+### 14.9 — The closing band
+
+A second full-bleed dark section at the foot of the home page, carrying a
+photograph of two lit clusters in near-total black, a one-line promise, and
+the two ways to buy.
+
+**Bends:** §8, directly and without much cover. §8 says the board is the
+signature and **nothing else on the site may be dark**. This is dark.
+
+**Why it is allowed.**
+
+The page had no ending. It ran prices, categories, a product strip, sixteen
+brands, an FAQ, and then stopped. Everything above is browsing; nothing asked
+for the order. On a shop whose entire transaction happens on the telephone,
+the last thing on the page should be the telephone.
+
+And the exception is bounded in a way that keeps §8's point intact. There is
+exactly one other dark band, it is the **last** thing before the footer, and
+it carries no prices, no products and no navigation — so it never competes
+with the board for the same job. The board is where the numbers live; this is
+where the page ends. Two dark bands bracketing a page of paper is a frame.
+Three would be a theme, and then §8 would be gone for real.
+
+**The honest cost.** The board is a little less singular than it was. That is
+a real price and it was paid on purpose, at the owner's request, for an
+ending the page genuinely lacked.
+
+**Engineering notes.**
+
+- The photograph is a **ground, not a picture in a box**: absolutely
+  positioned, `cover`, behind content that carries its own padding. The
+  section is sized by its text, so it cannot collapse if the image fails and
+  cannot shift when the image arrives — the layer has no effect on layout.
+- `_headlamps()` changes one thing about the frame: it lifts the black floor
+  to `--board`. The photograph's black is a true black and the band's is
+  `#1a150f`, so untouched it read as a slightly colder rectangle sitting *on*
+  the section rather than as the section's own dark. The lamps are untouched.
+- **Below 1200px the photograph stops being a ground and becomes a band.**
+  `cover` crops harder the narrower the viewport, and the lamps travel
+  *inward* until they are behind the words — measured, `--chalk` landed at
+  **1.06∶1** at 375, 2.59 at 1000 and 3.84 at 1100. The threshold is swept,
+  not guessed: 1200 is the first width where the overlay clears AA (5.44),
+  reaching 7.32 by 1440. No amount of darkening
+  fixes that without putting the lamps out too, and a band whose lamps are
+  hidden is not this band. So below the breakpoint the two stop overlapping:
+  the picture sits above the text and fades into the board at its lower edge,
+  the way the board's own band does. Same elements, same order, one markup
+  path.
+- **Above it, a vignette.** A `radial-gradient` of `--board` to `transparent`
+  darkens the middle where every word is and reaches transparent before the
+  edges where the lamps live. Sized against the measurement, not by eye: at
+  58% wide it held contrast but reached so far that the lamps were two faint
+  ghosts and the band read as an empty black stripe; at 38% the paragraph
+  drops to 4.97∶1. 44% is the narrowest that keeps `--chalk` on pure
+  `--board`. No colour and no alpha value, so §2 still holds.
+- `.lb-body` is capped at **38rem**, not the wrap's 1180px. At 46rem the
+  paragraph reached the right-hand lamp.
+- `build/check_contrast.py` now runs **two passes**, one per band, because the
+  two are never on screen together and a screenshot only holds what is.
+  Scrolling to this band to measure it took the board band off-screen and the
+  check reported five rows as "off-screen" as though that were fine; a pass
+  that measures nothing now fails. Six widths, including both sides of the
+  1200px breakpoint. Worst box on this band: **5.44∶1**, at 1200 itself.
+- The filled `.wa` button is `--board` on `--board` — invisible. Both dark
+  bands take the outlined variant; that rule used to name only `.board-band`.
+- 2.0–5.4 KB across its renditions, and it is below the fold on every
+  viewport, so it is lazy and costs the first load nothing.

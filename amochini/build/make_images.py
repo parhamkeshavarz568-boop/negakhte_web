@@ -59,6 +59,9 @@ PLAN = {
     # and a 375px band at DPR 2 wants 750, so this is as close to exact as an
     # art-directed crop gets.
     "board-band-sm":   [370, 560, 740],
+    # The closing band's ground — see _headlamps(). Near-black edge to edge,
+    # so it costs almost nothing at any width.
+    "headlamps":       [600, 900, 1200],
     "disc-drilled":    [80, 160, 400, 600, 700],
     "disc-slotted":    [80, 160, 400, 600, 700],
     "disc-plain":      [80, 160, 400, 600, 700],
@@ -211,7 +214,28 @@ def _board_band_sm():
     return im.point(_band_lut())
 
 
-PREP = {"board-band": _board_band, "board-band-sm": _board_band_sm}
+# --------------------------------------------------------------------------
+#  headlamps — the closing band's ground (DESIGN.md §14.9).
+# --------------------------------------------------------------------------
+#  Two lit clusters in near-total black. It needs no crop and no grade beyond
+#  one thing: the photograph's black is a true black and the board's is
+#  #1a150f, so laid on the band as-is it reads as a slightly different, colder
+#  rectangle sitting ON the section rather than as the section's own dark.
+#  Lifting its floor to --board fixes that, and nothing else is touched — the
+#  lamps stay exactly as photographed.
+def _headlamps():
+    im = Image.open(os.path.join(SRC, "supplied",
+                                 "headlights-white-bmw.jpg")).convert("RGB")
+    assert im.size == (1200, 750), f"source frame changed: {im.size}"
+    lut = []
+    for floor in BOARD_RGB:
+        lut += [min(255, int(floor + (v / 255.0) * (255 - floor) + .5))
+                for v in range(256)]
+    return im.point(lut)
+
+
+PREP = {"board-band": _board_band, "board-band-sm": _board_band_sm,
+        "headlamps": _headlamps}
 
 
 def main():

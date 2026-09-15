@@ -212,7 +212,7 @@ Photographs supplied by the owner, vendored at
 | `hero-tiles.png` | **yes** | a contact sheet of six closer frames; the caliper frame becomes `board-band-sm`, the band below 700px |
 | `hongqi-h9.jpg` | no | a Hongqi H9+ on a bright studio ground — see below |
 | `headlights-amber-on-black.jpg` | no | was the band two frames ago; soft, and the lighting read as baked in |
-| `headlights-white-bmw.jpg` | no | recognisable BMW front end |
+| `headlights-white-bmw.jpg` | **yes** | the closing band's ground (DESIGN.md §14.9). Two lit clusters in near-total black — no badge, no wordmark, no visible body, so the earlier "recognisable BMW front end" note overstated it; what ships is a light signature |
 | `bmw-m3-daylight.jpg` | no | BMW M3, roundel and grille centre-frame |
 | `challenger-burnout.jpg` | no | Challenger, SRT badge, 735px wide — too small to use |
 

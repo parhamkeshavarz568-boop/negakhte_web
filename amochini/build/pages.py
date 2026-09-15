@@ -1029,6 +1029,36 @@ def ticker(prods):
 </section>'''
 
 
+def headlamp_band():
+    """The closing band — DESIGN.md §14.9.
+
+    The page opens on the board and closes here, and this is the only other
+    dark thing on the site. It is a call, not decoration: after 130 prices and
+    sixteen brands, the last thing on the page should be how to buy, and until
+    now the page simply stopped at the FAQ.
+
+    The photograph is two lit clusters in near-total black. The lamps sit at
+    15% and 78% of the frame, so at every width they fall either side of the
+    centred text rather than behind it — the middle of this picture is pure
+    black, which is the best ground a paragraph can ask for.
+    """
+    wa = SOCIAL.get("whatsapp") or CONTACT["whatsapp"]
+    photo = picture("headlamps", alt="", box=1200, sizes="100vw")
+    tel = e(CONTACT["phone_tel"])
+    return f"""<section class="lamp-band" aria-labelledby="lb-h">
+  <div class="lb-photo" aria-hidden="true">{photo}</div>
+  <div class="wrap lb-body">
+    <h2 id="lb-h">قطعه اصل، ترمز مطمئن</h2>
+    <p>قیمت را تلفنی تأیید کنید و همان روز سفارش بگذارید.
+       ارسال به سراسر ایران، با تضمین اصالت و امکان مرجوعی.</p>
+    <div class="cta">
+      <a class="call" href="tel:{tel}">تماس تلفنی</a>
+      <a class="wa" href="https://wa.me/{e(wa)}" rel="noopener" target="_blank">گفتگو در واتساپ</a>
+    </div>
+  </div>
+</section>"""
+
+
 def stat_band(all_p, groups):
     """Four numbers that establish scale and freshness. Not a chart — a KPI
     row of plain figures is the right form for a handful of headline values,
@@ -1317,6 +1347,8 @@ def home(all_p, groups):
 
   {faq_block(qa)}
 </div>
+
+{headlamp_band()}
 </main>
 {footer()}'''
 

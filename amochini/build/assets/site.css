@@ -771,14 +771,19 @@ main > .wrap > .section-title + *{margin-block-start:0}
 
 /* ---- stat band: plain figures, hairline separated ---- */
 .stat-band{border-bottom:1px solid var(--rule)}
-.stat-band ul{
-  list-style:none;display:grid;grid-template-columns:repeat(2,1fr);
-  gap:1px;background:var(--rule);
-}
-.stat-band li{
-  background:var(--paper);display:flex;flex-direction:column;gap:var(--s1);
-  padding:var(--s2);
-}
+/* The grid is .lattice in the markup; this only sets the column count.
+   It used to ALSO carry `gap:1px; background:var(--rule)`, which beat
+   .lattice on specificity and quietly kept the old grey-block bug alive on
+   this one grid long after the markup was moved over. See the note on
+   .lattice below, and the guard in build.py that now refuses the pattern. */
+.stat-band ul{list-style:none;grid-template-columns:repeat(2,1fr)}
+/* Five stats in two columns leaves a slot empty on the last row. With the
+   grey ground gone that slot no longer paints grey, but the lattice's own
+   container border still runs down beside it and draws half a box around
+   nothing. So there is no empty slot: the fifth cell — the date, which is
+   also the longest — takes the whole row. */
+.stat-band li:last-child{grid-column:1/-1}
+.stat-band li{display:flex;flex-direction:column;gap:var(--s1);padding:var(--s2)}
 .stat-band b{
   font-family:var(--face-display);font-weight:400;font-size:var(--t-head);
   color:var(--ink);line-height:1.1;font-variant-numeric:tabular-nums;
@@ -786,7 +791,100 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .stat-band span{
   font-size:var(--t-label);font-weight:400;letter-spacing:.06em;color:var(--ink-2);
 }
-@media (min-width:768px){ .stat-band ul{grid-template-columns:repeat(4,1fr)} }
+/* FIVE columns, one per stat, so the row is full and there is no empty slot
+   to get this wrong about in the first place. It was 4 while there were 5
+   stats. */
+@media (min-width:768px){
+  .stat-band ul{grid-template-columns:repeat(5,1fr)}
+  .stat-band li:last-child{grid-column:auto}   /* five columns, five cells */
+}
+
+/* ==========================================================================
+   THE CLOSING BAND — DESIGN.md §14.9.
+   The page opens on the board and closes here. This is the ONLY other dark
+   thing on the site, and §8 says there should be none — the exception is
+   named in DESIGN.md and argued there, not taken quietly.
+
+   The photograph is the ground, not a picture in a box: absolutely
+   positioned, `cover`, behind content that carries its own padding. So the
+   section is sized by its TEXT, which means it cannot collapse if the image
+   fails to load and it cannot shift when the image arrives — the layer has no
+   effect on layout at all.
+   ========================================================================== */
+.lamp-band{
+  position:relative;isolation:isolate;
+  background:var(--board);color:var(--paper);
+  padding-block:var(--s4);
+  text-align:center;
+}
+.lb-photo{position:absolute;inset:0;z-index:-1;overflow:hidden}
+.lb-photo picture,.lb-photo img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+/* A pool of dark for the words to sit in.
+   The lamps are at 15% and 78% of the FRAME, but `cover` on a 1.6:1
+   photograph in a wide, short box crops the sides — and the narrower the
+   viewport, the harder it crops, so the lamps travel INWARD as the screen
+   gets smaller. Measured: at 1920 the paragraph clears them at 7.08:1; at
+   1440, 768 and 375 it landed on a lamp core at 2.4:1, which is not a
+   near-miss, it is unreadable.
+   So the centre is darkened rather than the text moved. An ellipse keeps the
+   band's own black in the middle where every word is, and reaches
+   transparent well before the edges where the lamps live — the picture
+   still reads as two lights in the dark, and the paragraph is on the dark.
+   It is a gradient of --board to `transparent`, so it introduces no colour
+   and no alpha value (DESIGN.md §2).
+   Sized against the measurement, not by eye: the first attempt (58% wide)
+   held contrast but reached so far out that the lamps were two faint ghosts
+   and the band read as an empty black stripe. 44% is the narrowest of three
+   swept that still keeps --chalk on pure --board at 1440 and 1920; the next
+   step in (38%) drops the paragraph to 4.97:1. */
+.lb-photo::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 44% 140% at 50% 50%,
+                             var(--board) 0 50%, transparent 100%);
+}
+/* The lamps sit at 15% and 78% of the frame. A narrow viewport crops the
+   sides, so the crop is centred and never steered: pulling it either way
+   pushes one lamp out and leaves the band lit from one side only. */
+/* 38rem, not the wrap's 1180px. The lamps sit at 15% and 78% of the frame,
+   so text is safe only in the middle half; at 46rem the paragraph reached the
+   right-hand lamp and set --chalk over a lit blue housing. Measured, not
+   guessed — build/check_contrast.py covers this band too. */
+.lb-body{position:relative;max-width:38rem}
+.lamp-band h2{
+  font-family:var(--face-display);font-weight:400;font-size:var(--t-display);
+  line-height:1.15;color:var(--paper);text-wrap:balance;
+}
+.lamp-band p{
+  color:var(--chalk);font-weight:200;margin-top:var(--s2);
+  text-wrap:pretty;
+}
+/* The buttons are the page's last word, so they are centred with it rather
+   than stretched across the band the way .cta does inside a column. */
+.lamp-band .cta{justify-content:center}
+.lamp-band .cta a{flex:0 1 240px}
+
+/* BELOW 1200px THE PHOTOGRAPH STOPS BEING A GROUND AND BECOMES A BAND.
+   The narrower the viewport, the harder `cover` crops the sides, and the
+   lamps travel inward until they are behind the words: measured with the
+   vignette in place, --chalk landed at 1.06:1 at 375, 2.59 at 1000 and 3.84
+   at 1100, where AA wants 4.5. No amount of darkening fixes that without
+   putting the lamps out too, and a band whose lamps are hidden is not this
+   band. The threshold is swept, not guessed: 1200 is the first width where
+   the overlay clears AA (5.44), and it reaches 7.32 by 1440.
+   So below it the two stop overlapping. The picture sits above the text, fading into
+   the board at its lower edge the way the board's own band does, and the
+   words get the section's flat --board to themselves. Same two elements,
+   same order, no second markup path. */
+@media (max-width:1199px){
+  .lamp-band{padding-block-start:0}
+  .lb-photo{position:static;height:clamp(150px,26vw,230px)}
+  .lb-photo::after{
+    background:linear-gradient(to bottom,transparent 45%,var(--board) 100%);
+  }
+  .lb-body{margin-block-start:var(--s3)}
+}
 
 /* ==========================================================================
    ROWS — DESIGN.md §8, family 3. No ground, one hairline, no radius.
@@ -1249,8 +1347,11 @@ main > .wrap > .section-title + *{margin-block-start:0}
 .cta .call:hover{background:var(--paper);border-color:var(--board)}
 .cta .wa{background:var(--board);color:var(--paper)}
 .cta .wa:hover{background:var(--ink)}
-.board-band .cta .wa{background:transparent;border-color:var(--chalk)}
-.board-band .cta .wa:hover{background:var(--paper);color:var(--board);border-color:var(--paper)}
+/* On a dark ground the filled .wa is --board on --board — an invisible
+   button. Both dark bands get the outlined variant. */
+.board-band .cta .wa,.lamp-band .cta .wa{background:transparent;border-color:var(--chalk)}
+.board-band .cta .wa:hover,.lamp-band .cta .wa:hover{
+  background:var(--paper);color:var(--board);border-color:var(--paper)}
 
 .spec{
   width:100%;border-collapse:collapse;margin-top:var(--s3);
