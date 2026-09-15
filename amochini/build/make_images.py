@@ -66,11 +66,12 @@ Q_HERO = dict(avif=38, webp=62, jpeg=68)
 # The brake-light band. The frame it replaced was near-black with two smooth
 # amber falloffs, which is exactly where a low-quality encode bands visibly,
 # so it was shipped at q=74. This frame is the opposite: smoke fills it edge
-# to edge, and noise is what codecs are good at. Swept 44-74 at 1200px and
-# compared at 1:1 and at 2x — q=50 is indistinguishable from q=74 with no
-# banding anywhere in the dark falloff, at 9.4 KB instead of 18.3 KB. That
-# difference is the whole reason the desktop home page fits its budget
-# (156.5 KB at q=74; the budget is 150).
+# to edge, and noise is what codecs are good at. Swept 44-74 at 1200px
+# and compared at 1:1 and at 2x, before and after the LIGHTS_MIX grade below
+# — q=50 is indistinguishable from q=74 either way, with no banding in the
+# dark falloff. 6.9 KB against 13.0 KB at the shipping grade. Without that
+# difference the desktop home page did not fit its budget at all: 156.5 KB at
+# q=74 and no fade, 145.1 KB as it ships, against 150.
 Q_LIGHTS = dict(avif=50, webp=64, jpeg=74)
 
 # --------------------------------------------------------------------------
@@ -90,15 +91,31 @@ Q_LIGHTS = dict(avif=50, webp=64, jpeg=74)
 #     masthead of the price board is somebody else's brand on ours. Both are
 #     erased with a local blur of their own surroundings, which on a smooth
 #     dark gradient leaves nothing to see.
-#  3. GRADE. A per-channel gamma curve with the board colour as its black
-#     floor. Gamma crushes the smoke (a mid grey at 150 lands near 90) while
-#     leaving the lamps alone (240 stays above 220) — a linear multiply would
-#     have taken the lamps down with the smoke and killed the only light in
-#     the frame. The floor means the darkest pixel IS --board, so the
-#     photograph's edges dissolve into the band instead of sitting on it as a
-#     slightly-different black.
+#  3. GRADE. One per-channel LUT doing two things, with --board as its black
+#     floor.
+#       GAMMA crushes the smoke (a mid grey at 150 lands near 90) while
+#         leaving the lamps alone (240 stays above 220). A linear multiply
+#         would have taken the lamps down with the smoke and killed the only
+#         light in the frame.
+#       MIX then pulls the whole result back toward the floor, so the
+#         photograph sits behind the page rather than on top of it. Swept
+#         0 / 0.25 / 0.40 / 0.55 on the real page at 390 and 1440: at 0 the
+#         smoke on the left is bright enough to pull the eye off the price
+#         table; at 0.55 the frame reads as underexposed rather than dark.
+#         0.40 is where the lamps still glow and nothing competes with the
+#         figure. Mean luminance 73.1 -> 52.6, against the board's own 22.0.
+#     The floor means the darkest pixel IS --board, so the photograph's edges
+#     dissolve into the band instead of sitting on it as a slightly-different
+#     black.
+#
+#  NOT black and white. Tried, and it loses twice. It does not fade anything
+#  back — desaturating leaves mean luminance at 67.7 against colour's 73.1,
+#  so the band is just as bright — and it changes what the picture is OF: with
+#  the red gone the grey smoke becomes the subject and the light bars read as
+#  headlights, which is the wrong end of the car for a shop that sells brakes.
 BOARD_RGB = (0x1a, 0x15, 0x0f)     # --board, DESIGN.md §2
 LIGHTS_GAMMA = 2.2
+LIGHTS_MIX = 0.40
 
 
 def _brake_lights():
@@ -116,7 +133,8 @@ def _brake_lights():
         im.paste(im.crop(box).filter(ImageFilter.GaussianBlur(radius)), box)
     lut = []
     for floor in BOARD_RGB:
-        lut += [min(255, int(floor + (v / 255.0) ** LIGHTS_GAMMA * (255 - floor) + .5))
+        lut += [min(255, int(floor + (1 - LIGHTS_MIX)
+                             * (v / 255.0) ** LIGHTS_GAMMA * (255 - floor) + .5))
                 for v in range(256)]
     return im.point(lut)
 

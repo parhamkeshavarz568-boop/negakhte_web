@@ -595,15 +595,29 @@ run at build time from the vendored source so the recipe stays reviewable:
   AAA. Re-run it after any change to the crop, the grade, the height, the
   mask, or the negative margin — all five move text and photograph relative to
   each other.
+- **Faded back, not black and white.** The photograph is mixed 40% toward
+  `--board` in the same LUT that grades it (`LIGHTS_MIX`), so it sits *behind*
+  the page rather than on top of it. Swept 0 / 0.25 / 0.40 / 0.55 on the real
+  page at 390 and 1440: at 0 the bright smoke on the left pulls the eye off
+  the price table; at 0.55 the frame reads as underexposed rather than dark.
+  0.40 is where the lamps still glow and nothing competes with the figure.
+  Mean luminance 73.1 → 52.6, against the board's own 22.0.
+- **Black and white was tried and rejected**, and it lost on both counts. It
+  does not fade anything back — desaturating leaves mean luminance at 67.7
+  against colour's 73.1, so the band is just as bright — and it changes what
+  the picture is *of*: with the red gone the grey smoke becomes the subject
+  and the light bars read as headlights, which is the wrong end of the car for
+  a shop that sells brakes. The red is also the one thing tying the image to
+  §2's `--rise`, on a page whose whole story is prices going up.
 - **Quality was swept, not guessed.** 44→74 at 1200px, compared at 1∶1 and at
-  2×: q=50 is indistinguishable from q=74, with no banding in the dark
-  falloff, at 9.4 KB against 18.3 KB. The old frame's q=74 was right for a
-  near-black image with smooth gradients; this one is smoke edge to edge, and
-  noise is what codecs are good at. That 8.9 KB is the whole reason the
-  desktop home page fits: 156.5 KB at q=74, **147.6 KB** at q=50, budget 150.
-- Mobile home is 146.1 KB (the 900px rendition, 6.3 KB). CLS **0.000** on all
-  24 page/viewport combinations — the declared height reserves the box before
-  the image decodes.
+  2×, before and after the fade: q=50 is indistinguishable from q=74 either
+  way, with no banding in the dark falloff. The old frame's q=74 was right for
+  a near-black image with smooth gradients; this one is smoke edge to edge,
+  and noise is what codecs are good at.
+- Desktop home **145.1 KB** against the 150 KB budget (it was 156.5 KB at q=74
+  with no fade — the two decisions above are what make it fit). Mobile home
+  138.4 KB. CLS **0.000** on all 24 page/viewport combinations — the declared
+  height reserves the box before the image decodes.
 - The image is decorative: `alt=""` and `aria-hidden="true"`. It carries no
   information a screen-reader user would miss, and the headline immediately
   below says in words what it says in light.
