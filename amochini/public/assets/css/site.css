@@ -4,7 +4,7 @@
   font-family:Vazirmatn;
   src:url(/assets/fonts/vazirmatn-subset.woff2) format('woff2-variations'),
       url(/assets/fonts/vazirmatn-subset.woff2) format('woff2');
-  font-weight:100 900;
+  font-weight:200 800;
   font-style:normal;
   font-display:swap;   
 }
@@ -329,7 +329,7 @@ bdi{unicode-bidi:isolate}
 .bb-photo{
   position:relative;
   
-  --bh:clamp(150px,17vw,260px);
+  --bh:clamp(170px,17vw,260px);
   height:var(--bh);
   
   margin-block-end:calc(var(--bh) * -0.16);
@@ -342,7 +342,9 @@ bdi{unicode-bidi:isolate}
   -webkit-mask-image:linear-gradient(to bottom,#000 58%,transparent 100%);
   mask-image:linear-gradient(to bottom,#000 58%,transparent 100%);
 }
-.bb-photo img{width:100%;height:100%;object-fit:cover;display:block}
+
+.bb-photo img{width:100%;height:100%;object-fit:cover;display:block;
+  object-position:32% 50%}
 
 .bb-photo::before,.bb-photo::after{
   content:"";position:absolute;inset-block:0;width:6%;z-index:2;

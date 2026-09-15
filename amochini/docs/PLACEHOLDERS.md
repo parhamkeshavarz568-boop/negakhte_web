@@ -203,37 +203,61 @@ the host, or check for a `Server:` header before relying on it.
 
 ## Supplied photography — licence not yet confirmed
 
-Five photographs were supplied by the owner and are vendored at
+Photographs supplied by the owner, vendored at
 `build/original/images/supplied/`. One is in use:
 
 | file | used | where |
 |---|---|---|
-| `challenger-rear-red-smoke.jpg` | **yes** | cut and graded to `brake-lights`, opening the board band (DESIGN.md §14.4) |
-| `headlights-amber-on-black.jpg` | no | was the band until it was replaced; soft, and the lighting read as baked in |
+| `hero-parts.png` | **yes** | cut and graded to `board-band`, opening the board band (DESIGN.md §14.4) |
+| `hongqi-h9.jpg` | no | a Hongqi H9+ on a bright studio ground — see below |
+| `headlights-amber-on-black.jpg` | no | was the band two frames ago; soft, and the lighting read as baked in |
 | `headlights-white-bmw.jpg` | no | recognisable BMW front end |
 | `bmw-m3-daylight.jpg` | no | BMW M3, roundel and grille centre-frame |
 | `challenger-burnout.jpg` | no | Challenger, SRT badge, 735px wide — too small to use |
 
-**Trademark, handled.** The source frame carries the manufacturer's wordmark
-twice — lit between the light bars, and on the plate below. Both are erased at
-build time (`make_images.py:_brake_lights()`), and the crop excludes the
-roofline, so what ships is a light signature in smoke rather than an
-identifiable car. Nothing in the shipped band names or shows another
-manufacturer's brand.
+`challenger-rear-red-smoke.jpg` was the band and has been **deleted** at the
+owner's instruction. Nothing references it.
 
-**Open item before launch: copyright is NOT settled by that.** The provenance
-of these files is unknown to the build. Erasing a wordmark answers the
-trademark question; it does nothing about the copyright in the photograph,
-which almost certainly belongs to whoever shot it. Commercial use needs a
-licence that covers it — a stock licence, the photographer's permission, or a
-Creative Commons / Unsplash-style grant.
+### The wrong shop name, in the photograph
 
-If the licence cannot be confirmed, replace the band. This is the cheapest
-placeholder on the site to retire: a phone photograph of a brake light in a
-dark corner of the shop, run through the same `_brake_lights()` grade, would
-do the same job, cost nothing, and be unambiguously ours. Point the function
-at the new file and rebuild — the crop box and the retouch boxes are the only
-two things that would need new numbers.
+`hero-parts.png` reads «شماره عمو چینی» — *"Number Uncle Chinese"* — in four
+places. The shop is «عمو چینی». The build deals with both kinds:
+
+- the **wall sign**, the only one large enough to read at band size, is
+  outside the crop;
+- the three small repeats, on a box, an oil filter and the battery, are
+  softened to unreadable in `_board_band()`.
+
+**This is a symptom, not the problem.** A photograph whose own text does not
+spell the shop's name is very likely generated rather than taken, and the
+build can only hide what it knows to look for. If a real photograph of the
+counter ever exists, it retires this one and several others at once.
+
+### Hongqi H9+ — supplied, not used
+
+Bright grey studio ground, and the board band is the darkest thing on the
+page by design: dropped in as-is it puts a pale strip across the top, and
+darkened it swallows a black car into black. The treatment it wants is a
+cutout — the car floated on the board's own black with the chrome, the wheels
+and the red grille stripe as the only bright things. That has not been built.
+It also carries a legible 红旗 badge and an H9+ plate, and Hongqi is FAW's
+flagship: FAW is in this catalogue with exactly one part, so the car reads
+aspirational rather than representative.
+
+### Licence — open before launch
+
+The provenance of every file here is unknown to the build. Commercial use
+needs a licence that covers it: a stock licence, the photographer's
+permission, or a Creative Commons / Unsplash-style grant. For a generated
+image the question is different but not absent — it turns on the generator's
+terms and on who holds what in the output.
+
+`hero-parts.png` is the one that matters, because it is the one that ships.
+If its licence cannot be confirmed, replace it. Photographs of the actual
+counter, run through the same `_board_band()` grade, would be
+unambiguously the shop's and would fix the spelling at the same time. Point
+the function at the new file and rebuild; the crop box and the wordmark boxes
+are the only numbers that would need redoing.
 
 ---
 

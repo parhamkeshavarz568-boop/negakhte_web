@@ -56,6 +56,19 @@
   ],
   "ar": 1.0
  },
+ "board-band": {
+  "widths": [
+   600,
+   900,
+   1200
+  ],
+  "formats": [
+   "avif",
+   "jpg",
+   "webp"
+  ],
+  "ar": 0.205
+ },
  "cat-headlight": {
   "widths": [
    160,

@@ -79,8 +79,20 @@ def main():
               f"and place fonts/variable/Vazirmatn[wght].ttf at {VENDORED}")
         return 1
     os.makedirs(OUT, exist_ok=True)
+    # Limit the weight axis to what the stylesheet actually asks for. The
+    # upstream variable font carries wght 100-900; DESIGN.md §4 allows three
+    # weights, 200/400/800, and nothing on the site requests anything outside
+    # that. Shipping deltas for 100-200 and 800-900 is paying to interpolate
+    # weights no rule can reach. 57.1 -> 54.3 KB.
+    #
+    # (Three static cuts were measured as the alternative and are worse: 24.0
+    # + 23.7 + 24.4 = 72.1 KB across three requests, against 54.3 in one. The
+    # variable font stays.)
+    limited = os.path.join(OUT, "_vazirmatn-wght200-800.ttf")
+    subprocess.run(["fonttools", "varLib.instancer", src, "wght=200:800",
+                    "-o", limited], check=True, env=ENV, capture_output=True)
     cmd = [
-        "pyftsubset", src,
+        "pyftsubset", limited,
         f"--output-file={DEST}", "--flavor=woff2",
         f"--unicodes={UNICODES}",
         "--layout-features=*",            # keep Arabic shaping (init/medi/fina/rlig...)
@@ -88,6 +100,7 @@ def main():
         "--drop-tables+=DSIG",
     ]
     subprocess.run(cmd, check=True, env=ENV)
+    os.remove(limited)
     print(f"wrote {DEST}  {os.path.getsize(DEST)/1024:.1f} KB")
     # SIL OFL 1.1 requires the licence to travel with the font.
     lic_src = os.path.join(HERE, "original", "OFL.txt")

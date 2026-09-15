@@ -19,7 +19,7 @@ work for the older Android tail common in Iran; AVIF is the byte win for
 everything current.
 """
 import os, re, sys
-from PIL import Image
+from PIL import Image, ImageFilter
 try:
     import pillow_avif  # noqa: F401  registers the AVIF plugin
     HAVE_AVIF = True
@@ -50,9 +50,8 @@ PLAN = {
     # mismatched set. Still a placeholder — see docs/PLACEHOLDERS.md.
     "cat-brake-drums": [80, 160, 320, 400],
     # The band that opens the board (DESIGN.md §14.4). Derived, not a file on
-    # disk — see _brake_lights() below. 1200 is the honest ceiling; the source
-    # is 1200 wide and upscaling a photograph is fake detail.
-    "brake-lights":    [600, 900, 1200],
+    # disk — see _board_band() below.
+    "board-band":      [600, 900, 1200],
     "disc-drilled":    [80, 160, 400, 600, 700],
     "disc-slotted":    [80, 160, 400, 600, 700],
     "disc-plain":      [80, 160, 400, 600, 700],
@@ -63,83 +62,94 @@ Q = dict(avif=54, webp=79, jpeg=78)
 # much lower quality than the product photos: 30 KB instead of 57 KB at 1500px
 # for a difference nobody can see through the scrim.
 Q_HERO = dict(avif=38, webp=62, jpeg=68)
-# The brake-light band. The frame it replaced was near-black with two smooth
-# amber falloffs, which is exactly where a low-quality encode bands visibly,
-# so it was shipped at q=74. This frame is the opposite: smoke fills it edge
-# to edge, and noise is what codecs are good at. Swept 44-74 at 1200px
-# and compared at 1:1 and at 2x, before and after the LIGHTS_MIX grade below
-# — q=50 is indistinguishable from q=74 either way, with no banding in the
-# dark falloff. 6.9 KB against 13.0 KB at the shipping grade. Without that
-# difference the desktop home page did not fit its budget at all: 156.5 KB at
-# q=74 and no fade, 145.1 KB as it ships, against 150.
-Q_LIGHTS = dict(avif=50, webp=64, jpeg=74)
+# The board band. The frame this replaced was near-black with two smooth
+# amber falloffs — exactly where a low-quality encode bands visibly — so it
+# shipped at q=74. This one is a busy still life, and detail is what codecs
+# are good at. Swept 34-54 and compared AT THE SIZE IT IS SHOWN (a 1200px
+# file in a 1440x245 box, which downscales it and hides artefacts the way the
+# real page does): all four are indistinguishable, with no blocking in the
+# pad texture or the floor reflections. q=38 is the cheapest with headroom.
+Q_BAND = dict(avif=38, webp=52, jpeg=72)
 
 # --------------------------------------------------------------------------
-#  brake-lights — derived at build time from a supplied photograph.
+#  board-band — derived at build time from a supplied photograph.
 # --------------------------------------------------------------------------
 #  The band that opens the board is not a file in original/images/; it is cut
 #  and graded here so the recipe is reviewable and the result reproducible.
-#  Three operations, in order, each for a stated reason:
 #
-#  1. CROP (0,380)-(1200,640) of the 1200x675 supplied frame. This window
-#     holds the tail-light bars at roughly a third down and the lit smoke
-#     below them, and excludes the roofline — what is wanted is the light
-#     signature, not a recognisable car.
-#  2. RETOUCH. The frame carries the manufacturer's wordmark twice: once
-#     illuminated between the light bars, once on the plate below. This site
-#     sells Chinese-car brake parts; another carmaker's wordmark across the
-#     masthead of the price board is somebody else's brand on ours. Both are
-#     erased with a local blur of their own surroundings, which on a smooth
-#     dark gradient leaves nothing to see.
-#  3. GRADE. One per-channel LUT doing two things, with --board as its black
-#     floor.
-#       GAMMA crushes the smoke (a mid grey at 150 lands near 90) while
-#         leaving the lamps alone (240 stays above 220). A linear multiply
-#         would have taken the lamps down with the smoke and killed the only
-#         light in the frame.
-#       MIX then pulls the whole result back toward the floor, so the
-#         photograph sits behind the page rather than on top of it. Swept
-#         0 / 0.25 / 0.40 / 0.55 on the real page at 390 and 1440: at 0 the
-#         smoke on the left is bright enough to pull the eye off the price
-#         table; at 0.55 the frame reads as underexposed rather than dark.
-#         0.40 is where the lamps still glow and nothing competes with the
-#         figure. Mean luminance 73.1 -> 52.6, against the board's own 22.0.
-#     The floor means the darkest pixel IS --board, so the photograph's edges
-#     dissolve into the band instead of sitting on it as a slightly-different
-#     black.
+#  THE SOURCE is the shop's own still life: its wall sign, its boxes, and a
+#  brake disc, caliper, pad set, filters, battery, belt, plugs and headlight
+#  arranged on a wet floor, already lit black-and-amber. It replaced a stock
+#  photograph of a Dodge Challenger, which was rejected: it showed a car this
+#  shop sells no parts for, and it carried another manufacturer's wordmark.
 #
-#  NOT black and white. Tried, and it loses twice. It does not fade anything
-#  back — desaturating leaves mean luminance at 67.7 against colour's 73.1,
-#  so the band is just as bright — and it changes what the picture is OF: with
-#  the red gone the grey smoke becomes the subject and the light bars read as
-#  headlights, which is the wrong end of the car for a shop that sells brakes.
+#  1. CROP (0,380)-(1855,760) of the 1855x848 frame, 4.88:1. This window
+#     holds the parts and excludes the WALL SIGN above them, which is the
+#     point; it is also close to the band's own shape, so `cover` throws away
+#     little. The first cut was 4.03:1 and desktop was discarding a third of
+#     every row it downloaded. This window holds the
+#     parts and excludes the WALL SIGN above them, which is the point: the
+#     sign in the photograph reads «شماره عمو چینی» — "Number Uncle Chinese" —
+#     and the shop is «عمو چینی». It is the one piece of text in the frame
+#     large enough to read at band size, so cropping it out is cheaper and
+#     safer than retouching it. The smaller repeats of the same string, on a
+#     box and an oil filter, survive the crop but not the downscale: measured
+#     at the widest the band is ever shown, they are a few pixels tall.
+#  2. SOFTEN the three package wordmarks. The same wrong string is printed
+#     small on a box, an oil filter and the battery. They survive the crop
+#     because they sit among the parts, so each is replaced by a feathered
+#     Gaussian of itself — the packaging keeps its amber-on-black lettering
+#     and its logo, and the words stop being words. Small print on a box is
+#     what this looks like, which is what packaging looks like anyway. The
+#     feather matters: a hard-edged blur leaves a visible rectangle, and at
+#     the widest the band is shown that rectangle is bigger than the text was.
+#  3. GRADE. The same LUT as before, at much gentler settings. The Challenger
+#     frame was a bright studio shot that needed γ=2.2 to become a dark band.
+#     This one arrives dark and in the site's own two colours, so heavy
+#     grading only muddies it: γ=1.25 keeps the amber highlights where the
+#     photographer put them, and the mix does the rest.
 BOARD_RGB = (0x1a, 0x15, 0x0f)     # --board, DESIGN.md §2
-LIGHTS_GAMMA = 2.2
-LIGHTS_MIX = 0.40
+BAND_GAMMA = 1.25
+BAND_MIX = 0.30                    # see DESIGN.md §14.4 for the sweep
+BAND_CROP = (0, 380, 1855, 760)
+# Source-frame coordinates, so re-cropping the band cannot move them off the
+# text. Each is a printed «شماره عمو چینی» — the shop is «عمو چینی».
+BAND_WORDMARKS = ((196, 584, 364, 632),     # the yellow box, front left
+                  (658, 636, 778, 672),     # the oil filter, centre
+                  (1126, 592, 1232, 620))   # the battery label
 
 
-def _brake_lights():
-    from PIL import ImageFilter
-    im = Image.open(os.path.join(SRC, "supplied",
-                                 "challenger-rear-red-smoke.jpg")).convert("RGB")
-    assert im.size == (1200, 675), f"source frame changed: {im.size}"
-    # Wordmark boxes are given in SOURCE-frame coordinates and shifted by the
-    # crop, so re-cropping the band cannot silently move the retouch off them.
-    TOP = 380
-    im = im.crop((0, TOP, 1200, 640))
-    for (x0, y0, x1, y1), radius in ((( 548, 512,  648, 556), 9),    # the plate
-                                     (( 562, 450,  646, 482), 7)):   # lit wordmark
-        box = (x0, y0 - TOP, x1, y1 - TOP)
-        im.paste(im.crop(box).filter(ImageFilter.GaussianBlur(radius)), box)
+def _soften(im, box, radius=7, feather=6):
+    """Blur `box` into oblivion and blend the result back with soft edges."""
+    from PIL import ImageDraw
+    x0, y0, x1, y1 = box
+    pad = feather * 2
+    outer = (max(0, x0 - pad), max(0, y0 - pad),
+             min(im.width, x1 + pad), min(im.height, y1 + pad))
+    patch = im.crop(outer).filter(ImageFilter.GaussianBlur(radius))
+    mask = Image.new("L", (outer[2] - outer[0], outer[3] - outer[1]), 0)
+    ImageDraw.Draw(mask).rectangle(
+        (x0 - outer[0], y0 - outer[1], x1 - outer[0], y1 - outer[1]), fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(feather))
+    im.paste(patch, outer[:2], mask)
+    return im
+
+
+def _board_band():
+    im = Image.open(os.path.join(SRC, "supplied", "hero-parts.png")).convert("RGB")
+    assert im.size == (1855, 848), f"source frame changed: {im.size}"
+    for box in BAND_WORDMARKS:
+        _soften(im, box)
+    im = im.crop(BAND_CROP)
     lut = []
     for floor in BOARD_RGB:
-        lut += [min(255, int(floor + (1 - LIGHTS_MIX)
-                             * (v / 255.0) ** LIGHTS_GAMMA * (255 - floor) + .5))
+        lut += [min(255, int(floor + (1 - BAND_MIX)
+                             * (v / 255.0) ** BAND_GAMMA * (255 - floor) + .5))
                 for v in range(256)]
     return im.point(lut)
 
 
-PREP = {"brake-lights": _brake_lights}
+PREP = {"board-band": _board_band}
 
 
 def main():
@@ -166,7 +176,7 @@ def main():
             h = max(1, round(oh * w / ow))
             r = im.resize((w, h), Image.LANCZOS)
             q = (Q_HERO if name.startswith("hero")
-                 else Q_LIGHTS if name == "brake-lights"
+                 else Q_BAND if name == "board-band"
                  else Q)
             made = {}
             if HAVE_AVIF:

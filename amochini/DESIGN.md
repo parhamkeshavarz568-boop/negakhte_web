@@ -496,10 +496,12 @@ would be fake sharpness, so it is not done. This is the photography ceiling in
 `docs/PLACEHOLDERS.md` showing up again, and real product photography is what
 fixes it.
 
-### 14.4 — The brake-light band
+### 14.4 — The board's photograph
 
-A 1200×260 photograph — two brake lights burning through smoke — **opening**
-the board band, full-bleed, once per page, on the home page only.
+The shop's own still life — its boxes, a brake disc, caliper, pad set,
+filters, battery, belt, plugs and a headlight on a wet floor, already lit
+black-and-amber — **opening** the board band, full-bleed, once per page, on
+the home page only.
 
 **Bends:** §8's "nothing else on the site may be dark", and §1's refusal of a
 photographic hero.
@@ -515,112 +517,107 @@ sits *behind* the words and asks the reader to look past it. This sits
 *above* them, in its own register, and stops. The page's headline is still a
 number — `--t-figure`, one per page, a real measured price with a real product
 attached — and the photograph never competes with it for the same pixels. What
-it does is answer, in the first 150 pixels, a question the text needs a
-paragraph for: what trade is this? Brake lights in smoke. Then it gets out of
-the way.
+it does is answer, in the first 170 pixels, a question the text needs a
+paragraph for: what trade is this?
 
-**What it replaced.** A dim 1200×200 crop of amber headlights with two
-CSS-drawn radial glows over the lamps, pulsing on `tick-pulse`. That lost
-twice. The crop was soft — the owner's words were "the quality of the image is
-low and the lighting quality is also low, feels baked in" — and three stacked
-radial gradients read as a glow effect *painted onto* a photograph rather than
-as light *in* one. Grading a real photograph to the board's own black does the
-job with no gradients at all, and takes an animation out of the board with it:
-**§9's one motion moment is now the tape alone.**
+**Three frames stood here. Only the third is the shop's.**
 
-**Why this image, and how it was cut.**
+1. A dim crop of amber headlights under a pair of CSS-drawn radial glows.
+   Three stacked gradients read as a glow effect *painted onto* a photograph
+   rather than as light *in* one, and the crop underneath was soft.
+2. A stock Dodge Challenger, rear, in red smoke. Better made, and the grading
+   work on it (§14.4 as it read before) was sound — but it showed a car this
+   shop sells no parts for and carried another manufacturer's wordmark, and
+   the owner rejected it. The source is deleted.
+3. This one, which is **theirs**: their wall, their boxes, their parts. That
+   is the whole difference, and it is worth more than any amount of grading.
+   A stock photograph can only ever be about cars in general; this one is
+   about this shop.
 
-Of the five supplied photographs this is the only one whose subject is the
-thing the shop sells. Two are BMWs in daylight, one is a Challenger front-end
-burnout at 735px (too small to use), and the fourth is the amber-headlight
-frame this replaces. This one is a rear three-quarter of a Challenger in red
-smoke — and cropped to the light bar it stops being a Challenger and becomes
-a light signature, which is the point. A mechanic looking for لنت ترمز for an
-MVM 315 learns nothing from a Hellcat; they learn something from a car
-stopping hard.
+**How it is cut** — `build/make_images.py:_board_band()`, run at build time
+from the vendored source so the recipe stays reviewable:
 
-The cut is `build/make_images.py:_brake_lights()`, three operations, and it is
-run at build time from the vendored source so the recipe stays reviewable:
-
-1. **Crop** (0,380)–(1200,640) of the 1200×675 frame — the light bars a third
-   down, the lit smoke below, the roofline excluded.
-2. **Retouch.** The frame carries the manufacturer's wordmark twice: lit
-   between the light bars, and on the plate below. This site sells
-   Chinese-car brake parts, and another carmaker's wordmark across the top of
-   its price board is somebody else's brand on ours. Both are erased with a
-   local Gaussian of their own surroundings; on a smooth dark gradient there
-   is nothing left to see. Coordinates are given in **source-frame** terms and
-   shifted by the crop, so re-cropping the band cannot silently move the
-   retouch off the marks.
-3. **Grade.** A per-channel gamma curve (γ = 2.2) with `--board` as its black
-   floor. Gamma is what makes this work: a mid-grey smoke pixel at 150 lands
-   near 90 while a lamp at 240 stays above 220. A linear multiply would have
-   taken the lamps down with the smoke and killed the only light in the frame.
-   The floor means the darkest pixel **is** `--board`, so the photograph
-   dissolves into the band instead of sitting on it as a slightly different
-   black.
+1. **Crop** (0,380)–(1855,760) of the 1855×848 frame, 4.88∶1. The window
+   excludes the **wall sign**, and that is the point: the sign reads
+   «شماره عمو چینی» — *"Number Uncle Chinese"* — and the shop is «عمو چینی».
+   It is the one piece of text in the frame big enough to read at band size,
+   so cropping it out is cheaper and safer than retouching it. The ratio is
+   also close to the band's own, so `cover` throws away little; the first cut
+   was 4.03∶1 and desktop was discarding a third of every row it downloaded.
+2. **Soften** the three package wordmarks. The same wrong string is printed
+   small on a box, an oil filter and the battery, and those sit among the
+   parts, so they survive the crop. Each is replaced by a **feathered**
+   Gaussian of itself: the packaging keeps its amber-on-black lettering and
+   its logo, and the words stop being words. Small print on a box is what
+   this looks like, which is what packaging looks like anyway. The feather is
+   not optional — a hard-edged blur leaves a rectangle that, at the width the
+   band is shown, is more visible than the text was.
+3. **Grade** on the same LUT as the frame before it, at much gentler settings:
+   γ=1.25 and a 30% mix toward `--board`. The Challenger frame was a bright
+   studio shot that needed γ=2.2 to become a dark band. This one arrives dark
+   and already in the site's two colours, so heavy grading only muddies it.
 
 **Engineering notes.**
 
-- **Height, not `aspect-ratio`.** The source band is 4.6∶1; honoured as a
-  ratio it collapses to an 81px sliver on a 375px phone — not an image, a
-  rule. `height: clamp(150px, 17vw, 260px)` with `object-fit: cover` keeps the
-  band the same visual weight at every width and crops the sides instead. The
-  lamps sit between 27% and 63% of the frame, so the narrowest centred crop
-  (54% of the width, at 375px) still holds both.
-- The `17vw` middle term is not decoration. A **fixed** height was tried
-  first; measured at 1920 it had zoomed to a close-up of a bumper, because
-  with `cover` every extra pixel of width is paid for by cropping tighter.
-- Capped at `max-width: 1600px`. Past that the 1200px source is stretched more
-  than a third and softens, so the band stops growing and the board takes the
-  rest. Two `linear-gradient(var(--board), transparent)` seams over the outer
-  6% hide the join at the cap — and below it they act as a vignette that keeps
-  the frame from ending on a hard bright edge, which is worth having at every
-  width.
+- **Height, not `aspect-ratio`.** Honoured as a ratio, 4.88∶1 collapses to an
+  81px sliver on a 375px phone — not an image, a rule.
+  `height: clamp(170px, 17vw, 260px)` with `object-fit: cover` keeps the band
+  the same visual weight at every width and crops instead. The floor was 150px
+  under the previous frame and went to 170 for this one: a still life needs
+  more room than a light signature, and 150/170/190 were compared on a phone
+  before choosing. 190 pushed the figure too far down.
+- The `17vw` middle term is not decoration. A **fixed** height was tried;
+  measured at 1920 it had zoomed to a close-up, because with `cover` every
+  extra pixel of width is paid for by cropping tighter.
+- **`object-position: 32% 50%`.** A phone shows about half the frame's width,
+  and the *centred* half is the oil filter and the air filter — a dark blur
+  that says nothing about what this shop sells. The disc, caliper and pad set
+  sit between 18% and 40%, so the crop is pulled onto them. Above ~1000px the
+  band is wider in ratio than the photograph and `cover` crops vertically
+  instead, where the x value does nothing, so this costs the desktop
+  composition exactly nothing.
+- Capped at `max-width: 1600px`. Past that the widest rendition (1200px) is
+  stretched more than a third and softens. Two
+  `linear-gradient(var(--board), transparent)` seams over the outer 6% hide
+  the join at the cap, and below it they act as a vignette that keeps the
+  frame from ending on a hard bright edge.
 - **The bottom dissolves into the board** — `mask-image` to `transparent` over
-  the last 42% — and the board's text then starts *inside* that fade, via
-  `margin-block-end: calc(var(--bh) * -0.16)`. Two things for one value: the
-  headline reads as coming out of the smoke rather than sitting under a
-  picture of it, and a phone gets ~24px of the fold back (measured, the figure
-  had been pushed to y=700 of an 812px viewport). Derived from `--bh`, not
-  typed twice.
+  the last 42% — and the board's text starts *inside* that fade, via
+  `margin-block-end: calc(var(--bh) * -0.16)`. The headline reads as coming
+  out of the photograph rather than sitting under a picture of it, and a phone
+  gets ~27px of the fold back. Derived from `--bh`, not typed twice.
 - Masks take an **alpha** channel, not a colour. The `#000` in that gradient
   is opacity, and is the one hex in the stylesheet outside the §2 token set.
 - **Contrast is measured, not assumed.** `build/check_contrast.py` hides the
   band's text, screenshots the bare ground, and reads the brightest pixel
-  inside each text box — the worst ground any glyph in that box can land on.
-  An average, or the box's centre, would pass a headline whose last word sits
-  on a lamp. Worst case across 375/768/1440/1920: **10.25∶1** under the `h1`
-  (`#711b16`) and 11.12∶1 under the table heading. AA needs 4.5; this clears
-  AAA. Re-run it after any change to the crop, the grade, the height, the
-  mask, or the negative margin — all five move text and photograph relative to
-  each other.
-- **Faded back, not black and white.** The photograph is mixed 40% toward
-  `--board` in the same LUT that grades it (`LIGHTS_MIX`), so it sits *behind*
-  the page rather than on top of it. Swept 0 / 0.25 / 0.40 / 0.55 on the real
-  page at 390 and 1440: at 0 the bright smoke on the left pulls the eye off
-  the price table; at 0.55 the frame reads as underexposed rather than dark.
-  0.40 is where the lamps still glow and nothing competes with the figure.
-  Mean luminance 73.1 → 52.6, against the board's own 22.0.
-- **Black and white was tried and rejected**, and it lost on both counts. It
-  does not fade anything back — desaturating leaves mean luminance at 67.7
-  against colour's 73.1, so the band is just as bright — and it changes what
-  the picture is *of*: with the red gone the grey smoke becomes the subject
-  and the light bars read as headlights, which is the wrong end of the car for
-  a shop that sells brakes. The red is also the one thing tying the image to
-  §2's `--rise`, on a page whose whole story is prices going up.
-- **Quality was swept, not guessed.** 44→74 at 1200px, compared at 1∶1 and at
-  2×, before and after the fade: q=50 is indistinguishable from q=74 either
-  way, with no banding in the dark falloff. The old frame's q=74 was right for
-  a near-black image with smooth gradients; this one is smoke edge to edge,
-  and noise is what codecs are good at.
-- Desktop home **145.1 KB** against the 150 KB budget (it was 156.5 KB at q=74
-  with no fade — the two decisions above are what make it fit). Mobile home
-  138.4 KB. CLS **0.000** on all 24 page/viewport combinations — the declared
-  height reserves the box before the image decodes.
-- The image is decorative: `alt=""` and `aria-hidden="true"`. It carries no
-  information a screen-reader user would miss, and the headline immediately
-  below says in words what it says in light.
+  inside each text box — an average, or the box's centre, would pass a
+  headline whose last word sits on a chrome highlight. Worst case across
+  375/768/1440/1920: **6.45∶1**, under the table heading at 1920. AA needs
+  4.5. The margin is thinner than the smoke frame's 10.25 because this
+  photograph has bright highlights where that one had none, which is exactly
+  why the check exists.
+- **Quality was chosen at the size it is shown.** 34→54 encoded at 1200px and
+  then displayed the way the page displays them — a 1200px file downscaled
+  into a 1440×245 box — because that downscale hides artefacts and judging
+  the files at 1∶1 would have bought fidelity nobody can see. All four are
+  indistinguishable, with no blocking in the pad texture or the floor
+  reflections. q=38 is the cheapest with headroom, 13.1 KB.
+- **This frame costs real bytes and they were found, not waved through.** At
+  the previous settings the desktop home page came to 177.6 KB against a
+  150 KB budget. Three changes, in order of how legitimate they are:
+  the crop (4.03∶1 → 4.88∶1, stop shipping rows `cover` discards); the
+  quality, chosen as above; and the **weight axis** — Vazirmatn shipped
+  `wght 100–900` while §4 allows three weights and nothing on the site
+  requests outside 200–800, so the subset is now instanced to that range,
+  57.1 → 54.3 KB on **every page**. Desktop home **148.5 KB**, mobile
+  **138.9 KB**.
+- The widest rendition is 1200px, down from 1600. At a 1600px band that is a
+  1.33× stretch on a photograph with heavy bokeh, which is the right trade for
+  13 KB.
+- CLS **0.000** on all 24 page/viewport combinations — the declared height
+  reserves the box before the image decodes.
+- The image is decorative: `alt=""` and `aria-hidden="true"`. The headline
+  immediately below says in words what it says in parts.
 
 ### 14.5 — The product row's hierarchy
 

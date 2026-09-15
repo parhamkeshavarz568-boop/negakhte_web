@@ -17,7 +17,7 @@
   font-family:Vazirmatn;
   src:url(/assets/fonts/vazirmatn-subset.woff2) format('woff2-variations'),
       url(/assets/fonts/vazirmatn-subset.woff2) format('woff2');
-  font-weight:100 900;
+  font-weight:200 800;
   font-style:normal;
   font-display:swap;   /* never `optional`: Persian in a fallback face is
                           legible, invisible text is not */
@@ -413,22 +413,21 @@ bdi{unicode-bidi:isolate}
    predates :has(). */
 .bb-lit{padding-block-start:0}
 
-/* ---- the brake-light band: DESIGN.md §14.4 ----
-   The board opens on a photograph of two brake lights in smoke. It is the
-   first thing on the page after the tape, it is INSIDE the board band (so it
-   is the leading edge of the signature element rather than a second dark
-   thing on the page), and it is the only photograph on the site the eye is
-   meant to rest on.
+/* ---- the board band's photograph: DESIGN.md §14.4 ----
+   The board opens on the shop's own still life — its boxes and its parts,
+   lit in the site's two colours. It is the first thing on the page after the
+   tape, it is INSIDE the board band (so it is the leading edge of the
+   signature element rather than a second dark thing on the page), and it is
+   the only photograph on the site the eye is meant to rest on.
 
-   It replaced a pair of CSS-drawn amber headlights over a dim 1200x200 crop.
-   That construction lost twice: the crop was soft, and three stacked radial
-   gradients read as a glow effect painted onto a photograph rather than as
-   light in it. A real photograph, graded to the board's own black
-   (make_images.py:_brake_lights), does the job with no gradients at all —
-   and takes an animation with it, so the board now has no moving parts
-   except the tape.
+   Two frames were here before it. A dim crop of amber headlights under a
+   pair of CSS-drawn radial glows, which read as a glow effect painted onto a
+   photograph rather than as light in one; and a stock Challenger, which was
+   better made but showed a car this shop sells no parts for. This one is the
+   shop's, which is the whole difference. The grade is in
+   make_images.py:_board_band.
 
-   HEIGHT, not aspect-ratio. The source band is 4.6:1; honoured as a ratio it
+   HEIGHT, not aspect-ratio. The source band is 4.9:1; honoured as a ratio it
    collapses to an 81px sliver on a 375px phone, which is not an image, it is
    a rule. A fixed height per breakpoint with object-fit:cover keeps the band
    the same weight at every width and crops the sides instead — the lamps sit
@@ -443,12 +442,12 @@ bdi{unicode-bidi:isolate}
      244px: the crop had zoomed to a close-up of a bumper and the smoke that
      gives the shot its depth was outside the frame. 17vw tracks the source's
      own proportions closely enough that the crop stays roughly constant.
-       floor 150px — below it the band stops being an image and becomes a
+       floor 170px — below it the band stops being an image and becomes a
          rule. A phone pays for the floor by cropping the sides, which is the
-         right trade: the lamps sit between 27% and 63% of the frame, so the
-         narrowest centred crop (54% of the width at 375px) holds both.
+         right trade as long as the crop lands on the right parts — see
+         object-position below.
        ceiling 260px — a band, not a hero. */
-  --bh:clamp(150px,17vw,260px);
+  --bh:clamp(170px,17vw,260px);
   height:var(--bh);
   /* The board's text starts inside the photograph's last sixth, where the
      mask has taken it down to a few percent alpha. Two reasons, one look:
@@ -457,9 +456,9 @@ bdi{unicode-bidi:isolate}
      figure had been pushed to y=700 of an 812px viewport. Derived from --bh
      rather than typed, so the two cannot drift apart. */
   margin-block-end:calc(var(--bh) * -0.16);
-  /* Past 1600 the source is being stretched more than a third and it starts
-     to soften, so the band stops growing and the board takes the rest. The
-     seams below hide the join. */
+  /* Past 1600 the widest rendition (1200px) is being stretched more than a
+     third and starts to soften, so the band stops growing and the board
+     takes the rest. The seams below hide the join. */
   max-width:1600px;margin-inline:auto;
   overflow:hidden;
 }
@@ -471,7 +470,15 @@ bdi{unicode-bidi:isolate}
   -webkit-mask-image:linear-gradient(to bottom,#000 58%,transparent 100%);
   mask-image:linear-gradient(to bottom,#000 58%,transparent 100%);
 }
-.bb-photo img{width:100%;height:100%;object-fit:cover;display:block}
+/* 32%, not centre. A phone shows about half the frame's width, and the
+   CENTRED half is the oil filter and the air filter — a dark blur that says
+   nothing about what this shop sells. The brake disc, the caliper and the
+   pad set sit between 18% and 40%, so the crop is pulled onto them. Above
+   ~1000px the band is wider in ratio than the photograph and `cover` crops
+   vertically instead, where the x value does nothing — so this costs the
+   desktop composition nothing. */
+.bb-photo img{width:100%;height:100%;object-fit:cover;display:block;
+  object-position:32% 50%}
 /* The two side seams, where a capped photograph meets the board. Overlays
    rather than a second mask layer: mask-composite support is patchier than
    this needs to be for two gradients. Below 1600 the band is full-bleed and

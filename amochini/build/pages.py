@@ -1229,7 +1229,7 @@ def home(all_p, groups):
 
 <section class="board-band bb-split bb-lit" aria-labelledby="bb-h">
   <div class="bb-photo" aria-hidden="true">
-    {picture("brake-lights", alt="", box=1200, eager=True,
+    {picture("board-band", alt="", box=1200, eager=True,
              sizes="(min-width:1200px) 1200px, 100vw")}
   </div>
   <div class="wrap">
