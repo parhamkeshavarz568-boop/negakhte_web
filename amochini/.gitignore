@@ -3,4 +3,3 @@
 *.pyc
 __pycache__/
 build/.contrast/
-build/proposals/CLASSY-*.png
