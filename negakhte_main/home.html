@@ -27,15 +27,41 @@
             stroke-dasharray="118 39" transform="rotate(-58 32 32)"/>
     <circle cx="32" cy="7.5" r="4.6" fill="currentColor"/>
   </symbol>
-  <symbol id="ring-lg" viewBox="0 0 200 200">
-    <g fill="none" stroke="#C9A961">
-      <circle cx="100" cy="100" r="92" stroke-width="1" opacity=".5"/>
-      <circle cx="100" cy="100" r="76" stroke-width="1" opacity=".35"/>
+  <!-- The hero composition. Concentric rings widen outward like something
+       settling, the innermost one is the open circle with its gap, and the
+       gold dot sits in the gap: the place left for you. -->
+  <symbol id="ring-lg" viewBox="0 0 240 240">
+    <defs>
+      <radialGradient id="glow" cx="50%" cy="46%" r="52%">
+        <stop offset="0%"   stop-color="#C9A961" stop-opacity="0"/>
+        <stop offset="58%"  stop-color="#C9A961" stop-opacity=".08"/>
+        <stop offset="100%" stop-color="#C9A961" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="120" cy="120" r="118" fill="url(#glow)"/>
+    <g fill="none" stroke="#C9A961" stroke-linecap="round">
+      <circle cx="120" cy="120" r="113" stroke-width=".9" opacity=".40"/>
+      <circle cx="120" cy="120" r="97"  stroke-width=".9" opacity=".30"/>
+      <circle cx="120" cy="120" r="81"  stroke-width="1.4" opacity=".55"
+              stroke-dasharray="1 7"/>
     </g>
-    <circle cx="100" cy="100" r="58" fill="none" stroke="#1E6E6E"
-            stroke-width="9" stroke-linecap="round"
-            stroke-dasharray="274 90" transform="rotate(-58 100 100)"/>
-    <circle cx="100" cy="42" r="11" fill="#C9A961"/>
+    <circle cx="120" cy="120" r="62" fill="none" stroke="#1E6E6E"
+            stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="292 98" transform="rotate(-56 120 120)"/>
+    <circle cx="120" cy="58" r="12.5" fill="#C9A961"/>
+  </symbol>
+  <!-- a thin open ring, for the step numerals -->
+  <symbol id="ring-thin" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="#C9A961"
+            stroke-width="1.6" stroke-linecap="round"
+            stroke-dasharray="107 25" transform="rotate(-62 24 24)"/>
+  </symbol>
+  <!-- the divider ornament -->
+  <symbol id="orn" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"
+            stroke-width="1.6" stroke-linecap="round"
+            stroke-dasharray="40 10" transform="rotate(-58 12 12)"/>
+    <circle cx="12" cy="4" r="2.6" fill="currentColor"/>
   </symbol>
 </defs></svg>
 
@@ -63,7 +89,7 @@
   <div class="shell hero-grid">
     <div>
       <p class="eyebrow">نگاخته</p>
-      <h1>آنچه در تنهایی سنگین است،<br>در گروه سبک‌تر می‌شود.</h1>
+      <h1>آنچه در تنهایی سنگین است، <span class="accent">در گروه سبک‌تر می‌شود.</span></h1>
       <p class="lede measure">
         کارِ اصلی ما گروه‌درمانی است — حضوری و آنلاین. اینجا جایی برای ثبت‌نامِ فوری
         نیست؛ جایی است برای فهمیدن. ببین گروه‌درمانی چیست، در یک جلسه واقعاً چه
@@ -74,10 +100,12 @@
         <a class="btn btn-2" href="#session">در یک جلسه چه می‌گذرد</a>
       </div>
     </div>
-    <svg class="ring" viewBox="0 0 200 200" role="img"
-         aria-label="نشانِ نگاخته: حلقه‌ای که یک جای خالی در آن باز مانده است">
-      <use href="#ring-lg"/>
-    </svg>
+    <div class="hero-art">
+      <svg viewBox="0 0 240 240" role="img"
+           aria-label="نشانِ نگاخته: حلقه‌ای که یک جای خالی در آن باز مانده است">
+        <use href="#ring-lg"/>
+      </svg>
+    </div>
   </div>
 </section>
 
@@ -122,6 +150,8 @@
     </div>
   </div>
 </section>
+
+<div class="shell"><div class="div-orn"><svg aria-hidden="true"><use href="#orn"/></svg></div></div>
 
 <!-- ============ GROUP THERAPY ============ -->
 <div class="band" id="therapy">
@@ -176,19 +206,22 @@
       <div><dt>درمانگر</dt><dd>در همه‌ی جلسات حاضر است</dd></div>
     </dl>
 
-    <div class="cols cols-3" style="margin-block-start:var(--s6)">
-      <div class="panel">
-        <h3>شروع</h3>
+    <div class="steps" style="margin-block-start:var(--s7)">
+      <div class="step">
+        <div class="ring-n"><svg aria-hidden="true"><use href="#ring-thin"/></svg><span>۱</span></div>
+        <h3 class="h-sub">شروع</h3>
         <p>گروه می‌نشیند. درمانگر جلسه را باز می‌کند. کسی تکلیف ندارد و نوبت‌دهیِ
         اجباری وجود ندارد.</p>
       </div>
-      <div class="panel">
-        <h3>میانه</h3>
+      <div class="step">
+        <div class="ring-n"><svg aria-hidden="true"><use href="#ring-thin"/></svg><span>۲</span></div>
+        <h3 class="h-sub">میانه</h3>
         <p>هر کس آنچه را که آورده می‌گذارد وسط. بقیه واکنش می‌دهند — نه نصیحت،
         بلکه اینکه این حرف با آن‌ها چه کرد.</p>
       </div>
-      <div class="panel">
-        <h3>پایان</h3>
+      <div class="step">
+        <div class="ring-n"><svg aria-hidden="true"><use href="#ring-thin"/></svg><span>۳</span></div>
+        <h3 class="h-sub">پایان</h3>
         <p>جلسه بسته می‌شود. آنچه گفته شد در همان اتاق می‌ماند؛ این تنها قاعده‌ای
         است که سرش شوخی نداریم.</p>
       </div>
@@ -208,15 +241,17 @@
 <!-- ============ WORRIES ============
      Written as the objections people actually have, in their words. -->
 <section id="worries">
-  <div class="shell">
-    <p class="eyebrow">پیش از آنکه بپرسی</p>
-    <h2 class="h-sec measure-tight">نگرانی‌های رایج</h2>
-    <p class="lede measure" style="margin-block:var(--s5) var(--s7)">
-      این‌ها را از کسانی شنیده‌ایم که پیش از پیوستن پرسیدند. اگر نگرانیِ تو اینجا
-      نیست، بپرس.
-    </p>
+  <div class="shell split">
+    <div class="split-head">
+      <p class="eyebrow">پیش از آنکه بپرسی</p>
+      <h2 class="h-sec">نگرانی‌های رایج</h2>
+      <p class="lede" style="margin-block-start:var(--s5)">
+        این‌ها را از کسانی شنیده‌ایم که پیش از پیوستن پرسیدند. اگر نگرانیِ تو اینجا
+        نیست، بپرس.
+      </p>
+    </div>
 
-    <div class="worry measure">
+    <div class="worry">
       <details>
         <summary>اگر آنجا کسی را بشناسم چه؟</summary>
         <div class="ans"><p>
@@ -269,6 +304,7 @@
 
 <!-- ============ TESTS ============ -->
 <div class="dark on-dark">
+  <svg class="bleed" viewBox="0 0 240 240" aria-hidden="true"><use href="#ring-lg"/></svg>
   <div class="shell">
     <p class="eyebrow">آزمون‌های خودشناسی</p>
     <h2 class="h-sec measure-tight" style="margin-bottom:var(--s5)">
@@ -287,8 +323,8 @@
         </p>
         <a class="btn btn-2" href="index.html">آزمون‌ها را ببین</a>
       </div>
-      <div class="panel" style="background:rgba(251,247,239,.06); border-color:#3A2F22; border-inline-start-color:var(--gold)">
-        <h3 style="color:var(--paper)">چه ربطی به گروه دارد؟</h3>
+      <div class="panel">
+        <h3>چه ربطی به گروه دارد؟</h3>
         <p style="margin-bottom:0">
           خیلی‌ها نمی‌دانند برای چه می‌خواهند بیایند. یک آزمون جوابِ نهایی نیست،
           اما اسمی به آنچه احساس می‌کنی می‌دهد — و با یک اسم، گفت‌وگوی اول
@@ -322,6 +358,8 @@
     </div>
   </div>
 </section>
+
+<div class="shell"><div class="div-orn"><svg aria-hidden="true"><use href="#orn"/></svg></div></div>
 
 <!-- ============ WHO ============ -->
 <section id="who">
