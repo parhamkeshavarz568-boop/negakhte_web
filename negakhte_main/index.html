@@ -214,17 +214,21 @@
   /* ===== BUTTONS (from reference) ===== */
   .btn {
     font-family: inherit; font-size: 16px; font-weight: 600; border: none; cursor: pointer;
-    padding: 16px 36px; transition: all 0.25s ease; letter-spacing: 0.5px;
+    padding: 16px 32px; transition: all 0.25s ease; letter-spacing: 0.5px;
     display: inline-flex; align-items: center; gap: 12px;
+    white-space: nowrap;   /* «پرسش بعدی» wrapped to two lines at 375px */
   }
   .btn-primary { background: var(--ink); color: var(--bg); box-shadow: 4px 4px 0 var(--gold); }
   .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--oxblood); }
   .btn-primary:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--oxblood); }
+  /* A filled block with a hard drop shadow reads as "press me" whatever its
+     colour: the disabled Next button was louder than the enabled ghost next to
+     it. Disabled is now flat, unshadowed and outlined — plainly inert. */
   .btn-primary:disabled {
-    background: var(--bg-deep); color: var(--ink-muted); box-shadow: 4px 4px 0 var(--line);
-    cursor: not-allowed; transform: none;
+    background: transparent; color: var(--ink-muted); box-shadow: none;
+    border: 1px dashed var(--line); cursor: not-allowed; transform: none;
   }
-  .btn-primary:disabled:hover { transform: none; box-shadow: 4px 4px 0 var(--line); }
+  .btn-primary:disabled:hover { transform: none; box-shadow: none; }
   .btn-arrow { font-size: 20px; line-height: 1; }
   .btn-ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); padding: 14px 24px; font-size: 14px; }
   .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
@@ -258,30 +262,59 @@
   }
   .field-group input:focus, .field-group select:focus { outline: none; border-color: var(--ink); }
 
-  /* ===== QUIZ (from reference) ===== */
-  .quiz-header { margin-bottom: 40px; }
+  /* ===== QUIZ =====
+     ONE COLUMN, AND A NARROW ONE. The app is 860px wide, which is right for
+     the hub's two-up cards and wrong for a Likert row: at 1440 an answer was
+     an 813px band with «بی‌نظرم» at the right edge and its radio 740px away
+     at the left. Everything on this screen — counter, bar, question, options,
+     nav — now shares a 560px column so a row is a row and not a corridor. */
+  #screen-quiz { max-width: 560px; margin-inline: auto; }
+  .quiz-header { margin-bottom: 36px; }
   .progress-meta {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 12px; font-size: 13px; color: var(--ink-muted); letter-spacing: 1px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px; font-size: 15px; color: var(--ink-muted); gap: 12px;
   }
-  .progress-meta .gold { color: var(--gold-ink); font-weight: 600; }
-  .progress-bar { height: 3px; background: var(--bg-deep); overflow: hidden; }
+  /* The count is the one thing a person on question 35 of 70 wants, and it
+     was the smallest text on the screen. The number carries --ink and 700; the
+     «از ۷۰» around it stays quiet. */
+  .progress-meta .q-count { color: var(--ink-soft); }
+  .progress-meta .q-count b { color: var(--ink); font-weight: 700; font-size: 17px; }
+  .progress-meta .gold { color: var(--gold-ink); font-weight: 600; text-align: left; }
+  /* 3px of --bg-deep on --bg measures 1.08:1 — the track was invisible, so at
+     question 1 there was no bar at all, just nothing. 6px on --line reads as a
+     track even when the fill is 0%. */
+  .progress-bar { height: 6px; background: var(--line); overflow: hidden; }
   .progress-fill { height: 100%; background: linear-gradient(to left, var(--gold), var(--oxblood)); transition: width 0.4s ease; width: 0%; }
 
   .question-block { padding: 24px 0; }
+  /* Right-aligned, like every other run of Persian on the page. A centred
+     question over right-aligned options was two alignments in 200px. */
   .question-prompt {
-    font-size: clamp(20px, 2.6vw, 27px); font-weight: 700; line-height: 1.5;
-    color: var(--ink); margin-bottom: 32px; text-align: center;
+    font-size: clamp(20px, 2.6vw, 26px); font-weight: 700; line-height: 1.55;
+    color: var(--ink); margin-bottom: 28px; text-align: right;
   }
   .question-prompt h2 { font: inherit; color: inherit; }
   .question-prompt .small { display: block; font-size: 14px; color: var(--gold-ink); font-weight: 600; letter-spacing: 2px; margin-bottom: 12px; }
   .answers { display: grid; gap: 14px; }
+  /* space-between pushed the marker to the far edge of the row. The marker
+     comes first in the DOM now — so, in RTL, immediately to the right of its
+     own label — and the row packs to the start. */
   .answer {
-    background: var(--paper); border: 1.5px solid var(--line); padding: 20px 24px;
+    background: var(--paper); border: 1.5px solid var(--line); padding: 16px 20px;
     cursor: pointer; font-family: inherit; font-size: 17px; text-align: right;
-    transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; color: var(--ink-soft); line-height: 1.6;
+    transition: all 0.2s ease; display: flex; align-items: center;
+    justify-content: flex-start; gap: 14px; color: var(--ink-soft); line-height: 1.6;
   }
+  .answer .a-label { flex: 1 1 auto; min-width: 0; }
+  /* The digit that picks this option. Sits at the quiet end of the row, and is
+     hidden where there is no keyboard to press it. */
+  .answer .kbd {
+    flex: 0 0 auto; font-size: 12px; font-weight: 600; color: var(--ink-muted);
+    border: 1px solid var(--line); border-radius: 3px; min-width: 22px;
+    padding: 2px 0; text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .answer.selected .kbd { color: var(--bg); border-color: rgba(251,247,239,0.45); }
+  @media (hover: none) and (pointer: coarse) { .answer .kbd { display: none; } }
   .answer:hover { border-color: var(--ink); background: #fff; transform: translateX(-4px); color: var(--ink); }
   .answer .marker {
     width: 26px; height: 26px; border: 1.5px solid var(--line); border-radius: 50%;
@@ -343,21 +376,58 @@
   .likert .answer { padding: 16px 22px; font-size: 16px; }
   /* DISC most/least group */
   .disc-group { display: grid; gap: 12px; }
+  /* 1fr on the word stretched it across the row and parked the two buttons
+     500px away from the thing they judge. A fixed measure keeps the button
+     columns aligned down all four rows — which is what makes the set scannable
+     — while sitting right next to the word. */
   .disc-word {
-    display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px;
-    background: var(--paper); border: 1.5px solid var(--line); padding: 16px 20px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--paper); border: 1.5px solid var(--line); padding: 14px 18px;
   }
-  .disc-word .dw-text { font-size: 17px; font-weight: 500; color: var(--ink); }
+  .disc-word .dw-text {
+    font-size: 17px; font-weight: 600; color: var(--ink);
+    flex: 0 0 104px; min-width: 0;
+  }
+  /* The two picks split whatever the word leaves, so there is no dead strip at
+     the end of the row and each target is ~200px wide instead of 90. */
   .disc-pick {
+    flex: 1 1 0; min-width: 0;
     border: 1.5px solid var(--line); background: transparent; font-family: inherit;
-    font-size: 12px; font-weight: 600; color: var(--ink-muted); padding: 8px 14px;
+    font-size: 13px; font-weight: 600; color: var(--ink-muted); padding: 10px 8px;
     cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
   }
   .disc-pick:hover { border-color: var(--ink); color: var(--ink); }
   .disc-pick.most-on { background: var(--teal); color: #fff; border-color: var(--teal); }
   .disc-pick.least-on { background: var(--oxblood); color: #fff; border-color: var(--oxblood); }
 
-  .quiz-nav { margin-top: 32px; display: flex; justify-content: space-between; align-items: center; }
+  .quiz-nav {
+    margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .quiz-nav .qn-start { display: flex; align-items: center; gap: 6px; }
+  /* «انصراف» used to sit shoulder to shoulder with the primary, which is where
+     a destructive action should never be. It is a quiet text control at the
+     other end of the row now. */
+  .qn-quit {
+    background: none; border: none; font: inherit; font-size: 13px;
+    color: var(--ink-muted); cursor: pointer; padding: 10px 8px;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .qn-quit:hover { color: var(--oxblood); }
+
+  /* The auto-advance switch. WCAG 3.2.2 allows a change of context on input
+     only if the person was told first, so this is stated on the screen and
+     can be turned off; the setting is remembered. Arrow-key selection never
+     advances either way — a screen reader user stepping through the options
+     with the arrows must not be thrown to the next question by doing so. */
+  .quiz-opts {
+    display: flex; align-items: center; gap: 8px; margin-top: 18px;
+    font-size: 13px; color: var(--ink-muted);
+  }
+  .quiz-opts label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .quiz-opts input { width: 16px; height: 16px; accent-color: var(--oxblood); cursor: pointer; }
+  .quiz-hint { font-size: 13px; color: var(--ink-muted); margin-top: 8px; line-height: 1.7; }
+  @media (hover: none) and (pointer: coarse) { .quiz-hint .kb-only { display: none; } }
 
   /* ===== RESULTS (from reference) ===== */
   .results-header { text-align: center; padding: 24px 0 32px; }
@@ -451,8 +521,9 @@
     .answer { font-size: 16px; padding: 16px 18px; }
     .btn { padding: 14px 22px; font-size: 15px; }
     .result-hero { padding: 36px 20px; }
-    .disc-word { grid-template-columns: 1fr; gap: 10px; }
-    .disc-word .dw-picks { display: flex; gap: 10px; }
+    .disc-word { gap: 8px; padding: 12px 14px; }
+    .disc-word .dw-text { flex: 0 0 72px; font-size: 16px; }
+    .disc-pick { font-size: 12px; padding: 10px 4px; }
   }
   @media print {
     body::before, body::after { display: none; }
@@ -511,13 +582,17 @@
   <section class="screen" id="screen-quiz">
     <div class="quiz-header">
       <div class="progress-meta">
-        <span>پرسش <span id="q-current">۱</span> از <span id="q-total">۳۰</span></span>
+        <span class="q-count">پرسش <b id="q-current">۱</b> از <span id="q-total">۳۰</span></span>
         <span class="gold" id="q-testname">آزمون</span>
       </div>
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-      <!-- The count, announced politely on change, so keyboard and screen
-           reader users get the sense of remaining effort that the 3px bar
-           conveys visually. -->
+      <!-- role=progressbar with the real numbers, so assistive tech gets the
+           same "how much is left" the bar gives everyone else. aria-valuetext
+           because "34" alone means nothing. -->
+      <div class="progress-bar" id="progress-bar" role="progressbar"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+           aria-label="پیشرفت آزمون">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
       <p class="sr-only" id="q-announce" role="status" aria-live="polite"></p>
     </div>
 
@@ -533,16 +608,27 @@
       <div id="answers-container"><!-- answers/likert/disc injected --></div>
     </div>
 
+    <!-- The arrows that used to be glued to these labels are gone. Vazirmatn
+         has no ← or → glyph, so they were rendering out of whatever fallback
+         font the device happened to have — a different weight and baseline
+         from everything around them. -->
     <div class="quiz-nav">
-      <button class="btn btn-ghost" id="btn-back" onclick="prevQuestion()">→ پرسش قبلی</button>
-      <div style="display:flex;gap:12px;align-items:center;">
-        <button class="btn btn-ghost" onclick="goHub()">انصراف</button>
-        <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" disabled>
-          <span id="btn-next-label">پرسش بعدی</span>
-          <span class="btn-arrow">←</span>
-        </button>
+      <div class="qn-start">
+        <button class="btn btn-ghost" id="btn-back" onclick="prevQuestion()">پرسش قبلی</button>
+        <button type="button" class="qn-quit" onclick="goHub()">انصراف</button>
       </div>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" disabled>
+        <span id="btn-next-label">پرسش بعدی</span>
+      </button>
     </div>
+
+    <div class="quiz-opts">
+      <label>
+        <input type="checkbox" id="opt-autoadv" onchange="setAutoAdvance(this.checked)">
+        رفتن خودکار به پرسش بعدی پس از هر انتخاب
+      </label>
+    </div>
+    <p class="quiz-hint" id="quiz-hint"></p>
   </section>
 
   <!-- ============ RESULTS (shared, renderer swaps content) ============ -->
@@ -642,6 +728,18 @@ const Store = {
   write(o){
     try { localStorage.setItem(STORE_KEY, JSON.stringify(o)); return true; }
     catch (e) { return false; }
+  },
+  /* Settings, in the same object as everything else so there is one key to
+     clear. Defaults are supplied by the caller: absent is not false. */
+  getPref(k, dflt){
+    const v = (this.read().pref || {})[k];
+    return v === undefined ? dflt : v;
+  },
+  setPref(k, v){
+    const o = this.read();
+    o.pref = o.pref || {};
+    o.pref[k] = v;
+    this.write(o);
   },
   /* In-progress tests, KEYED BY TEST ID. The first version kept a single
      slot, on the reasoning that the UI only shows one test at a time — but
@@ -901,6 +999,7 @@ function route(){
     const want = routeUrl(eff);
     if (location.hash !== want) history.replaceState(null, '', want);
     setDocMeta(eff);
+    cancelAdvance();
     shareStatus('');   // a stale «لینک کپی شد» must not follow you off the screen
 
     if (eff.screen === 'hub'){ currentTestId = null; TEST = null; renderHub(); goTo('hub'); return; }
@@ -936,6 +1035,16 @@ function allAnswered(){
 function prepQuizChrome(){
   document.getElementById('q-testname').textContent = TEST.title;
   document.getElementById('q-total').textContent = toFa(TEST.questions.length);
+  autoAdvance = Store.getPref('autoAdvance', true);
+  document.getElementById('opt-autoadv').checked = autoAdvance;
+  /* DISC needs both a most and a least on different words before the question
+     counts, so "advance on choice" would fire on the first of the two and
+     lose the second. The switch is meaningless there and says so. */
+  const canAuto = TEST.format !== 'disc';
+  const box = document.getElementById('opt-autoadv');
+  box.disabled = !canAuto;
+  box.closest('.quiz-opts').style.display = canAuto ? '' : 'none';
+  if (!canAuto) autoAdvance = false;
 }
 
 function startTest(id){ nav(ROUTES.intro(id)); }
@@ -949,7 +1058,14 @@ function nextQuestion(){
 }
 /* history.back(), not currentQ--, so the URL and the screen never disagree —
    and so the browser's own Back and this button do the same thing. */
-function prevQuestion(){ if(currentQ>0) history.back(); }
+/* A queued advance belongs to the question that queued it. Leaving — Back,
+   the hub, a deep link — has to cancel it, or the timer fires against
+   whatever is on screen 260ms later. */
+function cancelAdvance(){
+  if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+}
+
+function prevQuestion(){ cancelAdvance(); if(currentQ>0) history.back(); }
 
 function restartCurrent(){
   if(!currentTestId) return;
@@ -1117,15 +1233,25 @@ function makeRadioGroup(){
 
 /* `onPick` records the answer; re-rendering and the rest is shared, so no
    caller can forget to save or to sync the Next button. */
-function makeRadio(label, checked, onPick){
+function makeRadio(label, checked, onPick, digit){
   const b = document.createElement('button');
   b.type = 'button';
   b.className = 'answer' + (checked ? ' selected' : '');
   b.setAttribute('role', 'radio');
   b.setAttribute('aria-checked', checked ? 'true' : 'false');
   b.tabIndex = -1;                     // wireRadioKeys promotes exactly one
-  b.innerHTML = '<span>' + label + '</span><span class="marker" aria-hidden="true"></span>';
-  b.addEventListener('click', () => { onPick(); renderQuestion(); syncNext(); focusChecked(); });
+  // Marker, then label, then the digit key — in RTL that reads circle, text,
+  // shortcut, right to left, with the circle next to the words it belongs to.
+  b.innerHTML = '<span class="marker" aria-hidden="true"></span>' +
+                '<span class="a-label">' + label + '</span>' +
+                (digit ? '<span class="kbd" aria-hidden="true">' + toFa(digit) + '</span>' : '');
+  b.addEventListener('click', () => {
+    onPick(); renderQuestion(); syncNext(); focusChecked();
+    // Arrow keys move through a radiogroup by selecting, so advancing on every
+    // selection would make the arrows unusable. Only a click or a digit —
+    // an outright choice — advances.
+    if (!arrowSelecting) maybeAdvance();
+  });
   return b;
 }
 
@@ -1149,9 +1275,11 @@ function wireRadioKeys(box){
     else return;
     e.preventDefault();
     radios[to].focus();
-    radios[to].click();          // arrows select, as radios do
+    arrowSelecting = true;       // arrows select, as radios do — but never advance
+    try { radios[to].click(); } finally { arrowSelecting = false; }
   });
 }
+let arrowSelecting = false;
 
 /* After a re-render the DOM is new, so focus has to be put back on the option
    the person just chose — otherwise it falls to <body> and the next arrow
@@ -1179,7 +1307,15 @@ document.addEventListener('mousedown', () => { keyboardPick = false; }, true);
 function renderQuestion(){
   const total = TEST.questions.length;
   document.getElementById('q-current').textContent = toFa(currentQ+1);
-  document.getElementById('progress-fill').style.width = (currentQ/total*100)+'%';
+  /* Answered, not "how far along the list you have scrolled" — coming back to
+     question 3 of a test you have answered 40 of must not throw the bar back
+     to 4%. */
+  const doneN = TEST.questions.reduce((n,_,i) => n + (isAnswered(i) ? 1 : 0), 0);
+  const pct = Math.round(doneN / total * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  const pb = document.getElementById('progress-bar');
+  pb.setAttribute('aria-valuenow', pct);
+  pb.setAttribute('aria-valuetext', toFa(doneN) + ' از ' + toFa(total) + ' پرسش پاسخ داده شده');
   document.getElementById('prompt-small').textContent = TEST.promptSmall || '';
   const q = TEST.questions[currentQ];
   document.getElementById('prompt-main').innerHTML = subMeta(q.text || TEST.promptMain || '');
@@ -1195,7 +1331,7 @@ function renderQuestion(){
     box.className='likert';
     TEST.scale.forEach((label,si)=>{
       const val = TEST.scaleValues[si];
-      const btn=makeRadio(label, answers[currentQ]===val, ()=>{ answers[currentQ]=val; });
+      const btn=makeRadio(label, answers[currentQ]===val, ()=>{ answers[currentQ]=val; }, si+1);
       box.appendChild(btn);
     });
     cont.appendChild(box);
@@ -1204,8 +1340,8 @@ function renderQuestion(){
   else if(TEST.format==='paired'){
     const box=makeRadioGroup();
     box.className='answers';
-    [['a',q.a],['b',q.b]].forEach(([key,opt])=>{
-      const btn=makeRadio(subMeta(opt.t), answers[currentQ]===key, ()=>{ answers[currentQ]=key; });
+    [['a',q.a],['b',q.b]].forEach(([key,opt],oi)=>{
+      const btn=makeRadio(subMeta(opt.t), answers[currentQ]===key, ()=>{ answers[currentQ]=key; }, oi+1);
       box.appendChild(btn);
     });
     cont.appendChild(box);
@@ -1220,7 +1356,6 @@ function renderQuestion(){
       const mostOn = state.most===wi;
       const leastOn = state.least===wi;
       row.innerHTML='<span class="dw-text">'+w.t+'</span>';
-      const picks=document.createElement('div'); picks.className='dw-picks'; picks.style.display='contents';
       const mBtn=document.createElement('button');
       mBtn.className='disc-pick'+(mostOn?' most-on':''); mBtn.textContent='بیشترین شباهت';
       mBtn.setAttribute('aria-pressed', mostOn ? 'true' : 'false');
@@ -1239,6 +1374,7 @@ function renderQuestion(){
 
   document.getElementById('btn-back').style.visibility = currentQ===0?'hidden':'visible';
   document.getElementById('btn-next-label').textContent = currentQ===total-1?'نمایش نتیجه':'پرسش بعدی';
+  paintQuizHint();
   announceQuestion(currentQ+1, total);
   syncNext();
 }
@@ -1259,6 +1395,85 @@ function isAnswered(i){
   if(TEST.format==='disc'){ return a && a.most!==null && a.least!==null && a.most!==a.least; }
   return a!==null && a!==undefined;
 }
+/* ---------- ANSWERING A LONG TEST ----------
+   Seventy questions at two interactions each — pick, then reach for «پرسش
+   بعدی» — is a hundred and forty deliberate acts to finish one test. Two
+   things fix that: the digits 1..5 answer directly, and a choice moves on by
+   itself.
+
+   Both have to be careful about who is doing the choosing:
+   - digits accept Persian ۱-۵ as well as 1-5, because a Persian keyboard
+     layout emits U+06F1..U+06F5 and this audience types on one;
+   - they do nothing while a modifier is held or while focus is in a field,
+     so Ctrl+1 still switches browser tabs and typing a number in the info
+     intro still types a number;
+   - auto-advance never fires from an arrow key. In a radiogroup the arrows
+     select as they move, so advancing on selection would make the arrows —
+     the only way a screen reader steps through the options — jump the person
+     forward on every press.
+   It is announced on the screen and can be switched off, which is what WCAG
+   3.2.2 asks of a change of context on input, and the setting is remembered. */
+let autoAdvance = true;
+let advanceTimer = null;
+
+function setAutoAdvance(on){
+  autoAdvance = !!on;
+  Store.setPref('autoAdvance', autoAdvance);
+  if (!autoAdvance && advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+  paintQuizHint();
+}
+
+function maybeAdvance(){
+  if (!autoAdvance) return;
+  if (!isAnswered(currentQ)) return;
+  if (currentQ >= TEST.questions.length - 1) return;   // never auto-submit
+  if (advanceTimer) clearTimeout(advanceTimer);
+  // Long enough to see which option took the selection, short enough not to
+  // feel like waiting.
+  advanceTimer = setTimeout(() => { advanceTimer = null; nextQuestion(); }, 260);
+}
+
+function paintQuizHint(){
+  const el = document.getElementById('quiz-hint');
+  if (!el || !TEST) return;
+  const n = TEST.format === 'likert' ? TEST.scale.length
+          : TEST.format === 'paired' ? 2 : 0;
+  const bits = [];
+  if (n) bits.push('<span class="kb-only">کلیدهای ۱ تا ' + toFa(n) + ' گزینه‌ها را انتخاب می‌کنند.</span>');
+  bits.push(autoAdvance
+    ? 'پس از هر انتخاب، خودکار به پرسش بعدی می‌روی؛ با «پرسش قبلی» می‌توانی برگردی.'
+    : 'برای رفتن به پرسش بعدی، «پرسش بعدی» را بزن.');
+  el.innerHTML = bits.join(' ');
+}
+
+/* Digits, on the whole document, filtered down to the quiz screen. */
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+  const scr = document.querySelector('.screen.active');
+  if (!scr || scr.id !== 'screen-quiz') return;
+  /* Only TEXT ENTRY swallows the digit. Bailing on every INPUT meant that
+     after clicking the auto-advance checkbox — which then holds focus — the
+     digits stopped working until you clicked somewhere else. A checkbox has
+     no use for a "4". */
+  const t = e.target;
+  const TYPING = /^(text|search|email|url|tel|password|number|date|time|month|week|datetime-local)$/;
+  if (t && (t.isContentEditable || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' ||
+            (t.tagName === 'INPUT' && TYPING.test(t.type)))) return;
+
+  // Persian ۱-۹ (U+06F1..) and ASCII 1-9 both mean the same option.
+  const code = e.key.codePointAt(0);
+  let d = -1;
+  if (e.key.length === 1 && code >= 0x31 && code <= 0x39) d = code - 0x31;
+  else if (e.key.length === 1 && code >= 0x06F1 && code <= 0x06F9) d = code - 0x06F1;
+  if (d < 0) return;
+
+  const radios = [...document.querySelectorAll('#answers-container [role=radio]')];
+  if (d >= radios.length) return;      // 7 on a five-point scale is not an answer
+  e.preventDefault();
+  keyboardPick = true;                 // the re-render must put focus back
+  radios[d].click();                   // and this is not an arrow, so it advances
+});
+
 function syncNext(){
   document.getElementById('btn-next').disabled = !isAnswered(currentQ);
   Store.saveProgress();   /* every answer, so a refresh loses at most nothing */
