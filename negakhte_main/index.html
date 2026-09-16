@@ -241,6 +241,7 @@
     font-size: clamp(20px, 2.6vw, 27px); font-weight: 700; line-height: 1.5;
     color: var(--ink); margin-bottom: 32px; text-align: center;
   }
+  .question-prompt h2 { font: inherit; color: inherit; }
   .question-prompt .small { display: block; font-size: 14px; color: var(--gold-ink); font-weight: 600; letter-spacing: 2px; margin-bottom: 12px; }
   .answers { display: grid; gap: 14px; }
   .answer {
@@ -261,6 +262,39 @@
     content: '✓'; position: absolute; inset: 0; display: flex; align-items: center;
     justify-content: center; color: var(--ink); font-size: 15px; font-weight: 700;
   }
+  /* A FOCUS RING IN THE PALETTE. There was none, so every focusable thing
+     fell back to the browser's default outline — a hard black ring on a cream
+     page, which is exactly what showed up on the first answer option in the
+     very first screenshot of this page. :focus-visible, so it appears for the
+     keyboard and not on mouse clicks. */
+  :focus-visible {
+    outline: 3px solid var(--oxblood);
+    outline-offset: 2px;
+  }
+  /* The dark hero and the selected answer invert the ground, so the ring has
+     to invert with them or it disappears into the fill. */
+  .answer.selected:focus-visible,
+  .result-hero :focus-visible { outline-color: var(--gold); }
+
+  /* Honour a system-level request for less movement. The page animates option
+     hovers, bar fills, screen transitions and smooth scrolling; none of it is
+     load-bearing, so all of it goes. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    .answer:hover, .test-card:hover, .branch-card:hover { transform: none; }
+  }
+
+  /* Visually hidden, still announced. */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
   /* Likert row variant */
   .likert { display: grid; gap: 10px; }
   .likert .answer { padding: 16px 22px; font-size: 16px; }
@@ -438,12 +472,20 @@
         <span class="gold" id="q-testname">آزمون</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <!-- The count, announced politely on change, so keyboard and screen
+           reader users get the sense of remaining effort that the 3px bar
+           conveys visually. -->
+      <p class="sr-only" id="q-announce" role="status" aria-live="polite"></p>
     </div>
 
     <div class="question-block">
       <div class="question-prompt" id="question-prompt">
         <span class="small" id="prompt-small">…</span>
-        <span id="prompt-main">…</span>
+        <!-- A heading, and focusable. Advancing a question replaces the text
+             in place, which a screen reader has no reason to notice; moving
+             focus to the new heading is the wizard pattern that announces it
+             without a live region shouting over everything else. -->
+        <h2 id="prompt-main" tabindex="-1">…</h2>
       </div>
       <div id="answers-container"><!-- answers/likert/disc injected --></div>
     </div>
@@ -890,6 +932,86 @@ function buildIntro(){
 /* =========================================================
    QUESTION RENDER  (three formats: likert, paired, disc)
 ========================================================= */
+/* =========================================================
+   RADIO GROUPS — what the answer options should have been
+   ---------------------------------------------------------
+   The options were plain <button>s: nothing told the assistive layer they
+   were a set, which one was chosen, or how many there were. A screen reader
+   heard five unrelated buttons per question, seventy times.
+
+   They are now a real radiogroup, labelled by the question, with the
+   behaviour the pattern requires: ONE tab stop for the whole group (roving
+   tabindex), arrows to move between options, and moving selects — which is
+   also what makes a 70-question test bearable from a keyboard.
+========================================================= */
+function makeRadioGroup(){
+  const box = document.createElement('div');
+  box.setAttribute('role', 'radiogroup');
+  box.setAttribute('aria-labelledby', 'prompt-main');
+  return box;
+}
+
+/* `onPick` records the answer; re-rendering and the rest is shared, so no
+   caller can forget to save or to sync the Next button. */
+function makeRadio(label, checked, onPick){
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'answer' + (checked ? ' selected' : '');
+  b.setAttribute('role', 'radio');
+  b.setAttribute('aria-checked', checked ? 'true' : 'false');
+  b.tabIndex = -1;                     // wireRadioKeys promotes exactly one
+  b.innerHTML = '<span>' + label + '</span><span class="marker" aria-hidden="true"></span>';
+  b.addEventListener('click', () => { onPick(); renderQuestion(); syncNext(); focusChecked(); });
+  return b;
+}
+
+/* One tab stop per group: the checked option, or the first if none is. */
+function wireRadioKeys(box){
+  const radios = [...box.querySelectorAll('[role=radio]')];
+  if (!radios.length) return;
+  const checked = radios.findIndex(r => r.getAttribute('aria-checked') === 'true');
+  radios[checked >= 0 ? checked : 0].tabIndex = 0;
+
+  box.addEventListener('keydown', e => {
+    const i = radios.indexOf(document.activeElement);
+    if (i < 0) return;
+    // In an RTL radiogroup the arrow that means "next" is the LEFT one, and
+    // Up/Down are unambiguous. Home/End jump to the ends, per the pattern.
+    let to = null;
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowDown') to = (i + 1) % radios.length;
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') to = (i - 1 + radios.length) % radios.length;
+    else if (e.key === 'Home') to = 0;
+    else if (e.key === 'End')  to = radios.length - 1;
+    else return;
+    e.preventDefault();
+    radios[to].focus();
+    radios[to].click();          // arrows select, as radios do
+  });
+}
+
+/* After a re-render the DOM is new, so focus has to be put back on the option
+   the person just chose — otherwise it falls to <body> and the next arrow
+   press does nothing. */
+let keyboardPick = false;
+function focusChecked(){
+  if (!keyboardPick) return;
+  const el = document.querySelector('#answers-container [role=radio][aria-checked=true]')
+          || document.querySelector('#answers-container [role=radio]');
+  if (el) el.focus();
+}
+/* CAPTURE phase, deliberately. Both this and wireRadioKeys' handler are on
+   the bubble path, and the group's is the deeper one — so it ran first, set
+   the answer, re-rendered and called focusChecked() while this flag was still
+   false. Focus fell to <body>, and the NEXT arrow press found no focused
+   radio and did nothing: arrow navigation worked exactly once.
+   Capturing runs this before any descendant handler, so the flag is correct
+   by the time the re-render asks. */
+document.addEventListener('keydown', e => {
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End',' ','Enter'].includes(e.key))
+    keyboardPick = true;
+}, true);
+document.addEventListener('mousedown', () => { keyboardPick = false; }, true);
+
 function renderQuestion(){
   const total = TEST.questions.length;
   document.getElementById('q-current').textContent = toFa(currentQ+1);
@@ -905,27 +1027,25 @@ function renderQuestion(){
   cont.innerHTML='';
 
   if(TEST.format==='likert'){
-    const box=document.createElement('div'); box.className='likert';
+    const box=makeRadioGroup();
+    box.className='likert';
     TEST.scale.forEach((label,si)=>{
       const val = TEST.scaleValues[si];
-      const btn=document.createElement('button');
-      btn.className='answer'+(answers[currentQ]===val?' selected':'');
-      btn.innerHTML='<span>'+label+'</span><span class="marker"></span>';
-      btn.onclick=()=>{ answers[currentQ]=val; renderQuestion(); syncNext(); };
+      const btn=makeRadio(label, answers[currentQ]===val, ()=>{ answers[currentQ]=val; });
       box.appendChild(btn);
     });
     cont.appendChild(box);
+    wireRadioKeys(box);
   }
   else if(TEST.format==='paired'){
-    const box=document.createElement('div'); box.className='answers';
+    const box=makeRadioGroup();
+    box.className='answers';
     [['a',q.a],['b',q.b]].forEach(([key,opt])=>{
-      const btn=document.createElement('button');
-      btn.className='answer'+(answers[currentQ]===key?' selected':'');
-      btn.innerHTML='<span>'+subMeta(opt.t)+'</span><span class="marker"></span>';
-      btn.onclick=()=>{ answers[currentQ]=key; renderQuestion(); syncNext(); };
+      const btn=makeRadio(subMeta(opt.t), answers[currentQ]===key, ()=>{ answers[currentQ]=key; });
       box.appendChild(btn);
     });
     cont.appendChild(box);
+    wireRadioKeys(box);
   }
   else if(TEST.format==='disc'){
     // answers[currentQ] = {most:idx|null, least:idx|null}
@@ -939,9 +1059,13 @@ function renderQuestion(){
       const picks=document.createElement('div'); picks.className='dw-picks'; picks.style.display='contents';
       const mBtn=document.createElement('button');
       mBtn.className='disc-pick'+(mostOn?' most-on':''); mBtn.textContent='بیشترین شباهت';
+      mBtn.setAttribute('aria-pressed', mostOn ? 'true' : 'false');
+      mBtn.setAttribute('aria-label', 'بیشترین شباهت به ' + w.t);
       mBtn.onclick=()=>{ if(state.least===wi) state.least=null; state.most=mostOn?null:wi; answers[currentQ]={...state}; renderQuestion(); syncNext(); };
       const lBtn=document.createElement('button');
       lBtn.className='disc-pick'+(leastOn?' least-on':''); lBtn.textContent='کمترین شباهت';
+      lBtn.setAttribute('aria-pressed', leastOn ? 'true' : 'false');
+      lBtn.setAttribute('aria-label', 'کمترین شباهت به ' + w.t);
       lBtn.onclick=()=>{ if(state.most===wi) state.most=null; state.least=leastOn?null:wi; answers[currentQ]={...state}; renderQuestion(); syncNext(); };
       row.appendChild(mBtn); row.appendChild(lBtn);
       box.appendChild(row);
@@ -951,7 +1075,19 @@ function renderQuestion(){
 
   document.getElementById('btn-back').style.visibility = currentQ===0?'hidden':'visible';
   document.getElementById('btn-next-label').textContent = currentQ===total-1?'نمایش نتیجه':'پرسش بعدی';
+  announceQuestion(currentQ+1, total);
   syncNext();
+}
+
+/* Only when the question actually changes — renderQuestion() also runs on
+   every answer to repaint the selection, and announcing the count again each
+   time would talk over the choice the person just made. */
+let announcedQ = -1;
+function announceQuestion(n, total){
+  if (announcedQ === n) return;
+  announcedQ = n;
+  const el = document.getElementById('q-announce');
+  if (el) el.textContent = 'پرسش ' + toFa(n) + ' از ' + toFa(total);
 }
 
 function isAnswered(i){
