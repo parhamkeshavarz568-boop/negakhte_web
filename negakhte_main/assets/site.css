@@ -501,7 +501,7 @@ footer .fine {
   transform-origin: 50% 100%;
 }
 @keyframes seat-in {
-  from { opacity: 0; transform: translateY(9px) scale(.9); }
+  from { opacity: 0; transform: translateY(9px); }
   to   { opacity: 1; transform: none; }
 }
 /* The empty seat keeps breathing after the others have settled — the one
@@ -534,9 +534,8 @@ footer .bleed { inset-block-end:-30%; inset-inline-end:-8%; opacity:.06; }
   /* The resting state IS the finished drawing, so killing the animation
      loses nothing but the movement. */
   .seat, .seat-empty { animation:none !important; opacity:1 !important; transform:none !important; }
-  
-/* The annotation that names the gap. Drawn inside the artwork so it scales
-   with it and cannot drift away from the seat it points at. */
+}
+
 .hero-cap { animation: fade-in .7s 1.05s var(--ease) both; }
 @keyframes fade-in { from { opacity:0; } to { opacity:1; } }
 /* what gets put in the middle */
@@ -545,4 +544,113 @@ footer .bleed { inset-block-end:-30%; inset-inline-end:-8%; opacity:.06; }
 @media (prefers-reduced-motion: reduce) {
   .hero-cap { animation:none !important; opacity:1 !important; }
   .ember { animation:none !important; }
+}
+
+/* ── THE CIRCLE TURNS ─────────────────────────────────────────
+   A real orbit, not a rotation: each figure travels the ellipse,
+   grows as it comes forward, shrinks and fades as it goes behind,
+   and stays upright the whole way. Rotating the group would tip
+   everyone over and stand the far seats on their heads.
+
+   THE GROUND DOES NOT TURN. The rug, its weave, its rim and the
+   ember are all static; only the people move on them. That
+   parallax is what makes the floor read as a floor.
+
+   One keyframe track shared by all ten, each entered at its own
+   point by a negative delay — so the resting frame is exactly the
+   composition drawn before anything moved. 78s for one
+   revolution: slow enough that you notice it only if you stay.
+   ------------------------------------------------------------ */
+.orb {
+  animation: orbit 78s linear infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;      /* they grow up out of the floor */
+  will-change: transform, opacity;
+}
+/* The empty place is a contour, so it holds its weight all the way round
+   instead of fading out at the back like a filled figure. */
+.orb-empty { animation-name: orbit-empty; }
+
+@keyframes orbit {
+  0% { transform: translate(240.00px,71.00px) scale(0.7400); opacity: 0.740; }
+  2.778% { transform: translate(271.26px,72.23px) scale(0.7436); opacity: 0.742; }
+  5.556% { transform: translate(301.56px,75.88px) scale(0.7545); opacity: 0.748; }
+  8.333% { transform: translate(330.00px,81.85px) scale(0.7722); opacity: 0.757; }
+  11.11% { transform: translate(355.70px,89.95px) scale(0.7961); opacity: 0.770; }
+  13.89% { transform: translate(377.89px,99.93px) scale(0.8257); opacity: 0.786; }
+  16.67% { transform: translate(395.88px,111.50px) scale(0.8600); opacity: 0.805; }
+  19.44% { transform: translate(409.14px,124.30px) scale(0.8979); opacity: 0.826; }
+  22.22% { transform: translate(417.27px,137.93px) scale(0.9383); opacity: 0.847; }
+  25% { transform: translate(420.00px,152.00px) scale(0.9800); opacity: 0.870; }
+  27.78% { transform: translate(417.27px,166.07px) scale(1.0217); opacity: 0.893; }
+  30.56% { transform: translate(409.14px,179.70px) scale(1.0621); opacity: 0.914; }
+  33.33% { transform: translate(395.88px,192.50px) scale(1.1000); opacity: 0.935; }
+  36.11% { transform: translate(377.89px,204.07px) scale(1.1343); opacity: 0.954; }
+  38.89% { transform: translate(355.70px,214.05px) scale(1.1639); opacity: 0.970; }
+  41.67% { transform: translate(330.00px,222.15px) scale(1.1878); opacity: 0.983; }
+  44.44% { transform: translate(301.56px,228.12px) scale(1.2055); opacity: 0.992; }
+  47.22% { transform: translate(271.26px,231.77px) scale(1.2164); opacity: 0.998; }
+  50% { transform: translate(240.00px,233.00px) scale(1.2200); opacity: 1.000; }
+  52.78% { transform: translate(208.74px,231.77px) scale(1.2164); opacity: 0.998; }
+  55.56% { transform: translate(178.44px,228.12px) scale(1.2055); opacity: 0.992; }
+  58.33% { transform: translate(150.00px,222.15px) scale(1.1878); opacity: 0.983; }
+  61.11% { transform: translate(124.30px,214.05px) scale(1.1639); opacity: 0.970; }
+  63.89% { transform: translate(102.11px,204.07px) scale(1.1343); opacity: 0.954; }
+  66.67% { transform: translate(84.12px,192.50px) scale(1.1000); opacity: 0.935; }
+  69.44% { transform: translate(70.86px,179.70px) scale(1.0621); opacity: 0.914; }
+  72.22% { transform: translate(62.73px,166.07px) scale(1.0217); opacity: 0.893; }
+  75% { transform: translate(60.00px,152.00px) scale(0.9800); opacity: 0.870; }
+  77.78% { transform: translate(62.73px,137.93px) scale(0.9383); opacity: 0.847; }
+  80.56% { transform: translate(70.86px,124.30px) scale(0.8979); opacity: 0.826; }
+  83.33% { transform: translate(84.12px,111.50px) scale(0.8600); opacity: 0.805; }
+  86.11% { transform: translate(102.11px,99.93px) scale(0.8257); opacity: 0.786; }
+  88.89% { transform: translate(124.30px,89.95px) scale(0.7961); opacity: 0.770; }
+  91.67% { transform: translate(150.00px,81.85px) scale(0.7722); opacity: 0.757; }
+  94.44% { transform: translate(178.44px,75.88px) scale(0.7545); opacity: 0.748; }
+  97.22% { transform: translate(208.74px,72.23px) scale(0.7436); opacity: 0.742; }
+  100% { transform: translate(240.00px,71.00px) scale(0.7400); opacity: 0.740; }
+}
+@keyframes orbit-empty {
+  0% { transform: translate(240.00px,71.00px) scale(0.7400); opacity: 0.900; }
+  2.778% { transform: translate(271.26px,72.23px) scale(0.7436); opacity: 0.900; }
+  5.556% { transform: translate(301.56px,75.88px) scale(0.7545); opacity: 0.900; }
+  8.333% { transform: translate(330.00px,81.85px) scale(0.7722); opacity: 0.900; }
+  11.11% { transform: translate(355.70px,89.95px) scale(0.7961); opacity: 0.900; }
+  13.89% { transform: translate(377.89px,99.93px) scale(0.8257); opacity: 0.900; }
+  16.67% { transform: translate(395.88px,111.50px) scale(0.8600); opacity: 0.900; }
+  19.44% { transform: translate(409.14px,124.30px) scale(0.8979); opacity: 0.900; }
+  22.22% { transform: translate(417.27px,137.93px) scale(0.9383); opacity: 0.900; }
+  25% { transform: translate(420.00px,152.00px) scale(0.9800); opacity: 0.900; }
+  27.78% { transform: translate(417.27px,166.07px) scale(1.0217); opacity: 0.900; }
+  30.56% { transform: translate(409.14px,179.70px) scale(1.0621); opacity: 0.900; }
+  33.33% { transform: translate(395.88px,192.50px) scale(1.1000); opacity: 0.900; }
+  36.11% { transform: translate(377.89px,204.07px) scale(1.1343); opacity: 0.900; }
+  38.89% { transform: translate(355.70px,214.05px) scale(1.1639); opacity: 0.900; }
+  41.67% { transform: translate(330.00px,222.15px) scale(1.1878); opacity: 0.900; }
+  44.44% { transform: translate(301.56px,228.12px) scale(1.2055); opacity: 0.900; }
+  47.22% { transform: translate(271.26px,231.77px) scale(1.2164); opacity: 0.900; }
+  50% { transform: translate(240.00px,233.00px) scale(1.2200); opacity: 0.900; }
+  52.78% { transform: translate(208.74px,231.77px) scale(1.2164); opacity: 0.900; }
+  55.56% { transform: translate(178.44px,228.12px) scale(1.2055); opacity: 0.900; }
+  58.33% { transform: translate(150.00px,222.15px) scale(1.1878); opacity: 0.900; }
+  61.11% { transform: translate(124.30px,214.05px) scale(1.1639); opacity: 0.900; }
+  63.89% { transform: translate(102.11px,204.07px) scale(1.1343); opacity: 0.900; }
+  66.67% { transform: translate(84.12px,192.50px) scale(1.1000); opacity: 0.900; }
+  69.44% { transform: translate(70.86px,179.70px) scale(1.0621); opacity: 0.900; }
+  72.22% { transform: translate(62.73px,166.07px) scale(1.0217); opacity: 0.900; }
+  75% { transform: translate(60.00px,152.00px) scale(0.9800); opacity: 0.900; }
+  77.78% { transform: translate(62.73px,137.93px) scale(0.9383); opacity: 0.900; }
+  80.56% { transform: translate(70.86px,124.30px) scale(0.8979); opacity: 0.900; }
+  83.33% { transform: translate(84.12px,111.50px) scale(0.8600); opacity: 0.900; }
+  86.11% { transform: translate(102.11px,99.93px) scale(0.8257); opacity: 0.900; }
+  88.89% { transform: translate(124.30px,89.95px) scale(0.7961); opacity: 0.900; }
+  91.67% { transform: translate(150.00px,81.85px) scale(0.7722); opacity: 0.900; }
+  94.44% { transform: translate(178.44px,75.88px) scale(0.7545); opacity: 0.900; }
+  97.22% { transform: translate(208.74px,72.23px) scale(0.7436); opacity: 0.900; }
+  100% { transform: translate(240.00px,71.00px) scale(0.7400); opacity: 0.900; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Paused, not removed: the frame it holds is the finished drawing. */
+  .orb { animation-play-state: paused !important; }
 }
