@@ -201,8 +201,8 @@ section:last-of-type { padding-block-end:var(--s11); }
 /* ── hero ───────────────────────────────────────────────────── */
 .hero { padding-block:var(--s10) 0; }
 .hero-grid {
-  display:grid; grid-template-columns:minmax(0,1.5fr) minmax(190px,.62fr);
-  gap:var(--s8); align-items:center;
+  display:grid; grid-template-columns:minmax(0,1.04fr) minmax(300px,1.06fr);
+  gap:var(--s7); align-items:center;
 }
 .hero h1 {
   font-size:clamp(32px,4.9vw,54px); letter-spacing:-.03em;
@@ -210,13 +210,17 @@ section:last-of-type { padding-block-end:var(--s11); }
 }
 /* The one place the accent is allowed to be loud. */
 .hero h1 .accent { color:var(--teal-deep); }
-.hero-art { position:relative; justify-self:center; width:100%; max-width:320px; }
+.hero-art { position:relative; justify-self:center; width:100%; max-width:620px; }
+.hero-cap {
+  margin:0; text-align:center; font-size:14px; font-weight:600;
+  color:var(--gold-ink); letter-spacing:.03em;
+}
 .hero-art svg { display:block; width:100%; height:auto; }
 .hero-links { display:flex; flex-wrap:wrap; gap:var(--s3); margin-top:var(--s7); }
-@media (max-width:880px) {
-  .hero { padding-block-start:var(--s8); }
-  .hero-grid { grid-template-columns:1fr; gap:var(--s7); }
-  .hero-art { max-width:220px; justify-self:start; order:-1; }
+@media (max-width:900px) {
+  .hero { padding-block-start:var(--s7); }
+  .hero-grid { grid-template-columns:1fr; gap:var(--s6); }
+  .hero-art { max-width:480px; justify-self:center; order:-1; }
 }
 
 /* ── buttons ────────────────────────────────────────────────── */
@@ -476,4 +480,83 @@ footer .fine {
   body { background:#fff; }
   .dark, footer { background:#fff !important; color:#000 !important; }
   .worry details { display:block; }
+}
+
+/* ============================================================
+   THE DRAWINGS
+   ------------------------------------------------------------
+   Every mark on this site is drawn here — no stock, no licence,
+   no raster. The hero is the only place with motion, and all of
+   it is decorative: the page is complete and correct in its
+   resting state, which is what the animation ends on.
+   ============================================================ */
+
+/* Seven people around a ring and one place left open. They arrive
+   back-to-front, 90ms apart, which is the drawing assembling itself
+   rather than a decoration sliding in. */
+.seat {
+  animation: seat-in .62s var(--ease) both;
+  animation-delay: var(--d, 0ms);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+@keyframes seat-in {
+  from { opacity: 0; transform: translateY(9px) scale(.9); }
+  to   { opacity: 1; transform: none; }
+}
+/* The empty seat keeps breathing after the others have settled — the one
+   thing on the page still asking. */
+.seat-empty { animation: seat-in .62s var(--ease) both, pulse 3.6s 1.4s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .42; }
+}
+
+/* What is said in the middle travels outward. Three ellipses, slowly. */
+.rip {
+  transform-box: fill-box; transform-origin: 50% 50%;
+  animation: rip 7.8s linear infinite;
+  opacity: 0;
+}
+@keyframes rip {
+  0%   { transform: scale(.28); opacity: 0; }
+  18%  { opacity: .5; }
+  100% { transform: scale(1.22); opacity: 0; }
+}
+
+/* حضوری / آنلاین: the same ring, in a room and in frames. */
+.mode { display:flex; gap:var(--s4); align-items:flex-start; margin-bottom:var(--s4); }
+.mode:last-child { margin-bottom:0; }
+.mode-m { flex:0 0 58px; width:58px; height:auto; margin-top:3px; }
+.mode p { margin:0; }
+
+/* The step arcs fill as a session runs: a third, two thirds, closed. */
+.step .ring-n { width:52px; height:52px; }
+
+/* A ring of figures bled off the edge of the dark registers, as texture. */
+.dark .bleed, footer .bleed {
+  position:absolute; width:min(560px,58vw); height:auto;
+  opacity:.085; z-index:-1; pointer-events:none; color:var(--gold-bright);
+}
+.dark .bleed  { inset-block-start:-16%; inset-inline-start:-10%; }
+footer .bleed { inset-block-end:-30%; inset-inline-end:-8%; opacity:.06; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* The resting state IS the finished drawing, so killing the animation
+     loses nothing but the movement. */
+  .seat, .seat-empty { animation:none !important; opacity:1 !important; transform:none !important; }
+  .rip { animation:none !important; opacity:.34 !important; }
+}
+
+/* The annotation that names the gap. Drawn inside the artwork so it scales
+   with it and cannot drift away from the seat it points at. */
+.anno-t { font-family:var(--fa); font-size:18px; font-weight:700; }
+.anno, .anno-t { animation: fade-in .7s 1.1s var(--ease) both; }
+@keyframes fade-in { from { opacity:0; } to { opacity:1; } }
+/* what gets put in the middle */
+.ember { animation: ember 5.4s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 50%; }
+@keyframes ember { 0%,100% { opacity:.5; transform:scale(1); } 50% { opacity:.78; transform:scale(1.1); } }
+@media (prefers-reduced-motion: reduce) {
+  .anno, .anno-t { animation:none !important; opacity:1 !important; }
+  .ember { animation:none !important; }
 }
