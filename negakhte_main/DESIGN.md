@@ -1,7 +1,8 @@
 # نگاخته — طرح دیزاین
 # Negakhte — Design Plan
 
-**Property:** the self-knowledge tests site (`negakhte_main`)
+**Property:** negakhte.com — the company site. Main work: group therapy,
+in person and online. The self-knowledge tests are one section of it.
 **Author:** design lead
 **Status:** approved direction, phased implementation
 **Sibling property:** کافه نگاخته (`ali-optimized/`) — the brand's other site
@@ -55,82 +56,70 @@ result screen and the share card product surfaces, not afterthoughts.
 
 ---
 
-## 1. The idea: هفت خان
+## 1. The idea: the circle
 
-### 1.1 Where it comes from — not invented here
+> **Superseded direction.** An earlier version of this plan framed the site as
+> «هفت خان خودشناسی» — the seven tests as the seven trials of the Shahnameh.
+> It was rejected, correctly, on a structural ground rather than a matter of
+> taste: **it baked a count into the identity.** Add an eighth test and the
+> name, the ornament, the numerals and the whole table of contents break at
+> once. A brand mark must not depend on an inventory. That version is in the
+> git history; nothing below relies on it.
 
-The brand already has an identity, and it is a good one. کافه نگاخته's about
-page is not a page; it is a **دفتر تذکره** — a manuscript register, written in
-classical register with a دیباچه, a فهرستِ ابواب, and numbered باب chapters. Its
-declared chapters are:
+### 1.1 What this site is actually for
 
-- در بیانِ نشانِ کافه — the meaning of the mark
-- در گردشِ افلاک و سیرِ مهر و ماه — the turning of the heavens
-- در شرحِ دوازده برجِ آسمان — the twelve towers of the sky
-- در آن قلمِ سحرآمیز که نام می‌نگارد — the pen that inscribes the name
-- **در حکایاتِ هفت‌گانه‌ی شاهنامه** — the seven tales of the Shahnameh
+نگاخته is a company that does several things — group therapy, the
+self-knowledge tests, and charitable work among them. **The main work is group
+therapy, run both in person and online.**
 
-And the café's own system is: **each menu category is given a Shahnameh tale as
-its patron, and that tale's image sits faintly behind the text.** Coffee gets
-کاوه آهنگر, because the smith's forge and a hot drink are the same fire. The hot
-drinks get ضحاک. The cold drinks get خسرو و شیرین, because their love began at a
-cold spring.
+The site's job, stated by the client: **let a visitor explore and come away
+understanding who نگاخته is and what it does.** That is an orientation problem,
+not a conversion problem, and it changes the design in three concrete ways:
 
-The name itself is the thesis. **نگاخته** — from نگاشتن, to inscribe; نگاره, an
-image. *That which has been inscribed.*
+1. **There is no single loud call to action.** Nothing on the page shouts
+   "book now". Instead every section has to earn the next scroll and offer a
+   real next step. The information architecture *is* the design.
+2. **The organisation has to be mapped, honestly.** A multi-activity company
+   that buries four of its activities to look focused is lying to the visitor
+   it is trying to orient. So there is a «ما چه می‌کنیم» section that names
+   everything, with group therapy given the weight it actually has.
+3. **The emotional job is reducing fear, not creating desire.** Someone
+   considering group therapy is afraid of being judged, of crying in front of
+   strangers, of cost, of commitment, of running into someone they know. A
+   therapy site that does not answer those in plain words has not done its
+   job, however handsome it is. Hence «در یک جلسه چه می‌گذرد؟» and
+   «نگرانی‌های رایج» — the two most important sections on the page.
 
-### 1.2 The move
+### 1.2 The mark: an open circle
 
-This site has **seven tests**. The Shahnameh has **هفت خان** — the seven trials.
-That is not a loose association; it is the same number and the same shape: a
-sequence of distinct ordeals, each with its own adversary, undertaken to
-recover something.
+Group therapy happens in a circle. A circle works with six people or with
+twelve, so unlike a count it can never go out of date — which is precisely
+what was wrong with the seven.
 
-**The site becomes «هفت خان خودشناسی» — the seven trials of knowing yourself.**
+The mark is **a ring with one gap left in it, and a single filled dot sitting
+in that gap.** A group is a circle; a place has been left open for you. It
+carries the name too: نگاخته is from نگاشتن, to inscribe, and a ring is also a
+seal.
 
-Each test is a خان. Each خان has a patron drawn from the Shahnameh, chosen
-because the tale is *about* what the test measures — exactly the logic the café
-already uses on its menu. The site is the دفتر in which your passage through
-them is inscribed.
+It is drawn SVG, two symbols (30px and 200px), inheriting `currentColor`. No
+licence risk, no request, no raster.
 
-This gives us, for free:
-- **A reason to take all seven** instead of one. A sequence invites completion.
-  Two of the site's existing features — the «انجام شده» badge and the resume
-  banner — suddenly mean something.
-- **A frame for the result.** Not a score; an inscription.
-- **Copy that writes itself,** in a voice the brand already owns.
-- **Continuity.** Two properties, visibly one studio.
-- **Difference.** Every competitor is a white card with a progress bar.
+### 1.3 The accent moves from terracotta to teal
 
-### 1.3 The patrons
+کافه نگاخته leads on terra and oxblood. A group therapy practice cannot.
+Red-orange reads as urgency, and this page's entire job is calm.
 
-The patron is a **frame, not a replacement.** The psychology is untouched: the
-feminine-archetype test still measures the seven Greek goddesses, MBTI still
-reports four letters. Renaming the constructs would break the instruments and is
-out of scope. The patron sits around the test, in its header, its ornament and
-its copy.
+So **`--teal` / `--teal-deep` lead**, `--gold` stays as illumination, and
+`--terra-deep` is demoted to exactly one job: marking the panels whose copy the
+client still has to supply, so unfinished content can never be mistaken for
+finished content. Both teal values were already measured — `--teal` 5.05 on
+cream, `--teal-deep` 8.81 — so the shift costs no contrast work.
 
-| # | خان | Test | Patron | Why this tale |
-|---|---|---|---|---|
-| ۱ | خانِ نخست | کهن‌الگوهای زنانه | **سیمرغ** | The Simorgh of Alborz: ancient, wise, nurturing, transformative. She raises the abandoned child and gives her feather to heal. The feminine principle in its oldest Persian form. |
-| ۲ | خانِ دوم | کهن‌الگوهای مردانه | **رستم** | The archetypal hero — and the traveller of the هفت خان himself. A test asking which hero you are belongs to him. |
-| ۳ | خانِ سوم | قطب‌نمای سیاسی | **کاوه آهنگر** | The smith who tied his leather apron to a spear and made it the banner of revolt against Zahhak. The origin of political conscience in Persian myth. Exact fit for a political compass. |
-| ۴ | خانِ چهارم | تیپ شخصیتی MBTI | **قلمِ نگارنده** | The brand's own fourth chapter: *the magic pen that writes the name.* MBTI hands you a four-letter name. The pen inscribes it. |
-| ۵ | خانِ پنجم | سبک دلبستگی | **خسرو و شیرین** | Persian literature's great study of attachment — longing, avoidance, return, the years of not-quite-reaching. Attachment styles are about how you love. |
-| ۶ | خانِ ششم | آزمون رفتاری DISC | **فریدون و فرزندان** | Fereydun divides the world among three sons of three temperaments — the Shahnameh's own meditation on disposition. DISC measures disposition in four dimensions. |
-| ۷ | خانِ هفتم | زبان‌های عشق | **بیژن و منیژه** | Manizheh feeds her imprisoned love by begging door to door. Love as *acts*, not declarations — which is the entire premise of love languages. |
-
-**Ordering note.** The خان numbers are a fixed sequence, so the hub stops being
-an unordered grid. Tests may still be taken in any order; the number names the
-chapter, not a prerequisite.
-
-**On reintroducing numerals.** I removed decorative `۰۱–۰۷` badges from the cards
-in the last pass, and I am now putting numerals back. This is a reversal and
-worth being explicit about. The badges were floating ornaments on an unordered
-list — they numbered nothing. These numerals are the name of the chapter, set
-inside the شمسه that *is* the card's identity mark. The number is now content.
-
----
+Everything in §2 below stands as written; the palette, the type, the space
+scale and the accessibility and performance law are unchanged by the change of
+direction. Only the ornament vocabulary in §2.4 changes: the manuscript motifs
+(شمسه، سرلوح، جدول، ترنج، مُهر) are replaced by the circle, the gold hairline
+eyebrow, and the ruled panel — still flat, still no soft-shadowed cards.
 
 ## 2. Foundations
 
@@ -656,7 +645,8 @@ it is additive and independent.
 
 | Decision | Alternative | Why |
 |---|---|---|
-| هفت خان frame | generic modern editorial | the brand already owns this world; nothing else in the category looks like it |
+| the open circle | the هفت خان frame | a mark must not depend on a count; the tests can change in number |
+| teal-led palette | the café's terra-led one | red-orange reads as urgency; a therapy practice needs calm to lead |
 | Original SVG ornament | reuse the sibling's legend art | that art is unlicensed and one file is visibly watermarked |
 | `--cream` as page ground | `--parchment`, as the café uses | measured: `--terra` fails at 4.11 on parchment |
 | Vazirmatn 800 for display | a Nastaliq face | 200 KB+, unreliable line-breaking, illegible at body size |

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Rebuild the subsetted Vazirmatn from index.html's own text, and verify it.
+Rebuild the subsetted Vazirmatn from the site's own text, and verify it.
 
     python3 tools/build_font.py            # rebuild + check
     python3 tools/build_font.py --check    # check only, no write
 
 RUN THIS AFTER EDITING ANY PERSIAN TEXT. The font is subset to exactly the
-codepoints index.html contains, which is the smallest honest set — and also
+codepoints the site's pages contain, which is the smallest honest set — and also
 means a character you add later has no glyph and renders as a tofu box. This
 script closes that loop: it re-derives the set from the file and fails if the
 shipped font cannot render something the page can display.
@@ -17,11 +17,11 @@ fonts.googleapis.com. That is a render-blocking third party, and one that is
 unreliable and frequently blocked on Iranian networks — the entire audience
 for a Persian-language site. One variable file, same origin, no preconnect.
 """
-import json, os, subprocess, sys, unicodedata
+import glob, json, os, subprocess, sys, unicodedata
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-PAGE = os.path.join(ROOT, "index.html")
+PAGES = sorted(glob.glob(os.path.join(ROOT, "*.html")))
 OUT = os.path.join(ROOT, "assets", "vazirmatn-negakhte.woff2")
 # The upstream variable font, vendored in the sibling project.
 SRC = os.path.join(ROOT, os.pardir, "amochini", "build", "original", "Vazirmatn[wght].ttf")
@@ -42,7 +42,7 @@ NO_GLYPH_UPSTREAM = set("←→↔✓")
 
 
 def needed():
-    s = open(PAGE, encoding="utf-8").read()
+    s = "".join(open(p, encoding="utf-8").read() for p in PAGES)
     use = set(KEEP)
     for c in set(s):
         if c in KEEP:
@@ -84,7 +84,7 @@ def check(chars):
             print(f"      U+{ord(c):04X}  {c!r}  {unicodedata.name(c, '?')}")
         print("    Re-run without --check to rebuild the subset.")
         return 1
-    print(f"  ✓ every one of the {len(chars)} characters index.html can display "
+    print(f"  ✓ every one of the {len(chars)} characters the site can display "
           f"has a glyph")
     return 0
 

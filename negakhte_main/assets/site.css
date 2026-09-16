@@ -1,0 +1,353 @@
+@charset "UTF-8";
+/* ============================================================
+   نگاخته — shared design system
+   ------------------------------------------------------------
+   Palette inherited from کافه نگاخته so the properties read as
+   one studio, then recalibrated and measured.
+
+   THE SHIFT: the café leads with terra/oxblood. A group therapy
+   practice cannot. Red-orange reads as urgency and this page's
+   whole job is calm, so TEAL leads and terra is demoted to a
+   single emphasis colour.
+
+   Every pair below was computed against its real ground:
+     ink        on cream  15.40   paper 17.07
+     ink-soft   on cream  11.00   paper 12.19
+     teal-deep  on cream   8.81   paper  9.76
+     gold-ink   on cream   5.10   paper  5.65
+     teal       on cream   5.05   paper  5.60
+     ink-mute   on cream   5.04   paper  5.59
+     gold       on cream   1.90  — FILL ONLY, never text
+     gold       on ink     8.10   lapis 5.49  — safe on dark
+   ============================================================ */
+
+:root {
+  /* grounds */
+  --cream:       #F4EBD9;   /* the page */
+  --parchment:   #EDE0C4;   /* bands and quiet sections */
+  --paper:       #FBF7EF;   /* cards, the text block */
+  --ink:         #1A1410;   /* the dark register */
+  --lapis:       #1D3557;   /* the second dark register */
+
+  /* inks — all measured above */
+  --fg:          #1A1410;
+  --fg-soft:     #3D2E22;
+  --fg-mute:     #6C6255;
+
+  /* the lead accent */
+  --teal:        #1E6E6E;
+  --teal-deep:   #0F4747;
+
+  /* illumination — fill only on light grounds */
+  --gold:        #C9A961;
+  --gold-bright: #E6C478;
+  --gold-ink:    #7E5D25;   /* the only gold that may carry text */
+
+  /* held in reserve for exactly one thing at a time */
+  --terra-deep:  #8A3217;
+
+  --rule:        #D9CDB8;
+  --rule-soft:   #E6DCC8;
+
+  --fa: "Vazirmatn", "Vazirmatn Fallback", system-ui, sans-serif;
+
+  /* space — one 4px base, these steps and no others */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px; --s5: 20px;
+  --s6: 24px; --s7: 32px; --s8: 44px; --s9: 64px; --s10: 96px;
+
+  color-scheme: light;   /* a manuscript has one ground */
+}
+
+/* Vazirmatn, self-hosted. Google Fonts does not reliably resolve on
+   the networks this audience is on. */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("vazirmatn-negakhte.woff2") format("woff2-variations"),
+       url("vazirmatn-negakhte.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+/* Metric-matched so the swap changes letterforms and not line heights. */
+@font-face {
+  font-family: "Vazirmatn Fallback";
+  src: local("Tahoma"), local("Segoe UI"), local("Arial");
+  ascent-override: 102.5%;
+  descent-override: 53.7%;
+  size-adjust: 101.7%;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--fg);
+  font-family: var(--fa);
+  font-size: 17px;
+  /* Persian has no ascender/descender rhythm to lean on and its
+     diacritics sit high. 1.85 is a floor, not a preference. */
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { margin: 0; line-height: 1.25; font-weight: 800; }
+h2 { line-height: 1.3; }
+p  { margin: 0 0 var(--s4); }
+ul, ol { margin: 0 0 var(--s4); padding-inline-start: var(--s5); }
+li { margin-bottom: var(--s2); }
+a { color: var(--teal-deep); text-underline-offset: 3px; }
+a:hover { color: var(--terra-deep); }
+img, svg { max-width: 100%; }
+
+/* There was no focus ring at all on the old site, so every focusable
+   thing fell back to the browser's black default on a cream page. */
+:focus-visible {
+  outline: 3px solid var(--teal-deep);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.on-dark :focus-visible { outline-color: var(--gold-bright); }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip {
+  position: absolute; inset-inline-start: var(--s4); top: -100px;
+  background: var(--ink); color: var(--cream); padding: var(--s3) var(--s5);
+  z-index: 50; transition: top .15s;
+}
+.skip:focus { top: var(--s4); }
+
+/* ── layout ────────────────────────────────────────────────── */
+.shell { max-width: 1060px; margin-inline: auto; padding-inline: var(--s5); }
+.measure { max-width: 62ch; }        /* ~62 Persian chars reads best */
+.measure-tight { max-width: 52ch; }
+
+section { padding-block: var(--s10) 0; }
+section:last-of-type { padding-block-end: var(--s10); }
+
+/* ── the eyebrow: a Persian label with a gold hairline.
+      Never tracked-out Latin caps. ───────────────────────────── */
+.eyebrow {
+  display: flex; align-items: center; gap: var(--s3);
+  font-size: 13.5px; font-weight: 600; letter-spacing: .04em;
+  color: var(--gold-ink); margin-bottom: var(--s4);
+}
+.eyebrow::before {
+  content: ""; flex: 0 0 28px; height: 2px; background: var(--gold);
+}
+
+.h-sec { font-size: clamp(26px, 3.6vw, 38px); letter-spacing: -.01em; }
+.h-sub { font-size: clamp(20px, 2.4vw, 25px); font-weight: 700; }
+.lede  { font-size: clamp(18px, 2vw, 21px); color: var(--fg-soft); font-weight: 400; }
+.small { font-size: 14.5px; color: var(--fg-mute); }
+
+/* ── header ───────────────────────────────────────────────── */
+.top {
+  border-bottom: 1px solid var(--rule);
+  background: var(--cream);
+  position: sticky; top: 0; z-index: 20;
+}
+.top .shell {
+  display: flex; align-items: center; gap: var(--s5);
+  padding-block: var(--s3);
+}
+.brand {
+  display: flex; align-items: center; gap: var(--s3);
+  font-weight: 800; font-size: 19px; color: var(--fg);
+  text-decoration: none; flex: 0 0 auto;
+}
+.brand svg { width: 30px; height: 30px; flex: 0 0 auto; }
+.brand .bn { letter-spacing: -.01em; }
+.nav { display: flex; gap: var(--s5); margin-inline-start: auto; flex-wrap: wrap; }
+.nav a {
+  font-size: 15px; font-weight: 500; color: var(--fg-soft);
+  text-decoration: none; padding-block: var(--s2);
+  border-bottom: 2px solid transparent;
+}
+.nav a:hover, .nav a[aria-current="page"] {
+  color: var(--teal-deep); border-bottom-color: var(--gold);
+}
+@media (max-width: 720px) {
+  .top .shell { flex-wrap: wrap; gap: var(--s3); }
+  .nav { width: 100%; margin-inline-start: 0; gap: var(--s4); overflow-x: auto; }
+  .nav a { white-space: nowrap; }
+}
+
+/* ── hero ─────────────────────────────────────────────────── */
+.hero { padding-block: var(--s9) 0; position: relative; overflow: hidden; }
+.hero-grid {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--s8);
+  align-items: center;
+}
+.hero h1 {
+  font-size: clamp(30px, 5.2vw, 52px);
+  letter-spacing: -.02em; margin-bottom: var(--s5);
+  text-wrap: balance;
+}
+.hero .ring { width: clamp(150px, 22vw, 260px); height: auto; }
+.hero-links { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s6); }
+@media (max-width: 860px) {
+  .hero-grid { grid-template-columns: 1fr; gap: var(--s6); }
+  .hero .ring { width: 130px; justify-self: start; }
+}
+
+/* ── buttons ──────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: inherit; font-size: 16px; font-weight: 700;
+  padding: var(--s4) var(--s7); border: 1.5px solid transparent;
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.btn-1 { background: var(--teal-deep); color: var(--cream); }
+.btn-1:hover { background: var(--ink); color: var(--cream); }
+.btn-2 {
+  background: transparent; color: var(--teal-deep); border-color: var(--teal);
+}
+.btn-2:hover { background: var(--paper); border-color: var(--teal-deep); }
+.btn-3 {
+  background: none; border: none; padding: var(--s3) 0;
+  color: var(--teal-deep); font-weight: 700;
+  border-bottom: 2px solid var(--gold); border-radius: 0;
+}
+.btn-3:hover { border-bottom-color: var(--terra-deep); color: var(--terra-deep); }
+
+/* ── panels: ruled frames, never soft-shadowed cards ──────── */
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-inline-start: 3px solid var(--gold);
+  padding: var(--s6);
+}
+.panel.lead { border-inline-start-color: var(--teal); }
+.panel h3 { font-size: 19px; margin-bottom: var(--s2); }
+.panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+
+.cols { display: grid; gap: var(--s4); }
+.cols-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.cols-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+/* ── the band: a quiet full-width register ────────────────── */
+.band {
+  background: var(--parchment);
+  border-block: 1px solid var(--rule);
+  padding-block: var(--s9);
+  margin-block-start: var(--s10);
+}
+.band + section { padding-block-start: var(--s10); }
+
+/* ── the dark register ────────────────────────────────────── */
+.dark {
+  background: var(--ink); color: var(--cream);
+  padding-block: var(--s9); margin-block-start: var(--s10);
+  position: relative; overflow: hidden;
+}
+.dark h2, .dark h3 { color: var(--paper); }
+.dark p { color: #DCCDB2; }
+.dark .eyebrow { color: var(--gold-bright); }
+.dark .eyebrow::before { background: var(--gold-bright); }
+.dark a { color: var(--gold-bright); }
+.dark .btn-2 { color: var(--gold-bright); border-color: var(--gold-ink); }
+.dark .btn-2:hover { background: rgba(201,169,97,.12); border-color: var(--gold); }
+
+/* ── the facts row: ruled, not three little cards ─────────── */
+.facts {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  border: 1px solid var(--rule); background: var(--paper);
+}
+.facts > div {
+  padding: var(--s5) var(--s6);
+  border-inline-start: 1px solid var(--rule);
+}
+.facts > div:first-child { border-inline-start: 0; }
+.facts dt {
+  font-size: 13.5px; font-weight: 600; color: var(--gold-ink);
+  margin-bottom: var(--s1);
+}
+.facts dd { margin: 0; font-size: 16px; font-weight: 500; }
+@media (max-width: 660px) {
+  .facts > div { border-inline-start: 0; border-top: 1px solid var(--rule); }
+  .facts > div:first-child { border-top: 0; }
+}
+
+/* ── the worry list: a real disclosure, not an accordion toy ── */
+.worry {
+  border-top: 1px solid var(--rule);
+}
+.worry details { border-bottom: 1px solid var(--rule); }
+.worry summary {
+  cursor: pointer; padding: var(--s5) 0; font-weight: 700; font-size: 17.5px;
+  list-style: none; display: flex; align-items: baseline; gap: var(--s3);
+}
+.worry summary::-webkit-details-marker { display: none; }
+.worry summary::before {
+  content: ""; flex: 0 0 9px; height: 9px; margin-top: 10px;
+  border: 2px solid var(--teal); border-radius: 50%;
+}
+.worry details[open] summary::before { background: var(--teal); }
+.worry summary:hover { color: var(--teal-deep); }
+.worry .ans { padding: 0 0 var(--s5) var(--s6); }
+.worry .ans p:last-child { margin-bottom: 0; }
+.worry .ans { padding-inline-start: var(--s6); padding-inline-end: 0; }
+
+/* ── the map of the organisation ──────────────────────────── */
+.map { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
+@media (min-width: 900px) { .map { grid-template-columns: 1.4fr 1fr; } }
+.map .main {
+  background: var(--paper); border: 1px solid var(--rule);
+  border-inline-start: 4px solid var(--teal); padding: var(--s7);
+}
+.map .main h3 { font-size: clamp(22px, 2.6vw, 27px); margin-bottom: var(--s3); }
+.map .rest { display: grid; gap: var(--s4); align-content: start; }
+.map .rest > div {
+  background: transparent; border: 1px solid var(--rule);
+  border-inline-start: 3px solid var(--rule); padding: var(--s5);
+}
+.map .rest h4 { font-size: 16.5px; margin-bottom: var(--s1); }
+.map .rest p { margin: 0; font-size: 15px; color: var(--fg-mute); }
+
+/* Anything the client still has to supply is marked, in the design,
+   so it cannot be mistaken for finished copy. */
+.todo {
+  border: 1px dashed var(--terra-deep) !important;
+  background: rgba(138,50,23,.04);
+}
+.todo::before {
+  content: "برای تکمیل";
+  display: inline-block; font-size: 11.5px; font-weight: 700;
+  color: var(--terra-deep); border: 1px solid var(--terra-deep);
+  padding: 1px var(--s2); margin-bottom: var(--s2);
+}
+
+/* ── footer ───────────────────────────────────────────────── */
+footer {
+  background: var(--ink); color: #DCCDB2;
+  padding-block: var(--s9) var(--s7); margin-block-start: 0;
+}
+footer h4 { color: var(--paper); font-size: 16px; margin-bottom: var(--s3); }
+footer a { color: var(--gold-bright); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+footer .cols { gap: var(--s7); }
+footer .fine {
+  margin-block-start: var(--s7); padding-block-start: var(--s5);
+  border-top: 1px solid #3A2F22; font-size: 14px; color: #A2957F;
+}
+
+/* ── motion: restrained, and gone entirely on request ─────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .top, .skip, .hero .ring { display: none; }
+  body { background: #fff; }
+  .worry details { display: block; }
+}
