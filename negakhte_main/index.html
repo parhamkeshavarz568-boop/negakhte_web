@@ -4,28 +4,69 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>آزمون‌های خودشناسی</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Vazirmatn, self-hosted. It used to come from fonts.googleapis.com in six
+     separate weights, which cost a preconnect, a blocking stylesheet and six
+     font requests to a third party that is unreliable and frequently blocked
+     on Iranian networks — which is this site's entire audience.
+     One 37 KB variable file now covers 400-800 (the only weights the CSS
+     asks for; it requested 300 from Google and never used it), subset to the
+     162 codepoints this page can actually display.
+     SIL OFL 1.1 requires the licence to travel with the font: assets/OFL-Vazirmatn.txt -->
+<link rel="preload" href="assets/vazirmatn-negakhte.woff2" as="font" type="font/woff2" crossorigin>
 <style>
   :root {
     --bg: #F5EFE6;
     --bg-deep: #ECE2D2;
     --ink: #1F1A15;
     --ink-soft: #4A4036;
-    --ink-muted: #7A6E60;
+    /* Darkened from #7A6E60, which measured 4.35:1 on --bg and 3.87 on
+       --bg-deep — failing AA for the tagline, the footer, the question
+       counter and the disabled button label. Same hue and saturation, L 43%
+       -> 38%: now 5.23 / 5.59 / 4.66 on --bg / --paper / --bg-deep. */
+    --ink-muted: #6C6255;
     --oxblood: #7A2E1F;
     --oxblood-dark: #5A1F12;
     --teal: #2D5C5C;
+    /* --gold is a FILL. It measures 2.28:1 on --bg, which fails AA at any
+       size, so nothing that has to be read may use it: bars, the h1
+       highlight, button shadows, the selected marker, the compass dot.
+       --gold-ink is the same hue at L=32%, the most saturated dark gold that
+       clears 4.5:1 on BOTH light grounds (5.28 on --bg, 4.71 on --bg-deep).
+       On the dark result hero --gold is already 6.2-7.0:1, so it stays there. */
     --gold: #C99846;
+    --gold-ink: #7E5D25;
     --line: #D9CDB8;
     --paper: #FBF7EF;
+  }
+  @font-face {
+    font-family: 'Vazirmatn';
+    src: url('assets/vazirmatn-negakhte.woff2') format('woff2-variations'),
+         url('assets/vazirmatn-negakhte.woff2') format('woff2');
+    font-weight: 400 800;
+    font-style: normal;
+    font-display: swap;
+  }
+  /* A metric-matched stand-in for the swap window. Vazirmatn's ascent is
+     102.5% of em and its descent 53.7%, so a fallback left at Arial's own
+     metrics changes the line box and the whole page nudges when the real
+     font arrives. Overriding them keeps the line heights identical, so the
+     swap changes letterforms and nothing else.
+     NOTE: ← → ↔ ✓ have no glyph in Vazirmatn upstream, so they always render
+     from this fallback. That is pre-existing, not a consequence of
+     subsetting. */
+  @font-face {
+    font-family: 'Vazirmatn Fallback';
+    src: local('Arial'), local('Helvetica'), local('Segoe UI'), local('Roboto');
+    ascent-override: 102.5%;
+    descent-override: 53.7%;
+    line-gap-override: 0%;
+    size-adjust: 101.7%;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Vazirmatn', system-ui, sans-serif;
+    font-family: 'Vazirmatn', 'Vazirmatn Fallback', system-ui, sans-serif;
     font-weight: 400;
     line-height: 1.7;
     min-height: 100vh;
@@ -69,10 +110,10 @@
   /* ===== HUB ===== */
   .hub-hero { padding: 24px 0 8px; text-align: right; }
   .hub-hero .ornament {
-    display: flex; align-items: center; gap: 12px; color: var(--gold);
+    display: flex; align-items: center; gap: 12px; color: var(--gold-ink);
     margin-bottom: 24px; font-size: 13px; letter-spacing: 3px; font-weight: 500;
   }
-  .hub-hero .ornament::before { content: ''; flex: 0 0 32px; height: 1px; background: var(--gold); }
+  .hub-hero .ornament::before { content: ''; flex: 0 0 32px; height: 1px; background: var(--gold-ink); }
   .hub-hero h1 {
     font-size: clamp(34px, 5.5vw, 54px); line-height: 1.15; font-weight: 800;
     color: var(--ink); margin-bottom: 24px; letter-spacing: -0.5px;
@@ -98,7 +139,7 @@
   .test-card .tc-icon { color: var(--oxblood); flex-shrink: 0; }
   .test-card .tc-icon svg { width: 40px; height: 40px; }
   .test-card .tc-index {
-    font-size: 12px; font-weight: 700; color: var(--gold);
+    font-size: 12px; font-weight: 700; color: var(--gold-ink);
     letter-spacing: 2px; border: 1px solid var(--line); padding: 4px 10px;
   }
   .test-card .tc-title { font-size: 21px; font-weight: 700; color: var(--ink); line-height: 1.3; }
@@ -107,7 +148,30 @@
     display: flex; align-items: center; gap: 10px; font-size: 12px;
     color: var(--ink-soft); padding-top: 14px; border-top: 1px solid var(--line);
   }
-  .test-card .tc-meta .tc-go { margin-right: auto; color: var(--gold); font-size: 20px; }
+  .test-card .tc-meta .tc-go { margin-right: auto; color: var(--gold-ink); font-size: 20px; }
+
+  /* The resume banner. Storage is invisible unless the page says so: without
+     this, a person who closed the tab mid-test has no idea the answers are
+     still there and starts over. */
+  .resume {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+    border: 1px solid var(--line); border-right: 3px solid var(--oxblood);
+    background: var(--paper); padding: 16px 20px; margin-bottom: 28px;
+  }
+  .resume .rs-text { flex: 1 1 260px; font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+  .resume .rs-text b { color: var(--ink); font-weight: 700; }
+  .resume .rs-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .resume .btn { padding: 10px 18px; font-size: 14px; }
+  /* A completed test is worth marking — it tells you where you are in a set
+     of seven, and it is the only thing on the hub that knows you have been
+     here before. */
+  .test-card .tc-state {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 3px 8px;
+    border: 1px solid currentColor;
+  }
+  .test-card .tc-state.is-done { color: var(--teal); }
+  .test-card .tc-state.is-part { color: var(--oxblood); }
+  .tc-top-right { display: flex; align-items: center; gap: 8px; }
 
   .hub-note {
     margin-top: 40px; padding: 20px 24px; background: var(--paper);
@@ -151,7 +215,7 @@
   .branch-card:hover { border-color: var(--ink); background: #fff; transform: translateY(-3px); box-shadow: 0 8px 0 -2px var(--gold); }
   .branch-card .bc-title { font-size: 19px; font-weight: 600; }
   .branch-card .bc-sub { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
-  .branch-card .bc-arrow { color: var(--gold); font-size: 24px; }
+  .branch-card .bc-arrow { color: var(--gold-ink); font-size: 24px; }
   .branch-note { font-size: 13px; color: var(--ink-muted); margin-top: 8px; }
 
   .field-group { text-align: right; margin: 12px 0; }
@@ -168,7 +232,7 @@
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 12px; font-size: 13px; color: var(--ink-muted); letter-spacing: 1px;
   }
-  .progress-meta .gold { color: var(--gold); font-weight: 600; }
+  .progress-meta .gold { color: var(--gold-ink); font-weight: 600; }
   .progress-bar { height: 3px; background: var(--bg-deep); overflow: hidden; }
   .progress-fill { height: 100%; background: linear-gradient(to left, var(--gold), var(--oxblood)); transition: width 0.4s ease; width: 0%; }
 
@@ -177,7 +241,7 @@
     font-size: clamp(20px, 2.6vw, 27px); font-weight: 700; line-height: 1.5;
     color: var(--ink); margin-bottom: 32px; text-align: center;
   }
-  .question-prompt .small { display: block; font-size: 14px; color: var(--gold); font-weight: 600; letter-spacing: 2px; margin-bottom: 12px; }
+  .question-prompt .small { display: block; font-size: 14px; color: var(--gold-ink); font-weight: 600; letter-spacing: 2px; margin-bottom: 12px; }
   .answers { display: grid; gap: 14px; }
   .answer {
     background: var(--paper); border: 1.5px solid var(--line); padding: 20px 24px;
@@ -221,8 +285,8 @@
   /* ===== RESULTS (from reference) ===== */
   .results-header { text-align: center; padding: 24px 0 32px; }
   .results-header .stamp {
-    display: inline-block; padding: 8px 20px; border: 1px solid var(--gold);
-    color: var(--gold); font-size: 12px; letter-spacing: 4px; margin-bottom: 20px;
+    display: inline-block; padding: 8px 20px; border: 1px solid var(--gold-ink);
+    color: var(--gold-ink); font-size: 12px; letter-spacing: 4px; margin-bottom: 20px;
   }
   .result-hero {
     text-align: center; padding: 48px 32px; background: var(--ink); color: var(--bg);
@@ -243,7 +307,7 @@
   }
   .result-hero .rh-desc { font-size: 16px; color: #E8DECB; max-width: 540px; margin: 0 auto; line-height: 1.8; }
 
-  .breakdown-title { font-size: 14px; letter-spacing: 2px; color: var(--gold); font-weight: 600; margin-bottom: 20px; text-align: center; }
+  .breakdown-title { font-size: 14px; letter-spacing: 2px; color: var(--gold-ink); font-weight: 600; margin-bottom: 20px; text-align: center; }
   .lang-row {
     display: flex; align-items: center; gap: 16px; padding: 18px 20px;
     background: var(--paper); border: 1px solid var(--line); margin-bottom: 12px;
@@ -332,13 +396,17 @@
   <!-- ============ HUB ============ -->
   <section class="screen active" id="screen-hub">
     <div class="hub-hero">
-      <div class="ornament">شش آزمون خودشناسی</div>
+      <div class="ornament" id="hub-count">هفت آزمون خودشناسی</div>
       <h1>خودت را <em>بهتر بشناس</em></h1>
       <p class="lead">
         مجموعه‌ای از آزمون‌های شناختِ شخصیت، بر پایه‌ی چارچوب‌های شناخته‌شده‌ی روان‌شناسی.
         یکی را انتخاب کن، صادقانه پاسخ بده و نتیجه‌ی فوری‌ات را ببین. همه‌ی پاسخ‌ها فقط در مرورگر تو می‌مانند.
       </p>
     </div>
+
+    <!-- the resume banner renders here when a test is half finished -->
+
+    <div id="resume-slot"></div>
 
     <div class="test-grid" id="test-grid"><!-- cards injected --></div>
 
@@ -456,6 +524,240 @@ let meta = {};            // e.g. political subject, attachment info, disc handl
 const FA = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
 function toFa(num){ return String(num).split('').map(d=>/\d/.test(d)?FA[+d]:d).join(''); }
 
+/* =========================================================
+   STORE — answers survive a refresh
+   ---------------------------------------------------------
+   The hub promises «همه‌ی پاسخ‌ها فقط در مرورگر تو می‌مانند», and before this
+   there was no storage of any kind: the promise was half true (nothing left
+   the browser) and half false (nothing stayed in it either). On a 70-question
+   test one accidental refresh or Back threw all of it away.
+
+   Every access is wrapped. localStorage THROWS rather than returning null in
+   Safari private mode and when a quota is exceeded, and a personality quiz
+   losing its storage is not a reason for the page to stop working — so every
+   failure degrades to "no saved state" and the app runs exactly as it did
+   before.
+========================================================= */
+const STORE_KEY = 'negakhte.v1';
+
+const Store = {
+  read(){
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return {};
+      const o = JSON.parse(raw);
+      return (o && typeof o === 'object') ? o : {};
+    } catch (e) { return {}; }
+  },
+  write(o){
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(o)); return true; }
+    catch (e) { return false; }
+  },
+  /* In-progress tests, KEYED BY TEST ID. The first version kept a single
+     slot, on the reasoning that the UI only shows one test at a time — but
+     the hub lets you walk away from a half-finished test and open another,
+     and that silently threw the first one's answers away. Measured: twelve
+     answers into the archetype test, starting DISC erased all twelve. */
+  saveProgress(){
+    if (!currentTestId || !TEST) return;
+    const o = this.read();
+    o.prog = o.prog || {};
+    o.prog[currentTestId] = { testId: currentTestId, q: currentQ, answers, meta,
+                              total: TEST.questions.length, at: Date.now() };
+    this.write(o);
+  },
+  loadProgress(id){
+    const p = (this.read().prog || {})[id];
+    if (!p || !TESTS[id]) return null;
+    // A saved answer array whose length no longer matches the test means the
+    // questions changed under it. Resuming would score the wrong items
+    // against the wrong answers, so it is dropped rather than migrated.
+    if (p.total !== TESTS[id].questions.length) { this.clearProgress(id); return null; }
+    return p;
+  },
+  /* The one to offer on the hub: most recently touched, still unfinished. */
+  latestProgress(){
+    const prog = this.read().prog || {};
+    const done = this.read().done || {};
+    return Object.keys(prog)
+      .filter(id => TESTS[id] && !done[id])
+      .map(id => this.loadProgress(id))
+      .filter(Boolean)
+      .sort((a,b) => (b.at||0) - (a.at||0))[0] || null;
+  },
+  partIds(){
+    const done = this.read().done || {};
+    return Object.keys(this.read().prog || {}).filter(id => TESTS[id] && !done[id]);
+  },
+  clearProgress(id){
+    const o = this.read();
+    if (o.prog) { delete o.prog[id]; }
+    this.write(o);
+  },
+  /* Finished tests, kept so a result can be reopened or linked to. */
+  saveResult(){
+    if (!currentTestId || !TEST) return;
+    const o = this.read();
+    o.done = o.done || {};
+    o.done[currentTestId] = { answers, meta, total: TEST.questions.length, at: Date.now() };
+    this.write(o);
+  },
+  loadResult(id){
+    const d = (this.read().done || {})[id];
+    if (!d || !TESTS[id]) return null;
+    if (d.total !== TESTS[id].questions.length) return null;
+    return d;
+  },
+  doneIds(){ return Object.keys(this.read().done || {}).filter(id => TESTS[id]); }
+};
+
+/* =========================================================
+   ROUTER — the Back button, and a link you can send someone
+   ---------------------------------------------------------
+   There was no routing at all. Two consequences, both bad on a phone: Back
+   mid-quiz left the site instead of going to the previous question, and no
+   test or result could be linked to — every share was a link to the hub.
+
+   One direction of control: nav() changes the URL, route() reads it and
+   renders. route() never pushes, so there is no loop. Every screen change
+   goes through nav().
+
+   One history entry per question, so Back means "previous question" — the
+   thing a person reaching for it actually wants. Leaving the test is what
+   the «انصراف» button is for.
+========================================================= */
+const ROUTES = {
+  hub:     () => '#/',
+  intro:   id => '#/t/' + id,
+  quiz:    (id, n) => '#/t/' + id + '/q/' + n,
+  results: id => '#/t/' + id + '/r'
+};
+
+function parseHash(){
+  const h = (location.hash || '#/').replace(/^#\/?/, '');
+  if (!h) return { screen: 'hub' };
+  const p = h.split('/');
+  if (p[0] !== 't' || !p[1]) return { screen: 'hub' };
+  const id = decodeURIComponent(p[1]);
+  if (!TESTS[id]) return { screen: 'hub' };
+  if (p[2] === 'q') return { screen: 'quiz', id, q: Math.max(1, parseInt(p[3], 10) || 1) };
+  if (p[2] === 'r') return { screen: 'results', id };
+  return { screen: 'intro', id };
+}
+
+let routing = false;   // route() renders; it must never trigger itself
+function nav(url, replace){
+  if (location.hash === url) { route(); return; }
+  if (replace) history.replaceState(null, '', url); else history.pushState(null, '', url);
+  route();
+}
+
+/* Normalise first, render once.
+   The first version redirected by calling nav() from inside route(), which
+   re-entered route() while the guard was still up: the URL was corrected and
+   nothing was ever rendered, so a deep link to q/40 fixed the address bar and
+   left the hub on screen. Resolving the route to its effective target BEFORE
+   touching the DOM removes the recursion entirely. */
+function resolveRoute(r){
+  if (r.screen === 'hub') return r;
+
+  // Adopt the test the URL names, restoring whatever was saved for it.
+  if (currentTestId !== r.id){
+    currentTestId = r.id; TEST = TESTS[r.id];
+    const saved = (r.screen === 'results' && Store.loadResult(r.id))
+               || Store.loadProgress(r.id);
+    if (saved){ answers = saved.answers; meta = saved.meta || {}; currentQ = saved.q || 0; }
+    else { answers = TEST.buildAnswers(); meta = {}; currentQ = 0; }
+  }
+
+  if (r.screen === 'quiz'){
+    // These questions are phrased with something the intro collects.
+    if (needsIntroMeta()) return { screen: 'intro', id: r.id };
+    // Honour the URL only as far as the answers justify: a link to question
+    // 40 with nothing answered would show a question never reached and score
+    // blanks, so it lands on the first unanswered one.
+    const q = Math.min(r.q - 1, firstUnanswered()) + 1;
+    return { screen: 'quiz', id: r.id, q };
+  }
+  if (r.screen === 'results' && !Store.loadResult(r.id) && !allAnswered()){
+    return { screen: 'intro', id: r.id };
+  }
+  return r;
+}
+
+function routeUrl(r){
+  return r.screen === 'hub' ? ROUTES.hub()
+       : r.screen === 'quiz' ? ROUTES.quiz(r.id, r.q)
+       : r.screen === 'results' ? ROUTES.results(r.id)
+       : ROUTES.intro(r.id);
+}
+
+function route(){
+  if (routing) return;
+  routing = true;
+  try {
+    const eff = resolveRoute(parseHash());
+    // Correct the address bar without adding history: a redirect is not a
+    // place the person navigated to, so Back must not return to it.
+    const want = routeUrl(eff);
+    if (location.hash !== want) history.replaceState(null, '', want);
+
+    if (eff.screen === 'hub'){ currentTestId = null; TEST = null; renderHub(); goTo('hub'); return; }
+    if (eff.screen === 'intro'){ buildIntro(); return; }
+    if (eff.screen === 'quiz'){
+      currentQ = eff.q - 1;
+      prepQuizChrome(); renderQuestion(); goTo('quiz'); Store.saveProgress(); return;
+    }
+    if (eff.screen === 'results'){
+      const done = Store.loadResult(eff.id);
+      if (done){ answers = done.answers; meta = done.meta || {}; }
+      paintResults(); return;
+    }
+  } finally { routing = false; }
+}
+
+/* Does this test still need something from its intro before its questions
+   make sense? The attachment and love-language tests ask which relationship
+   to answer about, and their question text interpolates it. */
+function needsIntroMeta(){
+  if (!TEST) return false;
+  if (TEST.intro === 'branch') return !meta || !meta.branch;
+  if (TEST.intro === 'info') return !meta || !TEST.infoFields.some(f => meta[f.key]);
+  return false;
+}
+function firstUnanswered(){
+  for (let i = 0; i < TEST.questions.length; i++) if (!isAnswered(i)) return i;
+  return TEST.questions.length - 1;
+}
+function allAnswered(){
+  return TEST && TEST.questions.every((_, i) => isAnswered(i));
+}
+function prepQuizChrome(){
+  document.getElementById('q-testname').textContent = TEST.title;
+  document.getElementById('q-total').textContent = toFa(TEST.questions.length);
+}
+
+function startTest(id){ nav(ROUTES.intro(id)); }
+function beginQuiz(){ Store.saveProgress(); nav(ROUTES.quiz(currentTestId, 1)); }
+
+function nextQuestion(){
+  if(!isAnswered(currentQ)) return;
+  Store.saveProgress();
+  if(currentQ < TEST.questions.length-1){ nav(ROUTES.quiz(currentTestId, currentQ+2)); }
+  else { Store.saveResult(); Store.clearProgress(currentTestId); nav(ROUTES.results(currentTestId)); }
+}
+/* history.back(), not currentQ--, so the URL and the screen never disagree —
+   and so the browser's own Back and this button do the same thing. */
+function prevQuestion(){ if(currentQ>0) history.back(); }
+
+function restartCurrent(){
+  if(!currentTestId) return;
+  const id = currentTestId;
+  Store.clearProgress(id);
+  currentTestId = null;               // force route() to rebuild the answers
+  nav(ROUTES.intro(id));
+}
+
 function goTo(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
@@ -466,18 +768,62 @@ function goHub(){ currentTestId=null; TEST=null; goTo('hub'); }
 /* =========================================================
    HUB CARD RENDER
 ========================================================= */
+/* Persian cardinals up to twelve — the hub's eyebrow counts the tests, and
+   it used to be typed. It said «شش» (six) while TESTS held seven, which is
+   the kind of error nobody re-reads. Now the number IS the data. */
+const FA_WORDS = ['صفر','یک','دو','سه','چهار','پنج','شش','هفت','هشت','نه','ده','یازده','دوازده'];
+function faCount(n){ return FA_WORDS[n] || toFa(n); }
+
+function renderResumeBanner(){
+  const host = document.getElementById('resume-slot');
+  if (!host) return;
+  const p = Store.latestProgress();
+  host.innerHTML = '';
+  if (!p) return;
+  const t = TESTS[p.testId];
+  const answered = p.answers.filter((a,i)=>{
+    if (t.format === 'disc') return a && a.most!=null && a.least!=null && a.most!==a.least;
+    return a !== null && a !== undefined;
+  }).length;
+  const box = document.createElement('div');
+  box.className = 'resume';
+  box.innerHTML =
+    '<div class="rs-text">آزمون <b>' + t.title + '</b> را نیمه‌کاره گذاشته‌ای — ' +
+      toFa(answered) + ' از ' + toFa(p.total) + ' پرسش پاسخ داده شده.</div>' +
+    '<div class="rs-actions">' +
+      '<button class="btn btn-primary" id="rs-go"><span>ادامه بده</span></button>' +
+      '<button class="btn btn-ghost" id="rs-drop">پاک کن</button>' +
+    '</div>';
+  host.appendChild(box);
+  document.getElementById('rs-go').onclick = ()=>{
+    nav(ROUTES.quiz(p.testId, Math.min(p.q, p.total - 1) + 1));
+  };
+  document.getElementById('rs-drop').onclick = ()=>{ Store.clearProgress(p.testId); renderHub(); };
+}
+
 function renderHub(){
   const grid = document.getElementById('test-grid');
+  const n = Object.keys(TESTS).length;
+  const label = document.getElementById('hub-count');
+  if (label) label.textContent = faCount(n) + ' آزمون خودشناسی';
+  renderResumeBanner();
+  const part = Store.partIds();
+  const done = Store.doneIds();
   grid.innerHTML='';
   Object.keys(TESTS).forEach((id,i)=>{
     const t = TESTS[id];
     const card = document.createElement('div');
     card.className='test-card';
     card.onclick=()=>startTest(id);
+    const state = done.includes(id) ? '<span class="tc-state is-done">انجام شده</span>'
+                : part.includes(id) ? '<span class="tc-state is-part">نیمه‌کاره</span>'
+                : '';
     card.innerHTML =
       '<div class="tc-top">'+
         '<div class="tc-icon">'+ICONS[t.icon]+'</div>'+
-        '<div class="tc-index">'+toFa(String(i+1).padStart(2,'0'))+'</div>'+
+        '<div class="tc-top-right">'+state+
+          '<div class="tc-index">'+toFa(String(i+1).padStart(2,'0'))+'</div>'+
+        '</div>'+
       '</div>'+
       '<div class="tc-title">'+t.title+'</div>'+
       '<div class="tc-desc">'+t.tagline+'</div>'+
@@ -492,15 +838,6 @@ function renderHub(){
 /* =========================================================
    TEST START  ->  intro screen (branch or info or straight)
 ========================================================= */
-function startTest(id){
-  currentTestId=id;
-  TEST=TESTS[id];
-  currentQ=0;
-  meta={};
-  answers = TEST.buildAnswers();
-  buildIntro();
-}
-
 function buildIntro(){
   document.getElementById('intro-pill').textContent = TEST.introPill || 'پیش از شروع';
   document.getElementById('intro-title').textContent = TEST.introTitle;
@@ -548,14 +885,6 @@ function buildIntro(){
     body.appendChild(btn);
   }
   goTo('intro');
-}
-
-function beginQuiz(){
-  currentQ=0;
-  document.getElementById('q-testname').textContent = TEST.title;
-  document.getElementById('q-total').textContent = toFa(TEST.questions.length);
-  renderQuestion();
-  goTo('quiz');
 }
 
 /* =========================================================
@@ -630,15 +959,10 @@ function isAnswered(i){
   if(TEST.format==='disc'){ return a && a.most!==null && a.least!==null && a.most!==a.least; }
   return a!==null && a!==undefined;
 }
-function syncNext(){ document.getElementById('btn-next').disabled = !isAnswered(currentQ); }
-
-function nextQuestion(){
-  if(!isAnswered(currentQ)) return;
-  if(currentQ < TEST.questions.length-1){ currentQ++; renderQuestion(); }
-  else { showResults(); }
+function syncNext(){
+  document.getElementById('btn-next').disabled = !isAnswered(currentQ);
+  Store.saveProgress();   /* every answer, so a refresh loses at most nothing */
 }
-function prevQuestion(){ if(currentQ>0){ currentQ--; renderQuestion(); } }
-function restartCurrent(){ if(currentTestId) startTest(currentTestId); }
 
 /* meta substitution (e.g. political subject not needed, but keep for parity) */
 function subMeta(text){
@@ -651,7 +975,10 @@ function subMeta(text){
 /* =========================================================
    RESULTS DISPATCH
 ========================================================= */
-function showResults(){
+/* Renders the results screen and nothing else. It used to also navigate, but
+   route() has to be able to paint a result it arrived at from a URL without
+   pushing another entry and looping. */
+function paintResults(){
   document.getElementById('progress-fill').style.width='100%';
   const scores = TEST.score(answers, meta);
   const html = TEST.renderResult(scores, meta);
@@ -1518,8 +1845,15 @@ TESTS.loveLanguages = {
 
 /* =========================================================
    INIT
+   ---------------------------------------------------------
+   The URL decides what is on screen — on first load, on Back/Forward, and on
+   a pasted link. renderHub() alone used to be the whole boot, which is why
+   there was nothing to go back to.
 ========================================================= */
+window.addEventListener('popstate', route);
+window.addEventListener('hashchange', route);
 renderHub();
+route();
 </script>
 </body>
 </html>
