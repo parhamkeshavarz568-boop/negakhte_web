@@ -472,6 +472,21 @@
 
   .dim-detail { font-size: 13px; color: var(--ink-muted); margin-top: 6px; line-height: 1.7; }
 
+  /* Ranks below the leader used to be a bare bar and a percentage — a number
+     with nothing to read it against. They carry their description now, folded
+     so the list stays short. The leader's is in the hero above it. */
+  .dim-more { margin-top: 6px; }
+  .dim-more summary {
+    font-size: 12px; color: var(--gold-ink); cursor: pointer; font-weight: 600;
+    width: max-content; padding: 4px 0; list-style: none;
+  }
+  .dim-more summary::-webkit-details-marker { display: none; }
+  .dim-more summary::before { content: '+ '; font-weight: 700; }
+  .dim-more[open] summary::before { content: '\2212 '; }
+  .dim-more summary:hover { color: var(--oxblood); }
+  @media print { .dim-more summary { display: none; } }
+  .dim-more .dim-detail { margin-top: 2px; }
+
   /* dichotomy pair bars (MBTI) */
   .pair-row { margin-bottom: 22px; background: var(--paper); border: 1px solid var(--line); padding: 18px 20px; }
   .pair-head { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
@@ -858,6 +873,20 @@ function setMeta(name, value, prop){
    writes throw outside a secure context, which includes plain http and the
    file:// the author tests on. The fallback of last resort shows the URL and
    selects it so it can be copied by hand. */
+/* A closed <details> is hidden by the browser itself, so no print rule can
+   reveal it — printing a result would have silently dropped every description
+   below the leading one. Open them all for the print, then put them back. */
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('#result-body details').forEach(d => {
+    if (!d.open) { d.dataset.wasShut = '1'; d.open = true; }
+  });
+});
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('#result-body details[data-was-shut]').forEach(d => {
+    d.open = false; delete d.dataset.wasShut;
+  });
+});
+
 function shareStatus(msg){
   const el = document.getElementById('share-status');
   if (el) el.textContent = msg;
@@ -1515,6 +1544,102 @@ function heroBlock(label, name, desc, icon, isCode){
     '<div class="rh-desc">'+desc+'</div>'+
   '</div></div>';
 }
+/* =========================================================
+   TIES
+   ---------------------------------------------------------
+   Every ranked test did `keys.sort((a,b) => score[b]-score[a])` and then
+   announced `ranked[0]` as «غالب». Two things are wrong with that.
+
+   First, a tie is broken by whatever order the keys were declared in. Answer
+   «بی‌نظرم» to all seventy archetype questions and every archetype scores
+   exactly 60 — and the page says, with no hedge at all, that آرتمیس is your
+   dominant archetype. It is not; it is alphabetically-ish first in the object
+   literal.
+
+   Second, `sort` on an unsorted list is only as deterministic as the engine's
+   stability guarantees and the input order. Ranking by score AND THEN by key
+   means the same answers always produce the same page.
+
+   TIE_EPS is in normalised points. Scores here come out of integer Likert sums
+   divided by an item count, so genuinely equal categories land on the same
+   float; the epsilon is there for the division, not to fuzz near-misses. Those
+   are handled separately, by saying "and X is very close", which is true and
+   is not the same claim as "X is dominant".
+========================================================= */
+const TIE_EPS = 0.05;    // same score, allowing for the divide
+const NEAR_PTS = 3;      // "very close behind" — said, never silently ignored
+
+function rankScores(keys, scoreOf){
+  const rows = keys.map(k => ({ key: k, score: scoreOf(k) }));
+  rows.sort((a, b) => (b.score - a.score) || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+  let rank = 1;
+  rows.forEach((r, i) => {
+    if (i && Math.abs(rows[i-1].score - r.score) > TIE_EPS) rank = i + 1;
+    r.rank = rank;
+  });
+  return rows;
+}
+
+/* The rows sharing first place. One of them is the normal case. */
+function leaders(rows){ return rows.filter(r => r.rank === 1); }
+
+/* Nothing distinguished anything: top and bottom are the same score. This is
+   what «بی‌نظرم» seventy times produces, and it deserves to be said rather
+   than papered over with a confident winner. */
+function isFlat(rows){
+  return rows.length > 1 && Math.abs(rows[0].score - rows[rows.length-1].score) <= TIE_EPS;
+}
+
+/* Persian list: «الف»، «الف و ب»، «الف، ب و پ» */
+function faList(items){
+  if (items.length <= 1) return items[0] || '';
+  return items.slice(0, -1).join('، ') + ' و ' + items[items.length - 1];
+}
+
+/* The hero for a ranked test, in all four shapes it can take.
+   labels: {one, many, none} — the eyebrow above the name
+   copy:   {flat, tie} — the sentence that explains a non-single result */
+function rankedHero(rows, nameOf, descOf, iconOf, labels, copy){
+  const lead = leaders(rows);
+  if (isFlat(rows)){
+    return heroBlock(labels.none, 'الگوی غالبی پیدا نشد', copy.flat, null, false);
+  }
+  if (lead.length > 1){
+    const names = lead.map(r => nameOf(r.key));
+    const desc = copy.tie(faList(names)) + ' ' + lead.map(r => descOf(r.key)).join(' ');
+    return heroBlock(labels.many, faList(names), desc, iconOf(lead[0].key), false);
+  }
+  // A single leader — but say so if the runner-up is on its heels.
+  const top = rows[0], next = rows[1];
+  let desc = descOf(top.key);
+  if (next && (top.score - next.score) <= NEAR_PTS){
+    desc += ' «' + nameOf(next.key) + '» بسیار نزدیک به آن است، پس این دو را با هم بخوان.';
+  }
+  return heroBlock(labels.one, nameOf(top.key), desc, iconOf(top.key), false);
+}
+
+/* rows → the shape rankedBars() wants.
+   Ranks below the top used to be a bare bar and a percentage, a number with
+   nothing to read it against; they carry their description now, folded, so
+   the list stays short. The leaders carry none, because the hero directly
+   above is already their description — printing it twice was the first thing
+   the screenshot showed. */
+function rankedRows(rows, nameOf, descOf, iconOf, max, scoreFor, primaryTag){
+  const flat = isFlat(rows);
+  return rows.map(r => {
+    const lead = !flat && r.rank === 1;
+    return {
+      name: nameOf(r.key),
+      icon: iconOf(r.key),
+      score: scoreFor ? scoreFor(r.key) : r.score,
+      max: max,
+      primary: lead,
+      primaryTag: primaryTag,
+      detail: lead ? '' : descOf(r.key)
+    };
+  });
+}
+
 function rankedBars(title, rows){
   // rows: [{name, icon, score, max, primary, detail}]
   let h='<div class="breakdown-title">'+title+'</div>';
@@ -1526,7 +1651,10 @@ function rankedBars(title, rows){
         '<div class="lr-head"><span class="lr-name">'+r.name+(r.primary&&r.primaryTag?' — '+r.primaryTag:'')+'</span>'+
         '<span class="lr-score">'+toFa(pct)+'٪</span></div>'+
         '<div class="lr-bar"><div class="lr-bar-fill" data-fill="'+pct+'" style="width:0%"></div></div>'+
-        (r.detail?'<div class="dim-detail">'+r.detail+'</div>':'')+
+        (r.detail
+          ? '<details class="dim-more"><summary>توضیح</summary>'+
+            '<div class="dim-detail">'+r.detail+'</div></details>'
+          : '')+
       '</div>'+
     '</div>';
   });
@@ -1680,15 +1808,14 @@ TESTS.archetypeWomen = {
     return scoreLikertCategories(cats).call(this,answers);
   },
   renderResult:function(scores){
-    const cats=Object.keys(this.archs);
-    const ranked=cats.sort((a,b)=>scores.norm[b]-scores.norm[a]);
-    const top=ranked[0];
-    let h=heroBlock('کهن‌الگوی غالب تو', this.archs[top].name, this.archs[top].desc, this.archs[top].icon, false);
-    h+=rankedBars('نمای کامل کهن‌الگوهای تو', ranked.map((c,i)=>({
-      name:this.archs[c].name, icon:this.archs[c].icon,
-      score:scores.norm[c], max:100, primary:i===0, primaryTag:'الگوی غالب',
-      detail:i<3?this.archs[c].desc:''
-    })));
+    const rows=rankScores(Object.keys(this.archs), c=>scores.norm[c]);
+    const nm=c=>this.archs[c].name, ds=c=>this.archs[c].desc, ic=c=>this.archs[c].icon;
+    let h=rankedHero(rows, nm, ds, ic,
+      {one:'کهن‌الگوی غالب تو', many:'کهن‌الگوهای هم‌وزن تو', none:'نتیجه‌ی این آزمون'},
+      {flat:'همه‌ی کهن‌الگوها در پاسخ‌های تو امتیاز یکسانی گرفتند، پس هیچ‌کدام غالب نیست. این معمولاً یعنی به بیشتر پرسش‌ها پاسخ میانه داده‌ای؛ اگر دوباره و با پاسخ‌های قطعی‌تر آزمون بدهی، تصویر روشن‌تری می‌گیری.',
+       tie:n=>n+' با امتیاز برابر در صدر نشسته‌اند، پس هر یک به همان اندازه در شخصیت تو زنده است.'});
+    h+=rankedBars('نمای کامل کهن‌الگوهای تو',
+      rankedRows(rows, nm, ds, ic, 100, null, 'الگوی غالب'));
     return h;
   }
 };
@@ -1807,15 +1934,14 @@ TESTS.archetypeMen = {
     return scoreLikertCategories(cats).call(this,answers);
   },
   renderResult:function(scores){
-    const cats=Object.keys(this.archs);
-    const ranked=cats.sort((a,b)=>scores.norm[b]-scores.norm[a]);
-    const top=ranked[0];
-    let h=heroBlock('کهن‌الگوی غالب تو', this.archs[top].name, this.archs[top].desc, this.archs[top].icon, false);
-    h+=rankedBars('نمای کامل کهن‌الگوهای تو', ranked.map((c,i)=>({
-      name:this.archs[c].name, icon:this.archs[c].icon,
-      score:scores.norm[c], max:100, primary:i===0, primaryTag:'الگوی غالب',
-      detail:i<3?this.archs[c].desc:''
-    })));
+    const rows=rankScores(Object.keys(this.archs), c=>scores.norm[c]);
+    const nm=c=>this.archs[c].name, ds=c=>this.archs[c].desc, ic=c=>this.archs[c].icon;
+    let h=rankedHero(rows, nm, ds, ic,
+      {one:'کهن‌الگوی غالب تو', many:'کهن‌الگوهای هم‌وزن تو', none:'نتیجه‌ی این آزمون'},
+      {flat:'همه‌ی کهن‌الگوها در پاسخ‌های تو امتیاز یکسانی گرفتند، پس هیچ‌کدام غالب نیست. این معمولاً یعنی به بیشتر پرسش‌ها پاسخ میانه داده‌ای؛ اگر دوباره و با پاسخ‌های قطعی‌تر آزمون بدهی، تصویر روشن‌تری می‌گیری.',
+       tie:n=>n+' با امتیاز برابر در صدر نشسته‌اند، پس هر یک به همان اندازه در شخصیت تو زنده است.'});
+    h+=rankedBars('نمای کامل کهن‌الگوهای تو',
+      rankedRows(rows, nm, ds, ic, 100, null, 'الگوی غالب'));
     return h;
   }
 };
@@ -1938,14 +2064,29 @@ TESTS.compass = {
   },
   renderResult:function(scores){
     const {econ,soc}=scores;
-    const ecName = econ<0?'چپ':'راست';
-    const soName = soc<0?'آزادی‌خواه':'اقتدارگرا';
-    const quadName = soName+'ِ '+ecName;
+    /* `econ<0 ? 'چپ' : 'راست'` had no way to say "centre", so it called every
+       centrist something. Measured: answering the neutral rung to all sixty
+       questions scores -0.3 economic and +0.4 social — the question set is not
+       perfectly symmetric — and the old code reported that as «اقتدارگراِ چپ»,
+       a confident quadrant out of a ±10 scale reading three and four percent.
+       Anything inside half a point is the centre now, and says so. */
+    const CENTRE = 0.5;
+    const ecName = Math.abs(econ)<CENTRE ? 'میانه' : (econ<0?'چپ':'راست');
+    const soName = Math.abs(soc)<CENTRE ? 'میانه' : (soc<0?'آزادی‌خواه':'اقتدارگرا');
+    const quadName = (ecName==='میانه' && soName==='میانه') ? 'میانه‌رو'
+                   : soName+'ِ '+ecName;
     const descMap={
       'اقتدارگراِ چپ':'به عدالت اقتصادی و نقش پررنگ دولت باور داری و در کنارش به نظم و انسجام اجتماعی اهمیت می‌دهی.',
       'اقتدارگراِ راست':'به بازار آزاد و مالکیت خصوصی گرایش داری و در کنارش برای سنت، نظم و اقتدار ارزش قائلی.',
       'آزادی‌خواهِ چپ':'هم به برابری اقتصادی باور داری و هم به آزادی‌های فردی؛ دولتی که در زندگی خصوصی دخالت نکند اما نابرابری را کاهش دهد.',
-      'آزادی‌خواهِ راست':'به بازار آزاد و کمترین دخالت دولت باور داری، چه در اقتصاد و چه در سبک زندگی و آزادی‌های فردی.'
+      'آزادی‌خواهِ راست':'به بازار آزاد و کمترین دخالت دولت باور داری، چه در اقتصاد و چه در سبک زندگی و آزادی‌های فردی.',
+      /* A score on one axis and the centre on the other is a real result, not
+         a missing one, and it needs its own sentence. */
+      'اقتدارگراِ میانه':'در اقتصاد به هیچ سو تمایل روشنی نداری، اما به نظم، سنت و اقتدار اجتماعی ارزش می‌دهی.',
+      'آزادی‌خواهِ میانه':'در اقتصاد به هیچ سو تمایل روشنی نداری، اما آزادی‌های فردی و کمترین دخالت در زندگی خصوصی برایت مهم است.',
+      'میانهِ چپ':'به عدالت اقتصادی و نقش پررنگ‌تر دولت در اقتصاد گرایش داری، اما در محور آزادی و اقتدار اجتماعی در میانه ایستاده‌ای.',
+      'میانهِ راست':'به بازار آزاد و مالکیت خصوصی گرایش داری، اما در محور آزادی و اقتدار اجتماعی در میانه ایستاده‌ای.',
+      'میانه‌رو':'در هر دو محور نزدیک به مرکز ایستاده‌ای: پاسخ‌هایت به هیچ‌یک از چهار گوشه‌ی این نمودار تمایل روشنی نشان نمی‌دهند. این خودش یک موضع است، نه نتیجه‌ی ناقص.'
     };
     const K = 0.7071; // dot stays inside the circle (inscribed square)
     const xPct = 50 + (econ/10)*50*K;
@@ -2095,13 +2236,33 @@ TESTS.mbti = {
       pct[p]={ side: lean[p]>=0?this.pairs[p].first:this.pairs[p].second,
                sideName: lean[p]>=0?this.pairs[p].fName:this.pairs[p].sName,
                otherName: lean[p]>=0?this.pairs[p].sName:this.pairs[p].fName,
-               pct: Math.round(50+strength*50) };
+               pct: Math.round(50+strength*50),
+               /* lean === 0 means the answers pulled exactly as hard both ways.
+                  `lean[p]>=0` then hands the letter to whichever side happens to
+                  be declared first, and the page prints a four-letter type as if
+                  it had been measured. The letter still has to be something, but
+                  the result has to say which axis it is guessing at. */
+               balanced: lean[p] === 0 };
     });
     return {code, lean, pct};
   },
   renderResult:function(scores){
+    const keys=Object.keys(this.pairs);
+    const even=keys.filter(p=>scores.pct[p].balanced);
     const t=this.types[scores.code]||'';
-    let h=heroBlock('تیپ شخصیتی شما', scores.code, t, null, true);
+    let h;
+    if (even.length === keys.length){
+      h = heroBlock('نتیجه‌ی این آزمون', 'تیپ مشخصی به دست نیامد',
+        'در هر چهار بُعد، پاسخ‌های شما به یک اندازه به دو سو کشیده‌اند، پس هیچ حرفی از این چهار حرف را نمی‌توان با اطمینان انتخاب کرد. این معمولاً یعنی به بیشتر پرسش‌ها پاسخ میانه داده‌اید.',
+        null, false);
+    } else {
+      let desc = t;
+      if (even.length){
+        desc += ' توجه: در ' + faList(even.map(p=>scores.pct[p].sideName+' / '+scores.pct[p].otherName)) +
+                ' امتیاز شما دقیقاً برابر بود، پس حرف این بُعد قطعی نیست و تیپ دیگری هم که تنها در همین حرف تفاوت دارد به شما می‌خورد.';
+      }
+      h = heroBlock('تیپ شخصیتی شما', scores.code, desc, null, true);
+    }
     h+='<div class="breakdown-title">چهار بُعد شخصیت شما</div>';
     Object.keys(this.pairs).forEach(p=>{
       const info=scores.pct[p];
@@ -2109,7 +2270,9 @@ TESTS.mbti = {
         '<div class="pair-head"><span class="on">'+info.sideName+' ('+info.side+')</span>'+
         '<span class="off">'+info.otherName+'</span></div>'+
         '<div class="pair-track"><div class="fill" data-fill="'+info.pct+'" style="width:0%"></div></div>'+
-        '<div class="dim-detail">'+toFa(info.pct)+'٪ میل به '+info.sideName+'</div>'+
+        '<div class="dim-detail">'+(info.balanced
+            ? 'در این بُعد دقیقاً متعادلی؛ هیچ‌یک از دو سو غالب نیست.'
+            : toFa(info.pct)+'٪ میل به '+info.sideName)+'</div>'+
       '</div>';
     });
     return h;
@@ -2193,15 +2356,14 @@ TESTS.attachment = {
     return scoreLikertCategories(cats).call(this,answers);
   },
   renderResult:function(scores,meta){
-    const cats=Object.keys(this.styles);
-    const ranked=cats.sort((a,b)=>scores.norm[b]-scores.norm[a]);
-    const top=ranked[0];
-    let h=heroBlock('سبک دلبستگی غالب شما', this.styles[top].name, this.styles[top].desc, this.styles[top].icon, false);
-    h+=rankedBars('نمای کامل سبک‌های دلبستگی شما', ranked.map((c,i)=>({
-      name:this.styles[c].name, icon:this.styles[c].icon,
-      score:scores.norm[c], max:100, primary:i===0, primaryTag:'سبک غالب',
-      detail:i<2?this.styles[c].desc:''
-    })));
+    const rows=rankScores(Object.keys(this.styles), c=>scores.norm[c]);
+    const nm=c=>this.styles[c].name, ds=c=>this.styles[c].desc, ic=c=>this.styles[c].icon;
+    let h=rankedHero(rows, nm, ds, ic,
+      {one:'سبک دلبستگی غالب شما', many:'سبک‌های دلبستگی هم‌وزن شما', none:'نتیجه‌ی این آزمون'},
+      {flat:'چهار سبک دلبستگی در پاسخ‌های شما امتیاز یکسانی گرفتند، پس هیچ‌کدام غالب نیست. این معمولاً یعنی به بیشتر پرسش‌ها پاسخ میانه داده‌اید؛ با پاسخ‌های قطعی‌تر نتیجه‌ی روشن‌تری می‌گیرید.',
+       tie:n=>n+' با امتیاز برابر در صدر نشسته‌اند. داشتن ویژگی‌های بیش از یک سبک عادی است؛ هر دو توصیف را بخوانید.'});
+    h+=rankedBars('نمای کامل سبک‌های دلبستگی شما',
+      rankedRows(rows, nm, ds, ic, 100, null, 'سبک غالب'));
     return h;
   }
 };
@@ -2256,17 +2418,35 @@ TESTS.disc = {
     return {raw:s, norm};
   },
   renderResult:function(scores){
-    const traits=Object.keys(this.traits);
-    const ranked=traits.sort((a,b)=>scores.norm[b]-scores.norm[a]);
-    const primary=ranked[0], secondary=ranked[1];
-    const name=this.traits[primary].name+' / '+this.traits[secondary].name;
-    const desc=this.traits[primary].desc+' سبک دومِ شما '+this.traits[secondary].name+' است که به این پروفایل تعادل می‌دهد.';
-    let h=heroBlock('پروفایل رفتاری شما', name, desc, this.traits[primary].icon, false);
-    h+=rankedBars('نمای کامل چهار بُعد DISC شما', ranked.map((c,i)=>({
-      name:this.traits[c].name+' ('+c+')', icon:this.traits[c].icon,
-      score:scores.norm[c], max:100, primary:i===0, primaryTag:'سبک غالب',
-      detail:i<2?this.traits[c].desc:''
-    })));
+    const rows=rankScores(Object.keys(this.traits), c=>scores.norm[c]);
+    const nm=c=>this.traits[c].name, ds=c=>this.traits[c].desc, ic=c=>this.traits[c].icon;
+    const lead=leaders(rows);
+    let h;
+    if (isFlat(rows)){
+      /* Twelve groups of most-and-least can cancel out exactly — pick the D
+         word as "most" and the D word as "least" across pairs of groups and
+         every trait lands on zero. There is no profile to report then. */
+      h = heroBlock('نتیجه‌ی این آزمون', 'پروفایل مشخصی پیدا نشد',
+        'چهار بُعد DISC در پاسخ‌های شما امتیاز یکسانی گرفتند، پس پروفایل غالبی وجود ندارد. این وقتی پیش می‌آید که انتخاب‌های «بیشترین» و «کمترین» شما در گروه‌های مختلف یکدیگر را خنثی کنند.',
+        null, false);
+    } else if (lead.length > 1){
+      const names=lead.map(r=>nm(r.key));
+      h = heroBlock('پروفایل رفتاری شما', faList(names),
+        faList(names)+' با امتیاز برابر در صدر پروفایل شما هستند. '+lead.map(r=>ds(r.key)).join(' '),
+        ic(lead[0].key), false);
+    } else {
+      /* A DISC profile is conventionally named by its top two, so the second
+         place matters as much as the first — and it ties just as often. */
+      const second=rows.filter(r=>r.rank===rows[1].rank);
+      const secondName=faList(second.map(r=>nm(r.key)));
+      h = heroBlock('پروفایل رفتاری شما', nm(rows[0].key)+' / '+secondName,
+        ds(rows[0].key)+' سبک دومِ شما '+secondName+
+        (second.length>1?' — با امتیاز برابر — ':' ')+
+        'است که به این پروفایل تعادل می‌دهد.',
+        ic(rows[0].key), false);
+    }
+    h+=rankedBars('نمای کامل چهار بُعد DISC شما',
+      rankedRows(rows, c=>nm(c)+' ('+c+')', ds, ic, 100, null, 'سبک غالب'));
     return h;
   }
 };
@@ -2345,15 +2525,16 @@ TESTS.loveLanguages = {
     return {raw:s, max:12};
   },
   renderResult:function(scores){
-    const langs=Object.keys(this.langs);
-    const ranked=langs.sort((a,b)=>scores.raw[b]-scores.raw[a]);
-    const top=ranked[0];
-    let h=heroBlock('زبان عشق اصلی شما', this.langs[top].name, this.langs[top].desc, this.langs[top].icon, false);
-    h+=rankedBars('نمای کامل پنج زبان عشق شما', ranked.map((c,i)=>({
-      name:this.langs[c].name, icon:this.langs[c].icon,
-      score:scores.raw[c], max:scores.max, primary:i===0, primaryTag:'زبان اصلی شما',
-      detail:i<2?this.langs[c].desc:''
-    })));
+    const rows=rankScores(Object.keys(this.langs), c=>scores.raw[c]);
+    const nm=c=>this.langs[c].name, ds=c=>this.langs[c].desc, ic=c=>this.langs[c].icon;
+    /* These are integer counts out of thirty forced choices, so exact ties are
+       not a corner case here — they are common. */
+    let h=rankedHero(rows, nm, ds, ic,
+      {one:'زبان عشق اصلی شما', many:'زبان‌های عشق هم‌وزن شما', none:'نتیجه‌ی این آزمون'},
+      {flat:'پنج زبان عشق در انتخاب‌های شما امتیاز یکسانی گرفتند، پس هیچ‌کدام اصلی نیست — هر پنج راه به یک اندازه برایتان معنا دارند.',
+       tie:n=>n+' امتیاز برابر گرفته‌اند، پس هر دو به یک اندازه زبان عشق شما هستند.'});
+    h+=rankedBars('نمای کامل پنج زبان عشق شما',
+      rankedRows(rows, nm, ds, ic, scores.max, null, 'زبان اصلی شما'));
     return h;
   }
 };
