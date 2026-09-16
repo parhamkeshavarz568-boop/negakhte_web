@@ -3,7 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>آزمون‌های خودشناسی</title>
+<title>آزمون‌های خودشناسی — هفت آزمون شخصیت بر پایه‌ی روان‌شناسی</title>
+<meta name="description" content="هفت آزمون خودشناسی بر پایه‌ی چارچوب‌های شناخته‌شده‌ی روان‌شناسی: کهن‌الگوهای زنانه و مردانه، MBTI، سبک دلبستگی، DISC، زبان‌های عشق و قطب‌نمای سیاسی. نتیجه‌ی فوری، بدون ثبت‌نام؛ پاسخ‌ها فقط در مرورگر خودت می‌مانند.">
+
+<!-- SHARE PREVIEW. There was none of this: a link to the page arrived in
+     Telegram or WhatsApp — where this audience shares things — as a bare URL
+     with no title, no summary and no image.
+     og:url and the canonical are set at runtime from location, not written
+     here, because the domain this ends up on is not known yet and a wrong
+     canonical is worse than none: it de-indexes the real page. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آزمون‌های خودشناسی">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="خودت را بهتر بشناس">
+<meta property="og:description" content="هفت آزمون شخصیت بر پایه‌ی چارچوب‌های شناخته‌شده‌ی روان‌شناسی؛ نتیجه‌ی فوری، بدون ثبت‌نام.">
+<meta property="og:url" content="">
+<meta property="og:image" content="assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="عبارت «خودت را بهتر بشناس» با قلم وزیرمتن روی زمینه‌ی کرمی، همراه با نام «آزمون‌های خودشناسی».">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="خودت را بهتر بشناس">
+<meta name="twitter:description" content="هفت آزمون شخصیت بر پایه‌ی چارچوب‌های شناخته‌شده‌ی روان‌شناسی؛ نتیجه‌ی فوری، بدون ثبت‌نام.">
+<meta name="twitter:image" content="assets/og-cover.png">
+<link rel="canonical" href="">
+
+<!-- The mark is a ring with a gold centre and nothing else. The first draft
+     put seven satellites on it, one per test, which is a good idea at 512px
+     and an unreadable smudge at the 16px a browser tab actually uses. -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#F5EFE6">
 <!-- Vazirmatn, self-hosted. It used to come from fonts.googleapis.com in six
      separate weights, which cost a preconnect, a blocking stylesheet and six
      font requests to a third party that is unreliable and frequently blocked
@@ -289,6 +321,17 @@
     .answer:hover, .test-card:hover, .branch-card:hover { transform: none; }
   }
 
+  .share-status {
+    margin-top: 14px; font-size: 14px; color: var(--ink-soft);
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .share-status:empty { display: none; }
+  .share-status .share-url {
+    font: inherit; direction: ltr; text-align: left; flex: 1 1 260px;
+    min-width: 0; padding: 8px 10px; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink); border-radius: 2px;
+  }
+
   /* Visually hidden, still announced. */
   .sr-only {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -413,7 +456,7 @@
   }
   @media print {
     body::before, body::after { display: none; }
-    .results-actions, .topbar { display: none; }
+    .results-actions, .topbar, .share-status { display: none; }
     .result-hero { background: #fff !important; color: var(--ink) !important; border: 2px solid var(--ink); }
     .result-hero .rh-name, .result-hero .rh-desc, .result-hero .rh-label, .result-hero .rh-code { color: var(--ink) !important; }
   }
@@ -509,10 +552,15 @@
     </div>
     <div id="result-body"><!-- hero + breakdown injected per test --></div>
     <div class="results-actions">
-      <button class="btn btn-primary" onclick="window.print()"><span>چاپ نتیجه</span></button>
+      <!-- «چاپ نتیجه» used to be the solid primary here: the loudest button on
+           the screen for the rarest thing anybody does. Sharing the test is the
+           common one, so it takes the primary and printing drops to a ghost. -->
+      <button class="btn btn-primary" onclick="shareTest()">اشتراک‌گذاری آزمون</button>
       <button class="btn btn-ghost" onclick="restartCurrent()">شروع دوباره</button>
       <button class="btn btn-ghost" onclick="goHub()">بازگشت به فهرست آزمون‌ها</button>
+      <button class="btn btn-ghost" onclick="window.print()">چاپ نتیجه</button>
     </div>
+    <p class="share-status" id="share-status" role="status" aria-live="polite"></p>
   </section>
 
   <div class="footer" id="footer">
@@ -675,6 +723,115 @@ const ROUTES = {
   results: id => '#/t/' + id + '/r'
 };
 
+/* ---------- DOCUMENT METADATA PER ROUTE ----------
+   The page is one file behind a hash router, so the title, the description and
+   the canonical have to move with the route or every screen claims to be the
+   hub. Tabs, bookmarks, history entries and Back all read document.title, and
+   with seventy pushState entries per test an undifferentiated title makes the
+   history menu useless.
+
+   HONEST LIMIT: a hash is never sent to the server, so a crawler that does not
+   run JavaScript — which is Telegram, WhatsApp and Twitter, i.e. every way this
+   site will actually be shared — only ever sees the static tags in <head>.
+   Those describe the collection, which is the right fallback. Per-test previews
+   would need one HTML file per test, or a server; this cannot fake it. What it
+   does buy is correct titles everywhere a human looks, and correct per-test
+   metadata for Google, which does render JavaScript. */
+const SITE_NAME = 'آزمون‌های خودشناسی';
+const SITE_DESC = document.querySelector('meta[name=description]').content;
+
+function setMeta(name, value, prop){
+  const sel = prop ? 'meta[property="' + name + '"]' : 'meta[name="' + name + '"]';
+  const el = document.querySelector(sel);
+  if (el) el.content = value;
+}
+
+/* ---------- SHARE ----------
+   What a person wants after finishing is to send the test to someone, and the
+   only thing the page had was «چاپ نتیجه». This shares the test's own intro
+   link, not the results link: results live in this browser's localStorage and
+   nowhere else, so a /r link opens on somebody else's phone as the intro
+   anyway (resolveRoute already sends it there). Sharing the intro says what it
+   does instead of pretending the result travels.
+
+   navigator.share where it exists — that is the native sheet on Android and
+   iOS, which is where this gets shared — and the clipboard otherwise. Both can
+   reject: share throws AbortError when the sheet is dismissed, and clipboard
+   writes throw outside a secure context, which includes plain http and the
+   file:// the author tests on. The fallback of last resort shows the URL and
+   selects it so it can be copied by hand. */
+function shareStatus(msg){
+  const el = document.getElementById('share-status');
+  if (el) el.textContent = msg;
+}
+
+function shareTest(){
+  if (!TEST || !currentTestId) return;
+  const url = location.origin + location.pathname + ROUTES.intro(currentTestId);
+  const text = TEST.title + ' — ' + TEST.tagline;
+
+  if (!/^https?:$/.test(location.protocol)){
+    shareStatus('برای اشتراک‌گذاری، صفحه باید روی یک نشانی اینترنتی باز باشد.');
+    return;
+  }
+  if (navigator.share){
+    navigator.share({ title: TEST.title, text: text, url: url })
+      .then(() => shareStatus('لینک آزمون فرستاده شد.'))
+      .catch(err => {
+        if (err && err.name === 'AbortError') { shareStatus(''); return; }
+        copyLink(url);
+      });
+    return;
+  }
+  copyLink(url);
+}
+
+function copyLink(url){
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url)
+      .then(() => shareStatus('لینک آزمون کپی شد.'))
+      .catch(() => showLink(url));
+  } else showLink(url);
+}
+
+function showLink(url){
+  const el = document.getElementById('share-status');
+  if (!el) return;
+  el.innerHTML = 'کپی نشد؛ این نشانی را دستی بردار: <input class="share-url" readonly value="' +
+                 url.replace(/"/g, '&quot;') + '">';
+  const inp = el.querySelector('.share-url');
+  inp.focus(); inp.select();
+}
+
+function setDocMeta(r){
+  let title = SITE_NAME + ' — هفت آزمون شخصیت بر پایه‌ی روان‌شناسی';
+  let desc  = SITE_DESC;
+  const t = r.id && TESTS[r.id];
+  if (t){
+    if (r.screen === 'quiz')         title = 'پرسش ' + toFa(r.q) + ' از ' + toFa(t.questions.length) + ' — ' + t.title;
+    else if (r.screen === 'results') title = 'نتیجه‌ی ' + t.title + ' — ' + SITE_NAME;
+    else                             title = t.title + ' — ' + SITE_NAME;
+    desc = t.tagline;
+  }
+  document.title = title;
+  setMeta('description', desc);
+  setMeta('og:title', title, true);
+  setMeta('og:description', desc, true);
+  setMeta('twitter:title', title);
+  setMeta('twitter:description', desc);
+
+  /* Self-referencing, built from where the page actually is. Writing a domain
+     into the file would be a guess, and a canonical pointing at a domain the
+     page is not on is how a site removes itself from search results.
+     The hash is dropped: a search engine has one URL for this page whatever
+     screen the visitor is on, and seventy question URLs must not compete with
+     it. file:// has no origin worth emitting, so it is left blank there. */
+  const link = document.querySelector('link[rel=canonical]');
+  if (link) link.href = /^https?:$/.test(location.protocol)
+    ? location.origin + location.pathname : '';
+  setMeta('og:url', link ? link.href : '', true);
+}
+
 function parseHash(){
   const h = (location.hash || '#/').replace(/^#\/?/, '');
   if (!h) return { screen: 'hub' };
@@ -743,6 +900,8 @@ function route(){
     // place the person navigated to, so Back must not return to it.
     const want = routeUrl(eff);
     if (location.hash !== want) history.replaceState(null, '', want);
+    setDocMeta(eff);
+    shareStatus('');   // a stale «لینک کپی شد» must not follow you off the screen
 
     if (eff.screen === 'hub'){ currentTestId = null; TEST = null; renderHub(); goTo('hub'); return; }
     if (eff.screen === 'intro'){ buildIntro(); return; }
@@ -805,7 +964,12 @@ function goTo(id){
   document.getElementById('screen-'+id).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function goHub(){ currentTestId=null; TEST=null; goTo('hub'); }
+/* goHub() used to flip the screen directly, which left the URL pointing at
+   whatever test you came from: «بازگشت به فهرست» showed the hub at the
+   address .../#/t/archetypeWomen/r, so a reload went straight back to the
+   result and Back was one step out of phase. It navigates now, and route()
+   does the rest — including resetting the title, which is how this surfaced. */
+function goHub(){ nav(ROUTES.hub()); }
 
 /* =========================================================
    HUB CARD RENDER
