@@ -83,9 +83,11 @@
      metrics changes the line box and the whole page nudges when the real
      font arrives. Overriding them keeps the line heights identical, so the
      swap changes letterforms and nothing else.
-     NOTE: ← → ↔ ✓ have no glyph in Vazirmatn upstream, so they always render
-     from this fallback. That is pre-existing, not a consequence of
-     subsetting. */
+     NOTE: ← → ↔ ✓ have no glyph in Vazirmatn upstream, so wherever this page
+     used one it came out of a fallback font at a different weight and
+     baseline. None of them is used any more: the arrows became words, the
+     compass tagline's ↔ became a slash, and the selected-answer tick became a
+     drawn dot. */
   @font-face {
     font-family: 'Vazirmatn Fallback';
     src: local('Arial'), local('Helvetica'), local('Segoe UI'), local('Roboto');
@@ -128,7 +130,11 @@
     display: flex; justify-content: space-between; align-items: center;
     padding-bottom: 24px; border-bottom: 1px solid var(--line); margin-bottom: 48px;
   }
-  .brand { font-weight: 700; font-size: 18px; letter-spacing: 0.5px; color: var(--oxblood); cursor: pointer; }
+  .brand {
+    font-family: inherit; background: none; border: none; padding: 4px 0;
+    font-weight: 700; font-size: 18px; letter-spacing: 0.5px;
+    color: var(--oxblood); cursor: pointer;
+  }
   .brand .dot {
     display: inline-block; width: 8px; height: 8px;
     background: var(--gold); margin-left: 8px; transform: rotate(45deg);
@@ -140,15 +146,15 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
   /* ===== HUB ===== */
-  .hub-hero { padding: 24px 0 8px; text-align: right; }
+  .hub-hero { padding: 6px 0 4px; text-align: right; }
   .hub-hero .ornament {
     display: flex; align-items: center; gap: 12px; color: var(--gold-ink);
-    margin-bottom: 24px; font-size: 13px; letter-spacing: 3px; font-weight: 500;
+    margin-bottom: 18px; font-size: 13px; letter-spacing: 3px; font-weight: 500;
   }
   .hub-hero .ornament::before { content: ''; flex: 0 0 32px; height: 1px; background: var(--gold-ink); }
   .hub-hero h1 {
-    font-size: clamp(34px, 5.5vw, 54px); line-height: 1.15; font-weight: 800;
-    color: var(--ink); margin-bottom: 24px; letter-spacing: -0.5px;
+    font-size: clamp(32px, 5vw, 48px); line-height: 1.15; font-weight: 800;
+    color: var(--ink); margin-bottom: 18px; letter-spacing: -0.5px;
   }
   .hub-hero h1 em { font-style: normal; color: var(--oxblood); position: relative; display: inline-block; }
   .hub-hero h1 em::after {
@@ -159,28 +165,41 @@
 
   .test-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 18px; margin-top: 44px;
+    gap: 18px; margin-top: 30px;
   }
   .test-card {
-    background: var(--paper); border: 1.5px solid var(--line); padding: 28px 26px;
+    font-family: inherit; font-size: 16px; color: inherit;
+    background: var(--paper); border: 1.5px solid var(--line); padding: 22px 22px 18px;
     cursor: pointer; transition: all 0.22s ease; text-align: right;
-    display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden;
   }
+  /* Seven cards in two columns leaves the last one alone beside a hole the
+     size of a card. It takes the width instead. */
+  .test-grid > .test-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .test-grid > .test-card:last-child:nth-child(odd) .tc-desc,
+  .test-grid > .test-card:last-child:nth-child(odd) .tc-meta { max-width: 58ch; }
   .test-card:hover { border-color: var(--ink); background: #fff; transform: translateY(-4px); box-shadow: 0 10px 0 -2px var(--gold); }
-  .test-card .tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .test-card .tc-icon { color: var(--oxblood); flex-shrink: 0; }
-  .test-card .tc-icon svg { width: 40px; height: 40px; }
-  .test-card .tc-index {
-    font-size: 12px; font-weight: 700; color: var(--gold-ink);
-    letter-spacing: 2px; border: 1px solid var(--line); padding: 4px 10px;
-  }
-  .test-card .tc-title { font-size: 21px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+  .test-card .tc-head { display: flex; align-items: center; gap: 12px; }
+  .test-card .tc-head .tc-title { flex: 0 1 auto; min-width: 0; }
+  .test-card .tc-icon { color: var(--oxblood); flex-shrink: 0; line-height: 0; }
+  .test-card .tc-icon svg { width: 30px; height: 30px; }
+  .test-card .tc-title { font-size: 20px; font-weight: 700; color: var(--ink); line-height: 1.3; }
   .test-card .tc-desc { font-size: 14px; color: var(--ink-muted); line-height: 1.7; flex: 1; }
   .test-card .tc-meta {
-    display: flex; align-items: center; gap: 10px; font-size: 12px;
-    color: var(--ink-soft); padding-top: 14px; border-top: 1px solid var(--line);
+    display: flex; align-items: center; gap: 10px; font-size: 12.5px;
+    color: var(--ink-soft); padding-top: 12px; margin-top: 2px;
+    border-top: 1px solid var(--line);
   }
-  .test-card .tc-meta .tc-go { margin-right: auto; color: var(--gold-ink); font-size: 20px; }
+  /* A dot with no text in it cannot be reordered out from between the two
+     clauses it separates, which is what the «•» character was doing. */
+  .test-card .tc-sep {
+    display: inline-block; width: 3px; height: 3px; border-radius: 50%;
+    background: var(--gold-ink); vertical-align: middle; margin: 0 8px;
+  }
+  .test-card .tc-go {
+    margin-right: auto; color: var(--gold-ink); font-size: 12.5px; font-weight: 600;
+  }
+  .test-card:hover .tc-go { color: var(--oxblood); }
 
   /* The resume banner. Storage is invisible unless the page says so: without
      this, a person who closed the tab mid-test has no idea the answers are
@@ -199,11 +218,11 @@
      here before. */
   .test-card .tc-state {
     font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 3px 8px;
-    border: 1px solid currentColor;
+    border: 1px solid currentColor; margin-right: auto; flex-shrink: 0;
+    white-space: nowrap; align-self: flex-start;
   }
   .test-card .tc-state.is-done { color: var(--teal); }
   .test-card .tc-state.is-part { color: var(--oxblood); }
-  .tc-top-right { display: flex; align-items: center; gap: 8px; }
 
   .hub-note {
     margin-top: 40px; padding: 20px 24px; background: var(--paper);
@@ -229,7 +248,6 @@
     border: 1px dashed var(--line); cursor: not-allowed; transform: none;
   }
   .btn-primary:disabled:hover { transform: none; box-shadow: none; }
-  .btn-arrow { font-size: 20px; line-height: 1; }
   .btn-ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); padding: 14px 24px; font-size: 14px; }
   .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
 
@@ -242,16 +260,20 @@
   .intro h2 { font-size: 30px; font-weight: 700; margin-bottom: 16px; line-height: 1.3; }
   .intro p { color: var(--ink-soft); margin-bottom: 16px; }
   .intro-back { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
-  .branch-cards { display: grid; gap: 16px; margin: 40px 0 24px; }
+  /* Capped, for the same reason the quiz column is: at 768 these were 640px
+     rows with «انتخاب» four hundred pixels from the title it belongs to. */
+  .branch-cards { display: grid; gap: 14px; margin: 32px auto 24px; max-width: 520px; }
   .branch-card {
-    background: var(--paper); border: 1.5px solid var(--line); padding: 28px 26px;
+    font-family: inherit; font-size: 16px; color: inherit; width: 100%;
+    background: var(--paper); border: 1.5px solid var(--line); padding: 22px 24px;
     cursor: pointer; transition: all 0.2s ease; text-align: right;
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
   }
   .branch-card:hover { border-color: var(--ink); background: #fff; transform: translateY(-3px); box-shadow: 0 8px 0 -2px var(--gold); }
-  .branch-card .bc-title { font-size: 19px; font-weight: 600; }
-  .branch-card .bc-sub { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
-  .branch-card .bc-arrow { color: var(--gold-ink); font-size: 24px; }
+  .branch-card .bc-title { display: block; font-size: 19px; font-weight: 600; }
+  .branch-card .bc-sub { display: block; font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+  .branch-card .bc-arrow { color: var(--gold-ink); font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .branch-card:hover .bc-arrow { color: var(--oxblood); }
   .branch-note { font-size: 13px; color: var(--ink-muted); margin-top: 8px; }
 
   .field-group { text-align: right; margin: 12px 0; }
@@ -323,9 +345,12 @@
   .answer:hover .marker { border-color: var(--ink); }
   .answer.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   .answer.selected .marker { background: var(--gold); border-color: var(--gold); }
+  /* Was a «✓» character, which Vazirmatn does not have — it came out of a
+     fallback font, so the tick's weight and size changed with the device. A
+     drawn shape needs no font at all. */
   .answer.selected .marker::after {
-    content: '✓'; position: absolute; inset: 0; display: flex; align-items: center;
-    justify-content: center; color: var(--ink); font-size: 15px; font-weight: 700;
+    content: ''; position: absolute; inset: 0; margin: auto;
+    width: 10px; height: 10px; border-radius: 50%; background: var(--ink);
   }
   /* A FOCUS RING IN THE PALETTE. There was none, so every focusable thing
      fell back to the browser's default outline — a hard black ring on a cream
@@ -552,7 +577,7 @@
 <div class="app">
 
   <div class="topbar">
-    <div class="brand" onclick="goHub()">آزمون‌های خودشناسی<span class="dot"></span></div>
+    <button type="button" class="brand" onclick="goHub()">آزمون‌های خودشناسی<span class="dot" aria-hidden="true"></span></button>
     <div class="tagline">مجموعه‌ی شناخت</div>
   </div>
 
@@ -588,7 +613,7 @@
       <div id="intro-body"><!-- branch cards or info form injected --></div>
       <p class="branch-note" id="intro-note">صادقانه و بر اساس اولین احساست پاسخ بده. پاسخ‌ها فقط در مرورگر تو می‌مانند.</p>
       <div class="intro-back">
-        <button class="btn btn-ghost" onclick="goHub()"><span class="btn-arrow">→</span> بازگشت به فهرست آزمون‌ها</button>
+        <button class="btn btn-ghost" onclick="goHub()">بازگشت به فهرست آزمون‌ها</button>
       </div>
     </div>
   </section>
@@ -972,6 +997,7 @@ function parseHash(){
 }
 
 let routing = false;   // route() renders; it must never trigger itself
+let lastFocusedQ = null, lastFocusedTest = null;
 function nav(url, replace){
   if (location.hash === url) { route(); return; }
   if (replace) history.replaceState(null, '', url); else history.pushState(null, '', url);
@@ -1031,11 +1057,24 @@ function route(){
     cancelAdvance();
     shareStatus('');   // a stale «لینک کپی شد» must not follow you off the screen
 
-    if (eff.screen === 'hub'){ currentTestId = null; TEST = null; renderHub(); goTo('hub'); return; }
+    if (eff.screen === 'hub'){ currentTestId = null; TEST = null; lastFocusedQ = null; renderHub(); goTo('hub'); return; }
     if (eff.screen === 'intro'){ buildIntro(); return; }
     if (eff.screen === 'quiz'){
+      const moved = lastFocusedQ !== eff.q || lastFocusedTest !== eff.id;
       currentQ = eff.q - 1;
-      prepQuizChrome(); renderQuestion(); goTo('quiz'); Store.saveProgress(); return;
+      prepQuizChrome(); renderQuestion(); goTo('quiz'); Store.saveProgress();
+      /* #prompt-main was made focusable for exactly this and nothing ever
+         focused it, so advancing left focus on <body>: the next Tab restarted
+         at the brand. Auto-advance made it constant.
+         Only when the QUESTION changes — renderQuestion() also runs on every
+         pick, and stealing focus there would rip it off the radio group the
+         arrow keys are walking through. */
+      if (moved){
+        lastFocusedQ = eff.q; lastFocusedTest = eff.id;
+        const h = document.getElementById('prompt-main');
+        if (h) h.focus({ preventScroll: false });
+      }
+      return;
     }
     if (eff.screen === 'results'){
       const done = Store.loadResult(eff.id);
@@ -1146,10 +1185,18 @@ function renderResumeBanner(){
       '<button class="btn btn-ghost" id="rs-drop">پاک کن</button>' +
     '</div>';
   host.appendChild(box);
-  document.getElementById('rs-go').onclick = ()=>{
-    nav(ROUTES.quiz(p.testId, Math.min(p.q, p.total - 1) + 1));
-  };
+  document.getElementById('rs-go').onclick = ()=>resumeTest(p.testId);
   document.getElementById('rs-drop').onclick = ()=>{ Store.clearProgress(p.testId); renderHub(); };
+}
+
+/* Back to where the answers stop. The banner and a «نیمه‌کاره» card both come
+   here, so there is one definition of "resume". resolveRoute() clamps the
+   question to the first unanswered one anyway, so this only has to name the
+   test; a saved position past the answers cannot slip through. */
+function resumeTest(id){
+  const p = Store.loadProgress(id);
+  const at = p ? Math.min(p.q, p.total - 1) + 1 : 1;
+  nav(ROUTES.quiz(id, at));
 }
 
 function renderHub(){
@@ -1163,24 +1210,48 @@ function renderHub(){
   grid.innerHTML='';
   Object.keys(TESTS).forEach((id,i)=>{
     const t = TESTS[id];
-    const card = document.createElement('div');
+    /* A <button>, not a div with an onclick. The hub had seven of those and
+       the brand was an eighth: measured, the entire screen had zero tab stops,
+       so nobody on a keyboard or a screen reader could start any test at all.
+       A button gets the tab stop, the accessible name, Enter and Space, and
+       the focus ring, none of which had to be written. */
+    const card = document.createElement('button');
+    card.type='button';
     card.className='test-card';
-    card.onclick=()=>startTest(id);
-    const state = done.includes(id) ? '<span class="tc-state is-done">انجام شده</span>'
-                : part.includes(id) ? '<span class="tc-state is-part">نیمه‌کاره</span>'
+    /* The card knew it was finished and still said «شروع», and clicking it
+       went to the intro rather than to the result it already had. The badge
+       and the action agree now, and the action goes where the badge says. */
+    const isDone = done.includes(id), isPart = part.includes(id);
+    card.onclick = isDone ? (()=>nav(ROUTES.results(id)))
+                 : isPart ? (()=>resumeTest(id))
+                 : (()=>startTest(id));
+    const go = isDone ? 'دیدن نتیجه' : isPart ? 'ادامه' : 'شروع';
+    const state = isDone ? '<span class="tc-state is-done">انجام شده</span>'
+                : isPart ? '<span class="tc-state is-part">نیمه‌کاره</span>'
                 : '';
+    /* «۶۲ گزاره • ۶ بخش» rendered as «۶۲ گزاره ۶ • بخش»: the bullet is a
+       bidi-neutral sitting between a Persian word and a Persian digit, and it
+       got reordered out from between the two clauses it separates. Each clause
+       is its own <bdi> isolate now and the separator is an element with no
+       text in it, so there is nothing left to reorder. */
+    const meta = t.metaLabel.split('•').map(x=>x.trim()).filter(Boolean)
+      .map(x=>'<bdi>'+x+'</bdi>').join('<i class="tc-sep" aria-hidden="true"></i>');
     card.innerHTML =
-      '<div class="tc-top">'+
-        '<div class="tc-icon">'+ICONS[t.icon]+'</div>'+
-        '<div class="tc-top-right">'+state+
-          '<div class="tc-index">'+toFa(String(i+1).padStart(2,'0'))+'</div>'+
-        '</div>'+
+      /* The icon used to sit in its own row with space-between and an empty
+         box opposite it, which parked it at the far LEFT of an RTL card —
+         diagonally across from the title it belongs to. It leads the title
+         now, and the state badge takes the opposite end of the same row. */
+      '<div class="tc-head">'+
+        '<span class="tc-icon">'+ICONS[t.icon]+'</span>'+
+        '<span class="tc-title">'+t.title+'</span>'+
+        state+
       '</div>'+
-      '<div class="tc-title">'+t.title+'</div>'+
       '<div class="tc-desc">'+t.tagline+'</div>'+
       '<div class="tc-meta">'+
-        '<span>'+t.metaLabel+'</span>'+
-        '<span class="tc-go">←</span>'+
+        '<span class="tc-facts">'+meta+'</span>'+
+        /* was a bare «←», for which Vazirmatn has no glyph at all — it came
+           out of whatever fallback font the device had. A word has one. */
+        '<span class="tc-go">'+go+'</span>'+
       '</div>';
     grid.appendChild(card);
   });
@@ -1200,9 +1271,10 @@ function buildIntro(){
   if(TEST.intro === 'branch'){
     const wrap=document.createElement('div'); wrap.className='branch-cards';
     TEST.branches.forEach(b=>{
-      const c=document.createElement('div'); c.className='branch-card';
+      const c=document.createElement('button'); c.type='button'; c.className='branch-card';
       c.onclick=()=>{ meta.branch=b.key; if(b.partner) meta.partner=b.partner; beginQuiz(); };
-      c.innerHTML='<div><div class="bc-title">'+b.title+'</div><div class="bc-sub">'+b.sub+'</div></div><span class="bc-arrow">←</span>';
+      c.innerHTML='<span><span class="bc-title">'+b.title+'</span><span class="bc-sub">'+b.sub+'</span></span>'+
+                  '<span class="bc-arrow">انتخاب</span>';
       wrap.appendChild(c);
     });
     body.appendChild(wrap);
@@ -1221,7 +1293,7 @@ function buildIntro(){
     });
     const btn=document.createElement('button');
     btn.className='btn btn-primary'; btn.style.marginTop='16px';
-    btn.innerHTML='<span>شروع آزمون</span><span class="btn-arrow">←</span>';
+    btn.innerHTML='<span>شروع آزمون</span>';
     btn.onclick=()=>{
       TEST.infoFields.forEach(f=>{ meta[f.key]=(document.getElementById('info-'+f.key)||{}).value||''; });
       beginQuiz();
@@ -1231,7 +1303,7 @@ function buildIntro(){
   } else {
     const btn=document.createElement('button');
     btn.className='btn btn-primary'; btn.style.marginTop='24px';
-    btn.innerHTML='<span>شروع آزمون</span><span class="btn-arrow">←</span>';
+    btn.innerHTML='<span>شروع آزمون</span>';
     btn.onclick=()=>beginQuiz();
     body.appendChild(btn);
   }
@@ -1960,7 +2032,7 @@ const FOUR_VALS = [0,1,2,3];
 TESTS.compass = {
   icon:'compass',
   title:'قطب‌نمای سیاسی',
-  tagline:'دیدگاه سیاسی‌ات روی دو محورِ اقتصادی (چپ↔راست) و اجتماعی (اقتدارگرا↔آزادی‌خواه) کجا می‌ایستد؟',
+  tagline:'دیدگاه سیاسی‌ات روی دو محورِ اقتصادی (چپ/راست) و اجتماعی (اقتدارگرا/آزادی‌خواه) کجا می‌ایستد؟',
   metaLabel:'۶۲ گزاره • ۶ بخش',
   intro:'straight',
   introPill:'پیش از آزمون',
