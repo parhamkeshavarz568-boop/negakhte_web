@@ -20,7 +20,10 @@
   --gold-ink: #7E5D25;    /* gold that carries small text on paper. 5.3:1 */
   --on-ink: #D8CFC3;      /* secondary text on the ink footer. 11.6:1 */
 
-  --font: "Estedad", system-ui, sans-serif;
+  --font: "Estedad", system-ui, sans-serif;            /* text: body, UI, prices */
+  --display: "Estedad", system-ui, sans-serif;         /* headlines */
+  --w-display: 200;                                    /* headline weight */
+  --w-strong: 800;                                     /* the heavy oxblood word */
 
   /* type */
   --t-meta: 0.8125rem;    /* 13 */
@@ -63,8 +66,8 @@ button { font: inherit; color: inherit; }
 /* ---- the marks shared with negakhte */
 .dia { display: inline-block; width: .3em; height: .3em; background: var(--gold); rotate: 45deg;
   margin-inline-start: .32em; vertical-align: .12em; flex: none; }
-.hl { background: linear-gradient(to top, transparent .05em, rgb(201 152 70 / .45) .05em .17em, transparent .17em);
-  -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.hl { background: linear-gradient(to top, transparent .2em, rgb(201 152 70 / .45) .2em .4em, transparent .4em) right / 100% 100% no-repeat;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; padding-inline: .04em; }
 .eyebrow { display: flex; align-items: center; gap: .75rem; font-size: var(--t-meta); font-weight: 500; color: var(--gold-ink); }
 .eyebrow::before { content: ""; width: 2rem; height: 1px; background: currentColor; flex: none; }
 .eyebrow a:hover { color: var(--ox); }
@@ -111,11 +114,11 @@ button { font: inherit; color: inherit; }
   min-height: max(36rem, min(94svh, 67vw)); }
 .hero-bg, .hero-bg img { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
 .hero-bg img { object-fit: cover; object-position: 20% 75%; }
-.hero-in { display: grid; grid-template-rows: 1fr auto; gap: var(--s4); padding-top: calc(var(--mast) + var(--s4)); padding-bottom: var(--s4); }
+.hero-in { position: relative; z-index: 2; display: grid; grid-template-rows: 1fr auto; gap: var(--s4); padding-top: calc(var(--mast) + var(--s4)); padding-bottom: var(--s4); }
 .hero-copy { align-self: center; display: grid; gap: var(--s3); max-width: min(100%, 52rem); }
 .hero .eyebrow { color: var(--ink); }
-.hero-h1 { font-size: var(--t-h1); font-weight: 200; line-height: 1.04; letter-spacing: -.02em; }
-.hero-h1 b { font-weight: 800; color: var(--ox); }
+.hero-h1 { font-family: var(--display); font-size: var(--t-h1); font-weight: var(--w-display); line-height: 1.08; letter-spacing: -.01em; }
+.hero-h1 b { font-weight: var(--w-strong); color: var(--ox); }
 .hero-h1 .ln { display: block; }
 .hero-lede { font-size: var(--t-lede); line-height: 1.85; max-width: 32em; }
 .hero-cta { display: flex; flex-wrap: wrap; gap: .9rem; }
@@ -133,23 +136,42 @@ button { font: inherit; color: inherit; }
   .hero-copy { align-self: start; }
   .hero-cta .btn { flex: 1 1 9rem; padding-inline: .9rem; }
 }
+/* The entrance — the sun reaching the room, once per visit:
+   the photo brightens and settles, one sunbeam passes over the wall, the
+   headline writes itself in from the right (as Persian is read), then the
+   highlighter draws under the heavy word. After that only the dust in the
+   window light moves (site.js), as the hint that the page is alive. */
+.hero::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
+  background: linear-gradient(105deg, transparent 30%, rgb(255 242 214 / .3) 45%, rgb(255 242 214 / .1) 53%, transparent 64%);
+  mix-blend-mode: screen; }
+.motes { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
 @media (prefers-reduced-motion: no-preference) {
-  .hero-bg img { animation: settle 2.6s var(--ease) both; }
-  .hero-copy > * { animation: rise .9s var(--ease) both; }
-  .hero-copy > :nth-child(2) { animation-delay: .1s; }
-  .hero-copy > :nth-child(3) { animation-delay: .22s; }
-  .hero-copy > :nth-child(4) { animation-delay: .32s; }
-  .hero-stats { animation: rise .9s var(--ease) .45s both; }
+  .hero-bg img { animation: light-up 2.8s var(--ease) both; }
+  .hero::after { animation: sunbeam 2.6s cubic-bezier(.4, 0, .2, 1) .35s both; }
+  .hero-copy > :not(.hero-h1) { animation: rise .9s var(--ease) both; }
+  .hero-copy > :nth-child(1) { animation-delay: .15s; }
+  .hero-copy > :nth-child(3) { animation-delay: 1s; }
+  .hero-copy > :nth-child(4) { animation-delay: 1.12s; }
+  .hero-h1 .ln { animation: write 1.15s cubic-bezier(.55, .1, .25, 1) both; }
+  .hero-h1 .ln:nth-child(1) { animation-delay: .3s; }
+  .hero-h1 .ln:nth-child(2) { animation-delay: .55s; }
+  .hero-h1 .hl { animation: underline .8s var(--ease) 1.25s both; }
+  .hero-stats { animation: rise .9s var(--ease) 1.25s both; }
+  .motes { animation: fade-in 2s ease 1.6s both; }
 }
-@keyframes settle { from { scale: 1.06; } }
+@keyframes light-up { from { scale: 1.06; filter: brightness(.82) saturate(.9); } }
+@keyframes sunbeam { 0% { opacity: 0; translate: -55% 0; } 25% { opacity: 1; } 100% { opacity: 0; translate: 60% 0; } }
+@keyframes write { from { clip-path: inset(-25% 0 -25% 100%); } to { clip-path: inset(-25% 0 -25% 0); } }
+@keyframes underline { from { background-size: 0% 100%; } }
+@keyframes fade-in { from { opacity: 0; } }
 @keyframes rise { from { opacity: 0; translate: 0 16px; } }
 
 /* ---------------------------------------------------------------- section heads */
 .sec-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: var(--s2) var(--s4);
   padding-bottom: var(--s3); }
 .sec-head > div { display: grid; gap: .6rem; }
-.sec-head h2 { font-size: var(--t-h2); font-weight: 200; letter-spacing: -.01em; }
-.sec-head h2 b { font-weight: 800; color: var(--ox); }
+.sec-head h2 { font-family: var(--display); font-size: var(--t-h2); font-weight: var(--w-display); letter-spacing: -.01em; }
+.sec-head h2 b { font-weight: var(--w-strong); color: var(--ox); }
 .sec-aside { font-size: var(--t-body); color: var(--ink-2); max-width: 30em; }
 .sec-link { font-size: .875rem; font-weight: 600; color: var(--ox); }
 .sec-link:hover { text-decoration: underline; text-underline-offset: .3em; }
@@ -242,8 +264,8 @@ button { font: inherit; color: inherit; }
 .state { display: grid; margin-top: var(--s6); background: var(--stone); }
 .state-ph img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 5; }
 .state-tx { display: grid; align-content: center; gap: var(--s3); padding: var(--s5) var(--gutter); }
-.state h2 { font-size: clamp(2.75rem, 6vw, 5.25rem); font-weight: 200; letter-spacing: -.02em; line-height: 1.05; }
-.state h2 b { font-weight: 800; color: var(--ox); }
+.state h2 { font-family: var(--display); font-size: clamp(2.75rem, 6vw, 5.25rem); font-weight: var(--w-display); letter-spacing: -.01em; line-height: 1.08; }
+.state h2 b { font-weight: var(--w-strong); color: var(--ox); }
 .state p { font-size: var(--t-lede); line-height: 1.9; color: var(--ink-2); max-width: 30em; }
 .nums { display: flex; flex-wrap: wrap; gap: var(--s2) clamp(1.5rem, 4vw, 3rem); border-top: 1px solid #D2C5B2; padding-top: var(--s3); }
 .nums div { display: grid; }
@@ -257,7 +279,7 @@ button { font: inherit; color: inherit; }
 
 /* ---------------------------------------------------------------- ordering */
 .order { display: grid; gap: var(--s5); padding-block: var(--s6); align-items: center; }
-.order h2 { font-size: var(--t-h2); font-weight: 200; margin-block: .6rem var(--s3); }
+.order h2 { font-family: var(--display); font-size: var(--t-h2); font-weight: var(--w-display); margin-block: .6rem var(--s3); }
 .steps li { display: grid; grid-template-columns: 4.5rem 1fr; gap: var(--s3); padding-block: var(--s3); border-top: 1px solid var(--rule); }
 .step-n { font-size: 4.25rem; font-weight: 100; line-height: .9; color: var(--ox); }
 .steps h3 { font-size: var(--t-h3); font-weight: 600; }
@@ -279,8 +301,8 @@ button { font: inherit; color: inherit; }
 .sec-hero { padding-top: var(--s3); }
 .sec-hero-in { display: grid; gap: var(--s4); align-items: end; }
 .sec-copy { display: grid; gap: var(--s2); }
-.sec-copy h1 { font-size: var(--t-title); font-weight: 200; line-height: .95; letter-spacing: -.03em; margin-top: .4rem; }
-.sec-copy h1 b { font-weight: 800; color: var(--ox); }
+.sec-copy h1 { font-family: var(--display); font-size: var(--t-title); font-weight: var(--w-display); line-height: .98; letter-spacing: -.02em; margin-top: .4rem; }
+.sec-copy h1 b { font-weight: var(--w-strong); color: var(--ox); }
 .sec-copy h1.long { font-size: var(--t-h1); line-height: 1.05; }   /* sentences and names, not one-word sections */
 .sec-intro { font-size: var(--t-lede); line-height: 1.9; color: var(--ink-2); max-width: 30em; }
 .sec-copy .nums { border-top: 0; padding-top: var(--s1); }
@@ -300,7 +322,7 @@ button { font: inherit; color: inherit; }
 .tabs a[aria-current] { color: var(--ink); font-weight: 700; border-color: var(--ox); }
 .listing { padding-top: var(--s4); }
 .sold { padding-top: var(--s6); }
-.sold h2 { font-size: clamp(1.75rem, 2.6vw, 2.25rem); font-weight: 200; margin-bottom: var(--s1); }
+.sold h2 { font-family: var(--display); font-size: clamp(1.75rem, 2.6vw, 2.25rem); font-weight: var(--w-display); margin-bottom: var(--s1); }
 .sold .sec-aside { margin-bottom: var(--s3); }
 .grid-sold { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s3) .75rem; }
 @media (min-width: 700px) { .grid-sold { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--s3) 1rem; } }
@@ -313,7 +335,7 @@ button { font: inherit; color: inherit; }
 .prod-ph { background: var(--stone); }
 .prod-ph img { width: 100%; }
 .prod-info { display: grid; gap: var(--s3); align-content: start; padding-inline: var(--gutter); }
-.prod-info h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 200; line-height: 1.05; letter-spacing: -.02em; }
+.prod-info h1 { font-family: var(--display); font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: var(--w-display); line-height: 1.1; letter-spacing: -.01em; }
 .prod-price { font-size: clamp(1.5rem, 2.2vw, 1.875rem); font-weight: 300; }
 .prod-price small { font-size: var(--t-body); color: var(--ink-2); }
 .prod-price .pr-ask { font-size: 1.25rem; }

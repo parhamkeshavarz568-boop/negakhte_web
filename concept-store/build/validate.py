@@ -105,7 +105,16 @@ def contrast(a, b):
     return (la + 0.05) / (lb + 0.05)
 
 
+def _utf8_console():
+    """Windows consoles default to cp1252, which cannot print Persian; without
+    this a plain `python build/<script>.py` crashes on the first Persian line."""
+    for s in (sys.stdout, sys.stderr):
+        if hasattr(s, "reconfigure"):
+            s.reconfigure(encoding="utf-8", errors="replace")
+
+
 def main():
+    _utf8_console()
     with open(os.path.join(HERE, "data", "products.source.json"), encoding="utf-8") as f:
         products = [p for p in json.load(f)["products"] if p.get("category")]
     pages = {}

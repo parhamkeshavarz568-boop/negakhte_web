@@ -357,6 +357,7 @@ def home(products, by_code):
     body = f"""
 <section class="hero">
 {mood("hero-wide", "100vw", cls="hero-bg", eager=True, phone="hero-tall")}
+<canvas class="motes" aria-hidden="true"></canvas>
 <div class="wrap hero-in">
 <div class="hero-copy">
 <p class="eyebrow">دست‌ساز و انتخابی</p>

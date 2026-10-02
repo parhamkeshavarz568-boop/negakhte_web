@@ -163,7 +163,16 @@ def parse_price(raw):
     raise SystemExit(f"unreadable price «{raw}»")
 
 
+def _utf8_console():
+    """Windows consoles default to cp1252, which cannot print Persian; without
+    this a plain `python build/<script>.py` crashes on the first Persian line."""
+    for s in (sys.stdout, sys.stderr):
+        if hasattr(s, "reconfigure"):
+            s.reconfigure(encoding="utf-8", errors="replace")
+
+
 def main():
+    _utf8_console()
     if os.path.exists(OUT) and "--force" not in sys.argv:
         print(f"{OUT} exists and may hold edits. Re-run with --force to re-import.")
         return 1
