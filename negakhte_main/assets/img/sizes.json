@@ -95,7 +95,37 @@
    1254
   ]
  },
+ "simorgh": {
+  "size": [
+   390,
+   390
+  ],
+  "widths": [
+   390
+  ]
+ },
  "stepping-stones": {
+  "size": [
+   1536,
+   1024
+  ],
+  "widths": [
+   640,
+   1024,
+   1536
+  ]
+ },
+ "sunlit-corner-tall": {
+  "size": [
+   1024,
+   1536
+  ],
+  "widths": [
+   640,
+   1024
+  ]
+ },
+ "sunlit-corner-wide": {
   "size": [
    1536,
    1024

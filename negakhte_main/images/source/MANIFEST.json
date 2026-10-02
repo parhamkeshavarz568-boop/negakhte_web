@@ -120,6 +120,36 @@
    ],
    "shows": "two tea glasses on a windowsill, their steam meeting",
    "used_for": "contact"
+  },
+  "simorgh": {
+   "file": "../ali-optimized/images/simorgh.webp (cropped to a 390 px square around the bird)",
+   "sha256": "5adca447610c89d87d7d53381514540f170399c114ca9f4a65e44158803027bd",
+   "size": [
+    390,
+    390
+   ],
+   "shows": "the Simorgh in flight, from the café site; the crop leaves out the Faravahar (a human figure) carved on the rock below",
+   "used_for": "the Attar interlude, as a round medallion"
+  },
+  "sunlit-corner-wide": {
+   "file": "concept-store/build/original/atmosphere/hero-wide.jpg (the concept store's mood image, shared on purpose: same family)",
+   "sha256": "92d07690199c1fe8b48374a90974cbc179a59655072732b3044d560931f5a878",
+   "size": [
+    1536,
+    1024
+   ],
+   "shows": "an empty sunlit corner, window light on stone, wide",
+   "used_for": "the «خانواده» statement (desktop)"
+  },
+  "sunlit-corner-tall": {
+   "file": "concept-store/build/original/atmosphere/hero-tall.jpg (the concept store's mood image, shared on purpose: same family)",
+   "sha256": "10c4482b51c6ae68e71d48b1485d707784faa6777721fbadddf66f8a6c3b781f",
+   "size": [
+    1024,
+    1536
+   ],
+   "shows": "the same corner, tall",
+   "used_for": "the «خانواده» statement (phones)"
   }
  }
 }

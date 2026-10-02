@@ -14,83 +14,36 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0C2626">
 <link rel="preload" href="assets/vazirmatn-negakhte.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
-<meta name="theme-color" content="#F4EBD9">
+<script>document.documentElement.classList.add("js")</script>
+<script src="assets/home.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">رفتن به متن اصلی</a>
 
-<!-- ============ THE MARK ============
-     An open ring: a circle with one gap left in it. A group is a circle,
-     and there is a space open for you. It works with six people or twelve,
-     so unlike a count it can never go out of date — which is exactly what
-     was wrong with building "seven" into the identity.
-     Drawn, so there is no licence risk and no request. -->
+<!-- The mark: an open ring, a circle with one place left in it. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <symbol id="ring" viewBox="0 0 64 64">
-    <circle cx="32" cy="32" r="25" fill="none" stroke="currentColor"
-            stroke-width="5" stroke-linecap="round"
-            stroke-dasharray="118 39" transform="rotate(-58 32 32)"/>
+    <circle cx="32" cy="32" r="25" fill="none" stroke="currentColor" stroke-width="5"
+            stroke-linecap="round" stroke-dasharray="118 39" transform="rotate(-58 32 32)"/>
     <circle cx="32" cy="7.5" r="4.6" fill="currentColor"/>
-  </symbol>
-  <!-- The hero composition. Concentric rings widen outward like something
-       settling, the innermost one is the open circle with its gap, and the
-       gold dot sits in the gap: the place left for you. -->
-  <symbol id="ring-lg" viewBox="0 0 240 240">
-    <defs>
-      <radialGradient id="glow" cx="50%" cy="46%" r="52%">
-        <stop offset="0%"   stop-color="#C9A961" stop-opacity="0"/>
-        <stop offset="58%"  stop-color="#C9A961" stop-opacity=".08"/>
-        <stop offset="100%" stop-color="#C9A961" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-    <circle cx="120" cy="120" r="118" fill="url(#glow)"/>
-    <g fill="none" stroke="#C9A961" stroke-linecap="round">
-      <circle cx="120" cy="120" r="113" stroke-width=".9" opacity=".40"/>
-      <circle cx="120" cy="120" r="97"  stroke-width=".9" opacity=".30"/>
-      <circle cx="120" cy="120" r="81"  stroke-width="1.4" opacity=".55"
-              stroke-dasharray="1 7"/>
-    </g>
-    <circle cx="120" cy="120" r="62" fill="none" stroke="#1E6E6E"
-            stroke-width="10" stroke-linecap="round"
-            stroke-dasharray="292 98" transform="rotate(-56 120 120)"/>
-    <circle cx="120" cy="58" r="12.5" fill="#C9A961"/>
-  </symbol>
-  <symbol id="arc1" viewBox="0 0 48 48"><circle cx="24.0" cy="24.0" r="21.0" fill="none" stroke="#C9A961" stroke-width="1.6" opacity=".3"/><circle cx="24.0" cy="24.0" r="21.0" fill="none" stroke="#1E6E6E" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="39.58 131.95" transform="rotate(-90 24.0 24.0)"/></symbol>
-  <symbol id="arc2" viewBox="0 0 48 48"><circle cx="24.0" cy="24.0" r="21.0" fill="none" stroke="#C9A961" stroke-width="1.6" opacity=".3"/><circle cx="24.0" cy="24.0" r="21.0" fill="none" stroke="#1E6E6E" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="85.77 131.95" transform="rotate(-90 24.0 24.0)"/></symbol>
-  <symbol id="arc3" viewBox="0 0 48 48"><circle cx="24.0" cy="24.0" r="21.0" fill="none" stroke="#C9A961" stroke-width="1.6" opacity=".3"/><circle cx="24.0" cy="24.0" r="21.0" fill="none" stroke="#1E6E6E" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="131.95 131.95" transform="rotate(-90 24.0 24.0)"/></symbol>
-  <symbol id="m-room" viewBox="0 0 72 56"><rect x="2.5" y="2.5" width="67" height="51" rx="3" fill="none" stroke="#C9A961" stroke-width="1.4"/><ellipse cx="36" cy="30" rx="19" ry="11" fill="none" stroke="#C9A961" stroke-width="1" opacity=".55" stroke-dasharray="2 5"/><circle cx="36.0" cy="18.2" r="3.4" fill="#0F4747"/><circle cx="52.5" cy="24.1" r="3.4" fill="#0F4747"/><circle cx="52.5" cy="35.9" r="3.4" fill="#0F4747"/><circle cx="36.0" cy="41.8" r="3.4" fill="#0F4747"/><circle cx="19.5" cy="35.9" r="3.4" fill="#0F4747"/><circle cx="19.5" cy="24.1" r="3.4" fill="#0F4747"/></symbol>
-  <symbol id="ghost-ring" viewBox="0 0 240 240"><circle cx="120.0" cy="120.0" r="96.0" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".5"/><circle cx="120.0" cy="24.0" r="7.5" fill="currentColor"/><circle cx="176.4" cy="42.3" r="7.5" fill="currentColor"/><circle cx="211.3" cy="90.3" r="7.5" fill="currentColor"/><circle cx="211.3" cy="149.7" r="7.5" fill="currentColor"/><circle cx="176.4" cy="197.7" r="7.5" fill="currentColor"/><circle cx="120.0" cy="216.0" r="7.5" fill="currentColor"/><circle cx="63.6" cy="197.7" r="7.5" fill="currentColor"/><circle cx="28.7" cy="149.7" r="7.5" fill="currentColor"/><circle cx="28.7" cy="90.3" r="7.5" fill="currentColor"/><circle cx="63.6" cy="42.3" r="7.5" fill="currentColor"/></symbol>
-  <!-- a thin open ring, for the step numerals -->
-  <symbol id="ring-thin" viewBox="0 0 48 48">
-    <circle cx="24" cy="24" r="21" fill="none" stroke="#C9A961"
-            stroke-width="1.6" stroke-linecap="round"
-            stroke-dasharray="107 25" transform="rotate(-62 24 24)"/>
-  </symbol>
-  <!-- the divider ornament -->
-  <symbol id="orn" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"
-            stroke-width="1.6" stroke-linecap="round"
-            stroke-dasharray="40 10" transform="rotate(-58 12 12)"/>
-    <circle cx="12" cy="4" r="2.6" fill="currentColor"/>
   </symbol>
 </defs></svg>
 
 <header class="top">
   <div class="shell">
-    <a class="brand" href="index.html">
-      <svg style="color:var(--teal)" aria-hidden="true"><use href="#ring"/></svg>
-      <span class="bn">نگاخته</span>
-    </a>
-    <nav class="nav" aria-label="بخش‌های اصلی">
-      <a href="#therapy" aria-current="page">گروه‌درمانی</a>
-      <a href="#session">یه جلسه چطوره</a>
+    <a class="brand" href="home.html"><svg aria-hidden="true"><use href="#ring"/></svg><span>نگاخته</span></a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav"><i aria-hidden="true"></i>منو</button>
+    <nav class="nav" id="nav" aria-label="بخش‌های اصلی">
+      <a href="#family">ما کی هستیم</a>
+      <a href="#therapy">گروه‌درمانی</a>
+      <a href="#session">یه جلسه</a>
       <a href="#worries">نگرانی‌ها</a>
-      <a href="index.html">آزمون‌های خودشناسی</a>
-      <a href="#about">درباره‌ی ما</a>
+      <a href="index.html">آزمون‌ها</a>
       <a href="#contact">تماس</a>
     </nav>
   </div>
@@ -99,339 +52,283 @@
 <main id="main">
 
 <!-- ============ HERO ============
-     One drop, and the rings it sends across still water: change starting at
-     one point and reaching everything around it. The open ring is negakhte's
-     mark; here the water draws it. -->
-<section class="hero hero-photo">
+     One drop, and the rings it sends across still water: change that
+     starts at one point and reaches everything around it. -->
+<section class="hero">
   <picture class="hero-bg"><source media="(max-width: 760px)" type="image/avif" srcset="assets/img/ripples-tall-640.avif 640w, assets/img/ripples-tall-1024.avif 1024w" sizes="100vw"><source media="(max-width: 760px)" type="image/webp" srcset="assets/img/ripples-tall-640.webp 640w, assets/img/ripples-tall-1024.webp 1024w" sizes="100vw"><source type="image/avif" srcset="assets/img/ripples-wide-640.avif 640w, assets/img/ripples-wide-1024.avif 1024w, assets/img/ripples-wide-1536.avif 1536w" sizes="100vw"><img src="assets/img/ripples-wide-1024.webp" srcset="assets/img/ripples-wide-640.webp 640w, assets/img/ripples-wide-1024.webp 1024w, assets/img/ripples-wide-1536.webp 1536w" sizes="100vw" width="1536" height="1024" alt="" fetchpriority="high" decoding="async"></picture>
   <div class="shell hero-in">
-    <div class="hero-copy">
-      <p class="eyebrow">نگاخته</p>
-      <h1>تغییر از <span class="accent">خودمون</span> شروع می‌شه.</h1>
-      <p class="lede measure">
-        کار اصلی ما گروه‌درمانیه؛ حضوری، دور هم تو یه اتاق. اینجا قرار نیست فوری ثبت‌نام کنی؛
-        اینجا جاییه برای فهمیدن. ببین گروه‌درمانی چیه، تو یه جلسه واقعاً چی می‌گذره،
-        و اگه به دلت نشست، از کجا شروع کنی.
-      </p>
-      <div class="hero-links">
-        <a class="btn btn-1" href="#therapy">گروه‌درمانی چیه؟</a>
-        <a class="btn btn-2" href="#session">یه جلسه چطوره؟</a>
-      </div>
-    </div>
+    <h1 class="display">تغییر از <span class="accent">خودمون</span> شروع می‌شه.</h1>
+    <p class="lede">کار اصلی ما گروه‌درمانیه؛ حضوری، دور هم، تو یه اتاق.</p>
   </div>
+  <a class="cue" href="#family" aria-label="ادامه"></a>
 </section>
 
-<!-- ============ THE MAP ============
-     The visitor's stated job is to understand what نگاخته is. A
-     multi-activity organisation has to say so plainly, with the main work
-     given the weight it actually has. -->
-<section id="about">
+<!-- ============ WHO WE ARE ============ -->
+<section class="scene is-light" id="family">
+  <picture class="scene-bg"><source media="(max-width: 760px)" type="image/avif" srcset="assets/img/sunlit-corner-tall-640.avif 640w, assets/img/sunlit-corner-tall-1024.avif 1024w" sizes="100vw"><source media="(max-width: 760px)" type="image/webp" srcset="assets/img/sunlit-corner-tall-640.webp 640w, assets/img/sunlit-corner-tall-1024.webp 1024w" sizes="100vw"><source type="image/avif" srcset="assets/img/sunlit-corner-wide-640.avif 640w, assets/img/sunlit-corner-wide-1024.avif 1024w, assets/img/sunlit-corner-wide-1536.avif 1536w" sizes="100vw"><img src="assets/img/sunlit-corner-wide-1024.webp" srcset="assets/img/sunlit-corner-wide-640.webp 640w, assets/img/sunlit-corner-wide-1024.webp 1024w, assets/img/sunlit-corner-wide-1536.webp 1536w" sizes="100vw" width="1536" height="1024" alt="" loading="lazy" decoding="async"></picture>
   <div class="shell">
-    <p class="eyebrow">ما چی کار می‌کنیم</p>
-    <h2 class="h-sec measure-tight">نگاخته یه خانواده‌ست، نه یه مطب.</h2>
-    <p class="lede measure" style="margin-block:var(--s5) var(--s7)">
-      چند تا کار مختلف می‌کنیم و همه رو یه جا نگه داشتیم. ولی اگه قرار باشه اسم
-      خودمونو روی یکیش بذاریم، همین اولیه.
-    </p>
-    <div class="map">
-      <div class="main">
-        <figure class="map-ph"><picture class="ph"><source type="image/avif" srcset="assets/img/tea-circle-640.avif 640w, assets/img/tea-circle-1024.avif 1024w, assets/img/tea-circle-1254.avif 1254w" sizes="(min-width: 920px) 620px, 100vw"><img src="assets/img/tea-circle-1024.webp" srcset="assets/img/tea-circle-640.webp 640w, assets/img/tea-circle-1024.webp 1024w, assets/img/tea-circle-1254.webp 1254w" sizes="(min-width: 920px) 620px, 100vw" width="1254" height="1254" alt="دایره‌ای از استکان‌های چای که یکی‌شون خالی مونده" loading="lazy" decoding="async"></picture><figcaption class="fig-cap">یه جا برای تو خالیه.</figcaption></figure>
-        <p class="eyebrow" style="margin-bottom:var(--s3)">کارِ اصلی</p>
-        <h3>گروه‌درمانی</h3>
-        <p>
-          گروه‌هایی که هر هفته تو یه اتاق دور هم می‌شینن و حرف می‌زنن. چیزی که
-          تو گروه اتفاق می‌افته تو درمان فردی
-          نمی‌افته: می‌بینی تنها نیستی، و می‌بینی رفتارت با بقیه همون لحظه چه
-          اثری داره.
-        </p>
-        <a class="btn btn-3" href="#therapy">بیشتر بخون</a>
-      </div>
-      <div class="rest">
-        <div class="with-ph">
-          <picture class="ph"><source type="image/avif" srcset="assets/img/mirror-640.avif 640w, assets/img/mirror-1024.avif 1024w, assets/img/mirror-1254.avif 1254w" sizes="84px"><img src="assets/img/mirror-1024.webp" srcset="assets/img/mirror-640.webp 640w, assets/img/mirror-1024.webp 1024w, assets/img/mirror-1254.webp 1254w" sizes="84px" width="1254" height="1254" alt="آینه‌ای قدیمی که فقط آسمون رو نشون می‌ده" loading="lazy" decoding="async"></picture>
-          <h4>آزمون‌های خودشناسی</h4>
-          <p>هفت تا آزمون بر پایه‌ی چارچوب‌های شناخته‌شده‌ی روان‌شناسی؛ رایگان و بدون ثبت‌نام.</p>
-        </div>
-        <div class="todo with-ph">
-          <picture class="ph"><source type="image/avif" srcset="assets/img/pomegranate-640.avif 640w, assets/img/pomegranate-1024.avif 1024w, assets/img/pomegranate-1254.avif 1254w" sizes="84px"><img src="assets/img/pomegranate-1024.webp" srcset="assets/img/pomegranate-640.webp 640w, assets/img/pomegranate-1024.webp 1024w, assets/img/pomegranate-1254.webp 1254w" sizes="84px" width="1254" height="1254" alt="انار شکسته‌ای که دونه‌هاش روی پارچه پخش شده" loading="lazy" decoding="async"></picture>
-          <h4>کارهای عام‌المنفعه</h4>
-          <p>[جای متن] چی کار می‌کنید، برای کیا، و چطور می‌شه همراه شد.</p>
-        </div>
-        <div class="todo">
-          <h4>سایر فعالیت‌ها</h4>
-          <p>[جای متن] هر کار دیگه‌ای که باید تو این نقشه دیده بشه. یه عنوان و دو خط توضیح کافیه.</p>
-        </div>
-      </div>
+    <div>
+      <p class="eyebrow rv">ما کی هستیم</p>
+      <h2 class="title rv" style="--i:1">نگاخته یه خانواده‌ست، نه یه مطب.</h2>
+      <p class="lede rv" style="--i:2">چند تا کار مختلف می‌کنیم و همه رو یه جا نگه داشتیم. ولی اگه قرار باشه فقط یکیش رو بگیم، گروه‌درمانیه.</p>
     </div>
   </div>
 </section>
-
-<div class="shell"><div class="div-orn"><svg aria-hidden="true"><use href="#orn"/></svg></div></div>
 
 <!-- ============ GROUP THERAPY ============ -->
-<div class="band" id="therapy">
+<section class="scene" id="therapy">
+  <picture class="scene-bg"><source type="image/avif" srcset="assets/img/orosi-light-640.avif 640w, assets/img/orosi-light-1024.avif 1024w, assets/img/orosi-light-1536.avif 1536w" sizes="100vw"><img src="assets/img/orosi-light-1024.webp" srcset="assets/img/orosi-light-640.webp 640w, assets/img/orosi-light-1024.webp 1024w, assets/img/orosi-light-1536.webp 1536w" sizes="100vw" width="1536" height="1024" alt="نورِ رنگیِ یه پنجره‌ی ارسی روی دیوار" loading="lazy" decoding="async"></picture>
   <div class="shell">
-    <p class="eyebrow">گروه‌درمانی</p>
-    <h2 class="h-sec measure-tight">تو گروه، چیزی رو می‌بینی که تو آینه نمی‌بینی.</h2>
-    <figure class="fig-wide"><picture class="ph"><source type="image/avif" srcset="assets/img/orosi-light-640.avif 640w, assets/img/orosi-light-1024.avif 1024w, assets/img/orosi-light-1536.avif 1536w" sizes="(min-width: 1120px) 1080px, 100vw"><img src="assets/img/orosi-light-1024.webp" srcset="assets/img/orosi-light-640.webp 640w, assets/img/orosi-light-1024.webp 1024w, assets/img/orosi-light-1536.webp 1536w" sizes="(min-width: 1120px) 1080px, 100vw" width="1536" height="1024" alt="نورِ رنگیِ یه پنجره‌ی ارسی روی دیوار" loading="lazy" decoding="async"></picture><figcaption class="fig-cap">هر شیشه یه رنگ؛ با هم، یه نور.</figcaption></figure>
-    <div class="cols cols-2" style="margin-block-start:var(--s7)">
-      <div>
-        <p>
-          تو درمان فردی از رابطه‌هات <em>تعریف</em> می‌کنی. تو گروه، رابطه‌ها همون‌جا
-          ساخته می‌شن؛ با آدم‌هایی که تا دیروز نمی‌شناختیشون. همون الگویی که
-          بیرون تکرار می‌کنی اینجا هم پیدا می‌شه، با این فرق که این بار یکی هست
-          که بهت بگه داره اتفاق می‌افته.
-        </p>
-        <p>
-          و یه چیز ساده‌تر: می‌شنوی یکی دیگه دقیقاً همون جمله‌ای رو می‌گه که فکر
-          می‌کردی فقط تو سر خودته.
-        </p>
+    <div>
+      <p class="eyebrow rv">گروه‌درمانی</p>
+      <h2 class="title rv" style="--i:1">تو گروه، چیزی رو می‌بینی که تو آینه نمی‌بینی.</h2>
+    </div>
+    <p class="cap scene-cap rv" style="--i:2">هر شیشه یه رنگ؛ با هم، یه نور.</p>
+  </div>
+</section>
+
+<div class="page" data-part="therapy">
+  <div class="shell duo">
+    <div>
+      <div class="body rv">
+        <p>تو درمان فردی از رابطه‌هات <em>تعریف</em> می‌کنی. تو گروه، رابطه‌ها همون‌جا ساخته
+        می‌شن؛ با آدم‌هایی که تا دیروز نمی‌شناختیشون. همون الگویی که بیرون تکرار می‌کنی اینجا
+        هم پیدا می‌شه، با این فرق که این بار یکی هست که بهت بگه داره اتفاق می‌افته.</p>
+        <p>و یه چیز ساده‌تر: می‌شنوی یکی دیگه دقیقاً همون جمله‌ای رو می‌گه که فکر می‌کردی فقط
+        تو سر خودته.</p>
       </div>
-      <div>
-        <div class="panel lead">
-          <h3>حضوری، دور هم</h3>
-          <p>گروه‌ها تو یه اتاق برگزار می‌شن؛ دور هم، رو در رو.</p>
-          <div class="mode">
-            <svg class="mode-m" viewBox="0 0 72 56" aria-hidden="true"><use href="#m-room"/></svg>
-            <p class="small">خیلی از چیزایی که تو گروه اتفاق می‌افته تو حرف‌ها نیست:
-            یه نگاه، یه سکوت، یکی که کنارت نشسته.</p>
-          </div>
-        </div>
+      <div class="pull rv" style="--i:1">
+        <p>گروه‌ها حضوری‌ان، تو یه اتاق؛ و خیلی از چیزایی که اونجا اتفاق می‌افته تو حرف‌ها نیست:</p>
+        <blockquote>یه نگاه، یه سکوت، <span>یکی که کنارت نشسته.</span></blockquote>
       </div>
     </div>
+    <figure class="fig rv-img">
+      <picture class="ph"><source type="image/avif" srcset="assets/img/tea-circle-640.avif 640w, assets/img/tea-circle-1024.avif 1024w, assets/img/tea-circle-1254.avif 1254w" sizes="(min-width: 900px) 42vw, 100vw"><img src="assets/img/tea-circle-1024.webp" srcset="assets/img/tea-circle-640.webp 640w, assets/img/tea-circle-1024.webp 1024w, assets/img/tea-circle-1254.webp 1254w" sizes="(min-width: 900px) 42vw, 100vw" width="1254" height="1254" alt="دایره‌ای از استکان‌های چای که یکی‌شون خالی مونده" loading="lazy" decoding="async"></picture>
+      <figcaption class="cap">یه جا برای تو خالیه.</figcaption>
+    </figure>
   </div>
 </div>
 
-<!-- ============ WHAT HAPPENS IN A SESSION ============
-     The single most important section on the site. Nobody joins a group
-     they cannot picture. -->
-<section id="session">
+<!-- ============ A SESSION ============
+     Nobody joins a group they cannot picture. -->
+<section class="scene" id="session">
+  <picture class="scene-bg"><source type="image/avif" srcset="assets/img/cushion-circle-640.avif 640w, assets/img/cushion-circle-1024.avif 1024w, assets/img/cushion-circle-1536.avif 1536w" sizes="100vw"><img src="assets/img/cushion-circle-1024.webp" srcset="assets/img/cushion-circle-640.webp 640w, assets/img/cushion-circle-1024.webp 1024w, assets/img/cushion-circle-1536.webp 1536w" sizes="100vw" width="1536" height="1024" alt="حلقه‌ای از کوسن‌ها دور یه سینی چای، قبل از اینکه کسی بیاد" loading="lazy" decoding="async"></picture>
   <div class="shell">
-    <p class="eyebrow">شفافیت</p>
-    <h2 class="h-sec measure-tight">تو یه جلسه چی می‌گذره؟</h2>
-    <p class="lede measure" style="margin-block:var(--s5) var(--s7)">
-      هیچ‌کس پا تو اتاقی نمی‌ذاره که نمی‌تونه تصورش کنه. پس دقیق می‌گیم.
-    </p>
-    <figure class="fig-wide r32"><picture class="ph"><source type="image/avif" srcset="assets/img/cushion-circle-640.avif 640w, assets/img/cushion-circle-1024.avif 1024w, assets/img/cushion-circle-1536.avif 1536w" sizes="(min-width: 1120px) 1080px, 100vw"><img src="assets/img/cushion-circle-1024.webp" srcset="assets/img/cushion-circle-640.webp 640w, assets/img/cushion-circle-1024.webp 1024w, assets/img/cushion-circle-1536.webp 1536w" sizes="(min-width: 1120px) 1080px, 100vw" width="1536" height="1024" alt="حلقه‌ای از کوسن‌ها دور یه سینی چای، قبل از اینکه کسی بیاد" loading="lazy" decoding="async"></picture><figcaption class="fig-cap">اتاق، چند دقیقه قبل از اینکه همه بیان.</figcaption></figure>
+    <div>
+      <p class="eyebrow rv">یه جلسه</p>
+      <h2 class="title rv" style="--i:1">تو یه جلسه چی می‌گذره؟</h2>
+      <p class="sub rv" style="--i:2">هیچ‌کس پا تو اتاقی نمی‌ذاره که نمی‌تونه تصورش کنه.</p>
+    </div>
+    <p class="cap scene-cap rv" style="--i:3">اتاق، چند دقیقه قبل از اینکه همه بیان.</p>
+  </div>
+</section>
 
-    <dl class="facts">
+<div class="page" data-part="session">
+  <div class="shell">
+    <dl class="facts rv">
       <div><dt>هر جلسه</dt><dd>حدود دو ساعت</dd></div>
       <div><dt>اندازه‌ی گروه</dt><dd>ثابت نیست</dd></div>
       <div><dt>چند وقت یه بار</dt><dd>هفته‌ای یه بار</dd></div>
       <div><dt>درمانگر</dt><dd>بیشتر جلسه‌ها هست</dd></div>
     </dl>
-
-    <div class="steps" style="margin-block-start:var(--s7)">
-      <div class="step">
-        <div class="ring-n"><svg aria-hidden="true"><use href="#arc1"/></svg><span>۱</span></div>
-        <h3 class="h-sub">شروع</h3>
-        <p>گروه دور هم می‌شینه و جلسه باز می‌شه. هیچ‌کس تکلیف نداره و
-        نوبت اجباری هم در کار نیست.</p>
-      </div>
-      <div class="step">
-        <div class="ring-n"><svg aria-hidden="true"><use href="#arc2"/></svg><span>۲</span></div>
-        <h3 class="h-sub">وسط</h3>
-        <p>هر کی هر چی آورده می‌ذاره وسط. بقیه واکنش نشون می‌دن؛ نه نصیحت، بلکه
-        اینکه اون حرف باهاشون چی کار کرد.</p>
-      </div>
-      <div class="step">
-        <div class="ring-n"><svg aria-hidden="true"><use href="#arc3"/></svg><span>۳</span></div>
-        <h3 class="h-sub">آخر</h3>
-        <p>جلسه بسته می‌شه. هر چی گفته شد تو همون اتاق می‌مونه؛ این تنها قانونیه
-        که سرش شوخی نداریم.</p>
-      </div>
-    </div>
-
-    <div class="panel lead with-ph" style="margin-block-start:var(--s6)">
-      <picture class="ph"><source type="image/avif" srcset="assets/img/seashell-640.avif 640w, assets/img/seashell-1024.avif 1024w, assets/img/seashell-1254.avif 1254w" sizes="120px"><img src="assets/img/seashell-1024.webp" srcset="assets/img/seashell-640.webp 640w, assets/img/seashell-1024.webp 1024w, assets/img/seashell-1254.webp 1254w" sizes="120px" width="1254" height="1254" alt="صدفی کنار پنجره" loading="lazy" decoding="async"></picture>
-      <h3>لازم نیست حرف بزنی</h3>
-      <p style="margin-bottom:0">
-        رایج‌ترین ترس همینه و ساده‌ترین جواب رو داره: خیلیا چند جلسه‌ی اول فقط
-        گوش می‌دن. گوش دادن هم بخشی از کاره، نه غیبت ازش. هر وقت خواستی، حرف
-        می‌زنی.
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- ============ WORRIES ============
-     Written as the objections people actually have, in their words. -->
-<section id="worries">
-  <div class="shell split">
-    <div class="split-head">
-      <p class="eyebrow">قبل از اینکه بپرسی</p>
-      <h2 class="h-sec">نگرانی‌های رایج</h2>
-      <p class="lede" style="margin-block-start:var(--s5)">
-        اینا رو از کسایی شنیدیم که قبل از اومدن پرسیدن. اگه نگرانی تو اینجا نیست،
-        بپرس.
-      </p>
-      <figure class="fig-door"><picture class="ph"><source type="image/avif" srcset="assets/img/door-ajar-640.avif 640w, assets/img/door-ajar-1024.avif 1024w" sizes="(min-width: 980px) 400px, 100vw"><img src="assets/img/door-ajar-1024.webp" srcset="assets/img/door-ajar-640.webp 640w, assets/img/door-ajar-1024.webp 1024w" sizes="(min-width: 980px) 400px, 100vw" width="1024" height="1536" alt="دری قدیمی که کمی بازه و نور گرم از پشتش می‌تابه" loading="lazy" decoding="async"></picture><figcaption class="fig-cap">یه کم بازه؛ همین کافیه.</figcaption></figure>
-    </div>
-
-    <div class="worry">
-      <details>
-        <summary>اگه اونجا کسی رو بشناسم چی؟</summary>
-        <div class="ans"><p>
-          قبل از اومدن، یه گفت‌وگوی جدا با درمانگر داری. یکی از کارای همون گفت‌وگو
-          همینه: اگه احتمال آشنایی باشه، یه گروه دیگه برات در نظر گرفته می‌شه.
-        </p></div>
-      </details>
-      <details>
-        <summary>حرفام کجا می‌ره؟</summary>
-        <div class="ans"><p>
-          هیچ‌جا. جلسه‌ها ضبط نمی‌شن و همه‌ی اعضا اول کار سر رازداری توافق می‌کنن.
-          این فقط یه عرف اخلاقی نیست؛ شرط عضویته.
-        </p></div>
-      </details>
-      <details>
-        <summary>اگه گریه‌م بگیره چی؟</summary>
-        <div class="ans"><p>
-          پیش میاد، برای خیلیا، و هیچ‌کس اونو یه اتفاق عجیب نمی‌بینه. اتاقی که توش
-          نتونی گریه کنی، اتاق درمان نیست.
-        </p></div>
-      </details>
-      <details>
-        <summary>تا کی باید ادامه بدم؟</summary>
-        <div class="ans"><p>
-          گروه‌ها یه دوره‌ی مشخص دارن که قبل از شروع بهت گفته می‌شه. تعهد بی‌پایان
-          از کسی نمی‌خوایم؛ ولی چند جلسه‌ی اول رو می‌خوایم، چون یه گروه تو جلسه‌ی
-          اول شکل نمی‌گیره.
-        </p></div>
-      </details>
-      <details>
-        <summary>گروه‌درمانی جای درمان فردی رو می‌گیره؟</summary>
-        <div class="ans"><p>
-          نه همیشه. برای بعضیا کافیه، برای بعضیا کنار درمان فردی می‌شینه، و تو بعضی
-          موقعیت‌ها انتخاب درستی نیست. تو همون گفت‌وگوی اول رک بهت می‌گیم.
-        </p></div>
-      </details>
-    </div>
-  </div>
-</section>
-
-<!-- ============ TESTS ============ -->
-<div class="dark on-dark">
-  <svg class="bleed" viewBox="0 0 240 240" aria-hidden="true"><use href="#ghost-ring"/></svg>
-  <div class="shell">
-    <p class="eyebrow">آزمون‌های خودشناسی</p>
-    <h2 class="h-sec measure-tight" style="margin-bottom:var(--s5)">
-      اگه نمی‌دونی از کجا شروع کنی، از خودت شروع کن.
-    </h2>
-    <div class="cols cols-2" style="align-items:start">
-      <div>
-        <p class="measure">
-          هفت تا آزمون بر پایه‌ی چارچوب‌های شناخته‌شده‌ی روان‌شناسی: کهن‌الگوها، سبک
-          دلبستگی، MBTI، DISC، زبان‌های عشق و قطب‌نمای سیاسی. نتیجه رو همون لحظه
-          می‌بینی.
-        </p>
-        <p class="small measure" style="margin-bottom:var(--s6)">
-          بدون ثبت‌نام. جواب‌هات فقط تو مرورگر خودت می‌مونه و هیچ‌جا فرستاده
-          نمی‌شه. اینا ابزار خودشناسی‌ان، نه تشخیص.
-        </p>
-        <a class="btn btn-2" href="index.html">آزمون‌ها رو ببین</a>
-      </div>
-      <div class="panel">
-        <figure class="panel-ph"><picture class="ph"><source type="image/avif" srcset="assets/img/fern-spiral-640.avif 640w, assets/img/fern-spiral-1024.avif 1024w" sizes="(min-width: 920px) 520px, 100vw"><img src="assets/img/fern-spiral-1024.webp" srcset="assets/img/fern-spiral-640.webp 640w, assets/img/fern-spiral-1024.webp 1024w" sizes="(min-width: 920px) 520px, 100vw" width="1024" height="1536" alt="سرخسی که از وسط باز می‌شه" loading="lazy" decoding="async"></picture></figure>
-        <h3>چه ربطی به گروه داره؟</h3>
-        <p style="margin-bottom:0">
-          خیلیا نمی‌دونن برای چی می‌خوان بیان. یه آزمون جواب آخر نیست، ولی به چیزی
-          که حس می‌کنی یه اسم می‌ده؛ و با یه اسم، گفت‌وگوی اول راحت‌تر شروع می‌شه.
-        </p>
+    <ol class="seq">
+      <li class="rv" style="--i:0">
+        <span class="n">۱</span>
+        <h3>شروع</h3>
+        <p>گروه دور هم می‌شینه و جلسه باز می‌شه. هیچ‌کس تکلیف نداره و نوبت اجباری هم در کار نیست.</p>
+      </li>
+      <li class="rv" style="--i:1">
+        <span class="n">۲</span>
+        <h3>وسط</h3>
+        <p>هر کی هر چی آورده می‌ذاره وسط. بقیه واکنش نشون می‌دن؛ نه نصیحت، بلکه اینکه اون حرف باهاشون چی کار کرد.</p>
+      </li>
+      <li class="rv" style="--i:2">
+        <span class="n">۳</span>
+        <h3>آخر</h3>
+        <p>جلسه بسته می‌شه. هر چی گفته شد تو همون اتاق می‌مونه؛ این تنها قانونیه که سرش شوخی نداریم.</p>
+      </li>
+    </ol>
+    <div class="aside">
+      <figure class="fig rv-img" style="margin:0"><picture class="ph"><source type="image/avif" srcset="assets/img/seashell-640.avif 640w, assets/img/seashell-1024.avif 1024w, assets/img/seashell-1254.avif 1254w" sizes="200px"><img src="assets/img/seashell-1024.webp" srcset="assets/img/seashell-640.webp 640w, assets/img/seashell-1024.webp 1024w, assets/img/seashell-1254.webp 1254w" sizes="200px" width="1254" height="1254" alt="صدفی کنار پنجره" loading="lazy" decoding="async"></picture></figure>
+      <div class="rv">
+        <h3>لازم نیست حرف بزنی.</h3>
+        <p>رایج‌ترین ترس همینه و ساده‌ترین جواب رو داره: خیلیا چند جلسه‌ی اول فقط گوش می‌دن.
+        گوش دادن هم بخشی از کاره، نه غیبت ازش. هر وقت خواستی، حرف می‌زنی.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ============ HOW TO START ============ -->
-<section id="start">
-  <div class="shell">
-    <p class="eyebrow">از کجا شروع کنم</p>
-    <h2 class="h-sec measure-tight">سه قدم، و قدم اولش فقط یه گفت‌وگوئه.</h2>
-    <figure class="fig-wide"><picture class="ph"><source type="image/avif" srcset="assets/img/stepping-stones-640.avif 640w, assets/img/stepping-stones-1024.avif 1024w, assets/img/stepping-stones-1536.avif 1536w" sizes="(min-width: 1120px) 1080px, 100vw"><img src="assets/img/stepping-stones-1024.webp" srcset="assets/img/stepping-stones-640.webp 640w, assets/img/stepping-stones-1024.webp 1024w, assets/img/stepping-stones-1536.webp 1536w" sizes="(min-width: 1120px) 1080px, 100vw" width="1536" height="1024" alt="سنگ‌هایی برای رد شدن از یه جوی آب" loading="lazy" decoding="async"></picture><figcaption class="fig-cap">یه قدم، بعد یکی دیگه.</figcaption></figure>
-    <div class="cols cols-3" style="margin-block-start:var(--s7)">
-      <div class="panel lead">
-        <h3>گفت‌وگوی اول</h3>
-        <p>یه جلسه‌ی کوتاه با درمانگر، بدون تعهد. می‌گی چی می‌خوای و هر چی خواستی
-        می‌پرسی.</p>
-      </div>
-      <div class="panel lead">
-        <h3>انتخاب گروه</h3>
-        <p>بر اساس همون گفت‌وگو، گروهی پیشنهاد می‌شه که بهت بخوره.</p>
-      </div>
-      <div class="panel lead">
-        <h3>جلسه‌ی اول</h3>
-        <p>می‌شینی و گوش می‌دی. همین. هیچ‌کس تو جلسه‌ی اول ازت چیزی نمی‌خواد.</p>
-      </div>
+<!-- ============ WORRIES ============
+     The objections people actually have, in their words. -->
+<section class="page alt" id="worries">
+  <div class="shell split">
+    <div class="split-side">
+      <p class="eyebrow rv">قبل از اینکه بپرسی</p>
+      <h2 class="title rv" style="--i:1">نگرانی‌های رایج</h2>
+      <p class="lede rv" style="--i:2">اینا رو از کسایی شنیدیم که قبل از اومدن پرسیدن. اگه نگرانی تو اینجا نیست، بپرس.</p>
+      <figure class="fig rv-img">
+        <picture class="ph"><source type="image/avif" srcset="assets/img/door-ajar-640.avif 640w, assets/img/door-ajar-1024.avif 1024w" sizes="(min-width: 900px) 34vw, 100vw"><img src="assets/img/door-ajar-1024.webp" srcset="assets/img/door-ajar-640.webp 640w, assets/img/door-ajar-1024.webp 1024w" sizes="(min-width: 900px) 34vw, 100vw" width="1024" height="1536" alt="دری قدیمی که کمی بازه و نور گرم از پشتش می‌تابه" loading="lazy" decoding="async"></picture>
+        <figcaption class="cap">یه کم بازه؛ همین کافیه.</figcaption>
+      </figure>
+    </div>
+    <div class="faq rv">
+      <details>
+        <summary>اگه اونجا کسی رو بشناسم چی؟</summary>
+        <div class="ans"><p>قبل از اومدن، یه گفت‌وگوی جدا با درمانگر داری. یکی از کارای همون گفت‌وگو همینه: اگه احتمال آشنایی باشه، یه گروه دیگه برات در نظر گرفته می‌شه.</p></div>
+      </details>
+      <details>
+        <summary>حرفام کجا می‌ره؟</summary>
+        <div class="ans"><p>هیچ‌جا. جلسه‌ها ضبط نمی‌شن و همه‌ی اعضا اول کار سر رازداری توافق می‌کنن. این فقط یه عرف اخلاقی نیست؛ شرط عضویته.</p></div>
+      </details>
+      <details>
+        <summary>اگه گریه‌م بگیره چی؟</summary>
+        <div class="ans"><p>پیش میاد، برای خیلیا، و هیچ‌کس اونو یه اتفاق عجیب نمی‌بینه. اتاقی که توش نتونی گریه کنی، اتاق درمان نیست.</p></div>
+      </details>
+      <details>
+        <summary>تا کی باید ادامه بدم؟</summary>
+        <div class="ans"><p>گروه‌ها یه دوره‌ی مشخص دارن که قبل از شروع بهت گفته می‌شه. تعهد بی‌پایان از کسی نمی‌خوایم؛ ولی چند جلسه‌ی اول رو می‌خوایم، چون یه گروه تو جلسه‌ی اول شکل نمی‌گیره.</p></div>
+      </details>
+      <details>
+        <summary>گروه‌درمانی جای درمان فردی رو می‌گیره؟</summary>
+        <div class="ans"><p>نه همیشه. برای بعضیا کافیه، برای بعضیا کنار درمان فردی می‌شینه، و تو بعضی موقعیت‌ها انتخاب درستی نیست. تو همون گفت‌وگوی اول رک بهت می‌گیم.</p></div>
+      </details>
     </div>
   </div>
 </section>
 
-<div class="shell"><div class="div-orn"><svg aria-hidden="true"><use href="#orn"/></svg></div></div>
-
-<!-- ============ WHO ============ -->
-<section id="who">
+<!-- ============ THE THIRTY BIRDS ============
+     Attar: thirty birds go looking for the Simorgh and find, at the end of
+     the road, that they are it. The site's title, said eight centuries ago.
+     The painting is the café's; the crop leaves out the Faravahar below it. -->
+<section class="night">
   <div class="shell">
-    <p class="eyebrow">کی گروه رو می‌گردونه</p>
-    <h2 class="h-sec measure-tight">قبل از اینکه به یه گروه اعتماد کنی، به یه آدم اعتماد می‌کنی.</h2>
-    <p class="lede measure" style="margin-block:var(--s5) var(--s6)">
-      برای همین این بخش نمی‌تونه کلی باشه: اسم، تحصیلات، پروانه، و اینکه چند
-      ساله گروه می‌گردونه.
-    </p>
-    <div class="cols cols-2">
-      <div class="panel todo">
+    <figure class="medal rv-img" style="margin-top:0">
+      <picture class="ph"><source type="image/avif" srcset="assets/img/simorgh-390.avif 390w" sizes="240px"><img src="assets/img/simorgh-390.webp" srcset="assets/img/simorgh-390.webp 390w" sizes="240px" width="390" height="390" alt="سیمرغ در پرواز، روی کوه‌ها" loading="lazy" decoding="async"></picture>
+      <svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="97" fill="none" stroke="currentColor"
+        stroke-width=".8" stroke-dasharray="560 50" transform="rotate(-80 100 100)"/><circle cx="100" cy="3" r="3.2" fill="currentColor"/></svg>
+    </figure>
+    <p class="verse rv"><span>چون نگه کردند آن <b>سی مرغ</b> زود</span><span>بی‌شک این <b>سی مرغ</b> آن <b>سیمرغ</b> بود</span></p>
+    <p class="verse-src rv" style="--i:1">عطار، <a href="https://ganjoor.net/attar/manteghotteyr/30-morgh/sh4">منطق‌الطیر</a></p>
+    <p class="gloss rv" style="--i:2">سی تا مرغ راه افتادن که سیمرغ رو پیدا کنن. آخر راه فهمیدن سیمرغ خودشونن.</p>
+  </div>
+</section>
+
+<!-- ============ THE REST OF THE FAMILY ============ -->
+<section class="page" id="more">
+  <div class="shell">
+    <div class="page-head">
+      <p class="eyebrow rv">کنار گروه‌درمانی</p>
+      <h2 class="title rv" style="--i:1">بقیه‌ی کارهای نگاخته</h2>
+    </div>
+    <div class="trio">
+      <article class="rv">
+        <figure class="fig rv-img" style="margin:0"><picture class="ph"><source type="image/avif" srcset="assets/img/mirror-640.avif 640w, assets/img/mirror-1024.avif 1024w, assets/img/mirror-1254.avif 1254w" sizes="(min-width: 900px) 30vw, 100vw"><img src="assets/img/mirror-1024.webp" srcset="assets/img/mirror-640.webp 640w, assets/img/mirror-1024.webp 1024w, assets/img/mirror-1254.webp 1254w" sizes="(min-width: 900px) 30vw, 100vw" width="1254" height="1254" alt="آینه‌ای قدیمی که فقط آسمون رو نشون می‌ده" loading="lazy" decoding="async"></picture></figure>
+        <h3>آزمون‌های خودشناسی</h3>
+        <p>هفت تا آزمون بر پایه‌ی چارچوب‌های شناخته‌شده‌ی روان‌شناسی. بدون ثبت‌نام؛ جواب‌هات فقط
+        تو مرورگر خودت می‌مونه. اینا ابزار خودشناسی‌ان، نه تشخیص.</p>
+        <a class="more" href="index.html">آزمون‌ها رو ببین<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M17 10H3.5M8.5 4.5 3 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </article>
+      <article class="rv" style="--i:1">
+        <figure class="fig rv-img" style="margin:0"><picture class="ph"><source type="image/avif" srcset="assets/img/pomegranate-640.avif 640w, assets/img/pomegranate-1024.avif 1024w, assets/img/pomegranate-1254.avif 1254w" sizes="(min-width: 900px) 30vw, 100vw"><img src="assets/img/pomegranate-1024.webp" srcset="assets/img/pomegranate-640.webp 640w, assets/img/pomegranate-1024.webp 1024w, assets/img/pomegranate-1254.webp 1254w" sizes="(min-width: 900px) 30vw, 100vw" width="1254" height="1254" alt="انار شکسته‌ای که دونه‌هاش روی پارچه پخش شده" loading="lazy" decoding="async"></picture></figure>
+        <h3>کارهای عام‌المنفعه</h3>
+        <div class="todo"><span class="todo-mark">جای متن</span>
+        <p>چی کار می‌کنید، برای کیا، و چطور می‌شه همراه شد.</p></div>
+      </article>
+      <article class="rv" style="--i:2">
+        <figure class="fig rv-img" style="margin:0"><picture class="ph"><source type="image/avif" srcset="assets/img/fern-spiral-640.avif 640w, assets/img/fern-spiral-1024.avif 1024w" sizes="(min-width: 900px) 30vw, 100vw"><img src="assets/img/fern-spiral-1024.webp" srcset="assets/img/fern-spiral-640.webp 640w, assets/img/fern-spiral-1024.webp 1024w" sizes="(min-width: 900px) 30vw, 100vw" width="1024" height="1536" alt="سرخسی که از وسط باز می‌شه" loading="lazy" decoding="async"></picture></figure>
+        <h3>سایر فعالیت‌ها</h3>
+        <div class="todo"><span class="todo-mark">جای متن</span>
+        <p>هر کار دیگه‌ای که باید اینجا دیده بشه. یه عنوان و دو خط توضیح کافیه.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT STARTS ============ -->
+<section class="scene" id="start">
+  <picture class="scene-bg"><source type="image/avif" srcset="assets/img/stepping-stones-640.avif 640w, assets/img/stepping-stones-1024.avif 1024w, assets/img/stepping-stones-1536.avif 1536w" sizes="100vw"><img src="assets/img/stepping-stones-1024.webp" srcset="assets/img/stepping-stones-640.webp 640w, assets/img/stepping-stones-1024.webp 1024w, assets/img/stepping-stones-1536.webp 1536w" sizes="100vw" width="1536" height="1024" alt="سنگ‌هایی برای رد شدن از یه جوی آب" loading="lazy" decoding="async"></picture>
+  <div class="shell">
+    <div>
+      <p class="eyebrow rv">از کجا شروع می‌شه</p>
+      <h2 class="title rv" style="--i:1">قدم اول فقط یه گفت‌وگوئه.</h2>
+    </div>
+    <p class="cap scene-cap rv" style="--i:2">یه قدم، بعد یکی دیگه.</p>
+  </div>
+</section>
+
+<div class="page" data-part="start">
+  <div class="shell">
+    <ol class="seq">
+      <li class="rv" style="--i:0">
+        <span class="n">۱</span>
+        <h3>گفت‌وگوی اول</h3>
+        <p>یه جلسه‌ی کوتاه با درمانگر. می‌گی چی تو ذهنته و هر چی خواستی می‌پرسی.</p>
+      </li>
+      <li class="rv" style="--i:1">
+        <span class="n">۲</span>
+        <h3>انتخاب گروه</h3>
+        <p>بر اساس همون گفت‌وگو، گروهی پیشنهاد می‌شه که بهت بخوره.</p>
+      </li>
+      <li class="rv" style="--i:2">
+        <span class="n">۳</span>
+        <h3>جلسه‌ی اول</h3>
+        <p>می‌شینی و گوش می‌دی. هیچ‌کس تو جلسه‌ی اول ازت چیزی نمی‌خواد.</p>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============ WHO RUNS THE GROUPS ============ -->
+<section class="page alt" id="who">
+  <div class="shell">
+    <div class="page-head">
+      <p class="eyebrow rv">کی گروه‌ها رو می‌گردونه</p>
+      <h2 class="title rv" style="--i:1;max-width:16em">قبل از اینکه به یه گروه اعتماد کنی، به یه آدم اعتماد می‌کنی.</h2>
+      <p class="lede rv" style="--i:2">برای همین این بخش نمی‌تونه کلی باشه: اسم، تحصیلات، پروانه، و اینکه چند ساله گروه می‌گردونه.</p>
+    </div>
+    <div class="pair rv">
+      <div class="todo"><span class="todo-mark">جای متن</span>
         <h3>درمانگر</h3>
-        <p style="margin-bottom:0">[جای متن] نام، مدرک و رشته، شماره‌ی پروانه،
-        سابقه‌ی کار با گروه، و دو خط به زبون خودش. یه عکس ساده هم بذارید؛ تو این
-        صفحه از هر تصویر دیگه‌ای بیشتر کار می‌کنه.</p>
-      </div>
-      <div class="panel todo">
+        <p>نام، مدرک و رشته، شماره‌ی پروانه، سابقه‌ی کار با گروه، و دو خط به زبون خودش. یه عکس
+        ساده هم بذارید؛ تو این صفحه از هر تصویر دیگه‌ای بیشتر کار می‌کنه.</p></div>
+      <div class="todo"><span class="todo-mark">جای متن</span>
         <h3>همکاران</h3>
-        <p style="margin-bottom:0">[جای متن] اگه گروه‌ها رو بیشتر از یه نفر
-        می‌گردونن، همین قالب برای هر کدوم تکرار می‌شه.</p>
-      </div>
+        <p>اگه گروه‌ها رو بیشتر از یه نفر می‌گردونن، همین قالب برای هر کدوم تکرار می‌شه.</p></div>
     </div>
   </div>
 </section>
 
 <!-- ============ CONTACT ============ -->
-<section id="contact">
-  <div class="shell contact-grid">
+<section class="page contact" id="contact">
+  <div class="shell duo">
     <div>
-    <p class="eyebrow">تماس</p>
-    <h2 class="h-sec measure-tight">پرسیدن، تعهد نمیاره.</h2>
-    <p class="lede measure" style="margin-block:var(--s5) var(--s6)">
-      می‌تونی فقط بپرسی و بری. لازم نیست بدونی چی می‌خوای تا بتونی سؤال کنی.
-    </p>
-    <div class="panel todo measure">
-      <h3>راه‌های تماس</h3>
-      <p style="margin-bottom:0">
-        [جای متن] شماره‌ی واتساپ یا تلگرام، ایمیل، و شهر و محله‌ی جایی که گروه‌ها
-        برگزار می‌شن. تا شماره‌ای که واقعاً جواب می‌ده رو نگیرم، اینجا چیزی نمی‌ذارم.
-      </p>
+      <p class="eyebrow rv">تماس</p>
+      <h2 class="title rv" style="--i:1">هر سؤالی داری، بپرس.</h2>
+      <p class="lede rv" style="--i:2;margin-top:24px">لازم نیست بدونی چی می‌خوای تا بتونی سؤال کنی.</p>
+      <div class="todo rv" style="--i:3"><span class="todo-mark">جای متن</span>
+        <p>شماره‌ی واتساپ یا تلگرام، ایمیل، و شهر و محله‌ی جایی که گروه‌ها برگزار می‌شن. تا
+        شماره‌ای که واقعاً جواب می‌ده رو نگیرم، اینجا چیزی نمی‌ذارم.</p></div>
     </div>
-  </div>
-    <figure class="fig-contact"><picture class="ph"><source type="image/avif" srcset="assets/img/two-glasses-640.avif 640w, assets/img/two-glasses-1024.avif 1024w, assets/img/two-glasses-1536.avif 1536w" sizes="(min-width: 920px) 540px, 100vw"><img src="assets/img/two-glasses-1024.webp" srcset="assets/img/two-glasses-640.webp 640w, assets/img/two-glasses-1024.webp 1024w, assets/img/two-glasses-1536.webp 1536w" sizes="(min-width: 920px) 540px, 100vw" width="1536" height="1024" alt="دو استکان چای کنار پنجره که بخارشون به هم می‌رسه" loading="lazy" decoding="async"></picture><figcaption class="fig-cap">دو تا چای، یه گفت‌وگو.</figcaption></figure>
+    <figure class="fig rv-img">
+      <picture class="ph"><source type="image/avif" srcset="assets/img/two-glasses-640.avif 640w, assets/img/two-glasses-1024.avif 1024w, assets/img/two-glasses-1536.avif 1536w" sizes="(min-width: 900px) 42vw, 100vw"><img src="assets/img/two-glasses-1024.webp" srcset="assets/img/two-glasses-640.webp 640w, assets/img/two-glasses-1024.webp 1024w, assets/img/two-glasses-1536.webp 1536w" sizes="(min-width: 900px) 42vw, 100vw" width="1536" height="1024" alt="دو استکان چای کنار پنجره که بخارشون به هم می‌رسه" loading="lazy" decoding="async"></picture>
+      <figcaption class="cap">دو تا چای، یه گفت‌وگو.</figcaption>
+    </figure>
   </div>
 </section>
 
 </main>
 
 <footer>
-  <svg class="bleed" viewBox="0 0 240 240" aria-hidden="true"><use href="#ghost-ring"/></svg>
   <div class="shell">
-    <div class="cols cols-3">
+    <div class="cols">
       <div>
-        <a class="brand" href="index.html" style="color:var(--paper)">
-          <svg style="color:var(--gold)" aria-hidden="true"><use href="#ring"/></svg>
-          <span class="bn">نگاخته</span>
-        </a>
-        <p class="small" style="color:#A2957F; margin-top:var(--s3)">
-          کار اصلی ما گروه‌درمانیه؛ حضوری، دور هم.
-        </p>
+        <a class="brand" href="home.html"><svg style="color:var(--gold)" aria-hidden="true"><use href="#ring"/></svg><span>نگاخته</span></a>
+        <p style="margin-top:14px">نگاخته یه خانواده‌ست؛ کار اصلیش گروه‌درمانیِ حضوریه.</p>
       </div>
       <div>
         <h4>بخش‌ها</h4>
-        <ul style="list-style:none; padding:0; margin:0">
+        <ul>
           <li><a href="#therapy">گروه‌درمانی</a></li>
           <li><a href="#session">یه جلسه چطوره</a></li>
           <li><a href="#worries">نگرانی‌ها</a></li>
@@ -440,13 +337,11 @@
       </div>
       <div>
         <h4>یه یادآوری</h4>
-        <p class="small" style="color:#A2957F; margin:0">
-          نگاخته جای خدمات اورژانسی رو نمی‌گیره. اگه تو وضعیت بحرانی هستی یا به
-          آسیب زدن به خودت فکر می‌کنی، همین الان با اورژانس اجتماعی (۱۲۳) تماس بگیر.
-        </p>
+        <p class="crisis">نگاخته جای خدمات اورژانسی رو نمی‌گیره. اگه تو وضعیت بحرانی هستی یا به
+        آسیب زدن به خودت فکر می‌کنی، همین الان با اورژانس اجتماعی (۱۲۳) تماس بگیر.</p>
       </div>
     </div>
-    <p class="fine">نگاخته &mdash; تغییر از خودمون شروع می‌شه.</p>
+    <p class="base">نگاخته — تغییر از خودمون شروع می‌شه.</p>
   </div>
 </footer>
 </body>

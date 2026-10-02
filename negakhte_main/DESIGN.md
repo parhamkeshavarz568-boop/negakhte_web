@@ -379,46 +379,70 @@ list of tired defaults, and it is exempt here for a specific reason: it is not a
 default reached for out of laziness, it is documented brand equity from a
 property that already exists. Inheritance, not habit.
 
-### 2.5 Photographs (the homepage only)
+### 2.5 The homepage (`home.html`)
 
-The tests app stays drawn (§2.4). The company homepage, `home.html`, carries
-twelve photographs, and one rule governs all of them: **no person appears.**
-Not a face, a hand, or a silhouette. That covers reflections too, so check any
-replacement for faces in frames, mirrors and glass before using it. Group
-therapy is told through what is left when the people are absent or about to
-arrive: the empty seat, the open door, the second glass.
+The tests app stays drawn (§2.4). The company homepage is a different object:
+it presents what نگاخته is. It is not an advertisement, so it describes rather
+than sells. The groups are in person only.
 
-| Where | Image | What it says |
-|---|---|---|
-| hero | `ripples-wide` / `ripples-tall` (phones) | one drop, rings spreading: change starts small and from you |
-| map, main card | `tea-circle` | glasses in a circle, one place still empty: «یه جا برای تو خالیه.» |
-| map, tests | `mirror` | an old mirror showing only sky |
-| map, charity | `pomegranate` | many seeds, one fruit |
-| therapy band | `orosi-light` | coloured glass, one light: «هر شیشه یه رنگ؛ با هم، یه نور.» |
-| a session | `cushion-circle` | the room minutes before anyone comes |
-| «لازم نیست حرف بزنی» | `seashell` | a shell that listens |
-| worries | `door-ajar` | «یه کم بازه؛ همین کافیه.» |
-| dark tests panel | `fern-spiral` | a frond unrolling: growth in its own order |
-| start | `stepping-stones` | «یه قدم، بعد یکی دیگه.» |
-| contact | `two-glasses` | «دو تا چای، یه گفت‌وگو.» |
+**One idea per screen, two kinds of section.** A `.scene` is a photograph
+across the full width with its title set on it. A `.page` is paper, large type
+and room to breathe, with one picture at most. The two alternate, and nothing
+else is allowed: no cards, boxed panels, badges, icons or ornament dividers.
+The page reads as a slow walk, not a brochure:
+
+| # | Section | Kind | Picture |
+|---|---|---|---|
+| 1 | «تغییر از خودمون شروع می‌شه.» | hero | `ripples-wide` / `ripples-tall` (phones): one drop, rings spreading |
+| 2 | «نگاخته یه خانواده‌ست، نه یه مطب.» | light scene | `sunlit-corner-wide` / `-tall`, shared with the concept store on purpose |
+| 3 | group therapy | scene + page | `orosi-light`, then `tea-circle` «یه جا برای تو خالیه.» |
+| 4 | a session | scene + page | `cushion-circle`; facts, three moments, `seashell` «لازم نیست حرف بزنی» |
+| 5 | worries | page | `door-ajar`, held in place while the questions scroll |
+| 6 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
+| 7 | the rest of the family | page | `mirror` (tests), `pomegranate` (charity), `fern-spiral` (other) |
+| 8 | how it starts | scene + page | `stepping-stones`; three steps |
+| 9 | who runs the groups, contact | pages | `two-glasses` |
+
+**No people, by rule.** That means no face, hand or silhouette, and no
+reflection of one: check frames, mirrors and glass in any replacement. The
+Simorgh painting has a Faravahar (a human figure) on the rock below the bird,
+so the crop leaves it out. Where the painting came from is not recorded; the
+café uses it, and its rights should be confirmed before launch. Group therapy
+is told through what is left when the people are absent or about to arrive:
+the empty seat, the open door, the second glass.
+
+**The verse** is checked against Ganjoor: عطار، منطق‌الطیر، «سی‌مرغ در
+پیشگاه سیمرغ» (`/attar/manteghotteyr/30-morgh/sh4`). Thirty birds look for
+the Simorgh and find that they are it. That is the site's title, written eight
+centuries earlier.
+
+**Facts are the owner's, not ours.** A session is about two hours, group size
+is not fixed, and the therapist is at most sessions, not all of them.
+«هفته‌ای یه بار» is still unconfirmed. Never invent a number.
+
+**Motion.** It is one vocabulary, used everywhere, and it stops under reduced
+motion:
+- Things rise into place as they arrive (`.rv`).
+- Pictures unveil: the frame opens while the photo settles (`.rv-img`).
+- A sequence's line draws itself.
+- Scene photographs drift slightly slower than the page. This uses a
+  scroll-driven animation, so it costs no script and is simply absent in
+  browsers without it.
+- The hero's water settles, a drop falls down the scroll cue, and the
+  Simorgh's ring turns once every two minutes.
+- `assets/home.js` adds the reveals, the frosted header after the hero, the
+  phone menu, and the nav mark for the section you are in. Without the
+  script, the page is still complete.
 
 **Pipeline.** Masters live in `images/source/*.jpg`. `MANIFEST.json` records
-each one's original file, its hash, and what it shows. To regenerate the
-renditions, run `python tools/make_images.py`. It writes AVIF + WebP to
-`assets/img/` at 640 / 1024 / 1536 px, never wider than the master, plus
-`og-home.jpg`, the 1200×630 card for Telegram and WhatsApp shares.
-
-**Treatment.** No filters or overlays, apart from the hero's reading gradient.
-Captions are one short line in the house voice, marked with a gold dot.
-Only the hero moves. Its photo settles from 5% zoom over 3 s (`ng-settle`) and
-its words rise (`ng-rise`), and both happen only when motion is allowed.
-Every photo except the hero is `loading="lazy"` with real `width`/`height`.
-On the hero the gold accent switches to `--gold-bright` so it holds contrast
-on dark water.
+each one's origin, hash and what it shows. Run `python tools/make_images.py`
+to write AVIF + WebP to `assets/img/` at 640 / 1024 / 1536 px (never wider
+than the master). It also writes `og-home.jpg`, the 1200×630 share card.
 
 **Weight.** The hero costs about 46 KB (AVIF, desktop) or 43 KB (phone, 2×).
-The share card is 75 KB. It is a photograph, so the drawn-card budget of
-25 KB in §6.2 does not apply, and crawlers are the only ones who fetch it.
+Everything below it is lazy. The share card is 75 KB. It is a photograph, so
+the drawn-card budget of 25 KB in §6.2 does not apply, and only crawlers fetch
+it.
 
 ---
 
