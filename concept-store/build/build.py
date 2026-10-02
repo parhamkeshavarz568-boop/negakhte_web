@@ -21,7 +21,7 @@ URL map
 import datetime, hashlib, html, json, os, re, shutil, sys, urllib.parse
 
 import catalog as CAT
-from site_config import SITE, CONTACT, HOME, COVERS, BANNERS
+from site_config import SITE, CONTACT, HOME, HERO, COVERS, BANNERS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -116,7 +116,7 @@ def price_html(p, long=False):
     if p["status"] == "day":
         return f'<span class="pr pr-ask">{"قیمت به نرخ روز نقره" if long else "قیمت روز"}</span>'
     if p["status"] == "ask":
-        return '<span class="pr pr-ask">قیمت را بپرسید</span>'
+        return '<span class="pr pr-ask">قیمتش رو بپرس</span>'
     return '<span class="pr pr-sold">فروخته شد</span>'
 
 
@@ -188,24 +188,25 @@ def hl(text):
     return f'<span class="hl">{text}</span>'
 
 
-def headline(text, em=None):
-    """The home headline: one line per clause, one span per word (the entrance
-    brings them in one by one, --i is the order), the `em` word in oxblood on the
-    gold highlighter. Punctuation stays inside its word's span so it never wraps
-    away from it."""
-    lines, i = [], 0
-    clauses = text.split("، ")
-    for n, clause in enumerate(clauses):
-        words = clause.split(" ")
-        out = []
-        for k, w in enumerate(words):
-            tail = "،" if (k == len(words) - 1 and n < len(clauses) - 1) else (
-                "." if (k == len(words) - 1 and n == len(clauses) - 1) else "")
-            word = f'<b class="hl">{esc(w)}</b>' if em and w == em else esc(w)
-            out.append(f'<span class="w" style="--i:{i}">{word}{tail}</span>')
-            i += 1
-        lines.append('<span class="ln">' + " ".join(out) + "</span>")
-    return " ".join(lines)
+def verse(lines, em=None):
+    """The home headline: one line per misra, one span per word (the entrance
+    brings them in one by one; --i is the order), and the `em` phrase in oxblood
+    on the gold highlighter. Punctuation stays inside its word's span."""
+    em_words = em.split(" ") if em else []
+    out, i = [], 0
+    for line in lines:
+        words = line.split(" ")
+        spans = [f'<span class="w" style="--i:{i + k}">{esc(w)}</span>' for k, w in enumerate(words)]
+        i += len(words)
+        bare = [w.rstrip("،.؛") for w in words]
+        for start in range(len(words) - len(em_words) + 1) if em_words else []:
+            if bare[start:start + len(em_words)] == em_words:
+                end = start + len(em_words) - 1
+                spans[start] = '<b class="hl">' + spans[start]
+                spans[end] = spans[end] + "</b>"
+                break
+        out.append('<span class="ln">' + " ".join(spans) + "</span>")
+    return " ".join(out)
 
 
 def wordmark(cls="wordmark"):
@@ -283,7 +284,7 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
         contact += f'<li>{esc(CONTACT["address"])}</li>'
     if CONTACT["hours"]:
         contact += f'<li>{esc(CONTACT["hours"])}</li>'
-    contact += '<li><a href="/about/#order">چطور سفارش بدهم؟</a></li><li><a href="/about/">درباره</a></li>'
+    contact += '<li><a href="/about/#order">چطور سفارش بدم؟</a></li><li><a href="/about/">درباره</a></li>'
     return f"""<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
@@ -304,7 +305,7 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
 </main>
 <footer class="foot">
 <div class="wrap foot-in">
-<div><h2>{esc(SITE["name_fa"])}</h2><p>{esc(SITE["tagline"])}. هر قطعه یک کد دارد؛ کدش را برای ما بفرستید.</p></div>
+<div><h2>{esc(SITE["name_fa"])}</h2><p>{esc(SITE["tagline"])}. هر قطعه یه کد داره؛ کدش رو برامون بفرست.</p></div>
 <div class="foot-cols">
 <div><h2>مجموعه‌ها</h2><ul>{col(CAT.CATEGORIES[:half])}</ul></div>
 <div><h2>&nbsp;</h2><ul>{col(CAT.CATEGORIES[half:])}</ul></div>
@@ -333,18 +334,18 @@ def order_block(heading_id="h-order"):
     return f"""<section class="wrap order" id="order" aria-labelledby="{heading_id}">
 <div>
 <p class="eyebrow">بدون سبد خرید</p>
-<h2 id="{heading_id}">سفارش، در سه قدم</h2>
+<h2 id="{heading_id}">سفارش در سه قدم</h2>
 <ol class="steps">
-<li><span class="step-n">۱</span><div><h3>قطعه را انتخاب کنید</h3><p>هر قطعه یک کد دارد، مثل <span class="code">S-10</span>، کنار نامش.</p></div></li>
-<li><span class="step-n">۲</span><div><h3>کد را بفرستید</h3><p>در دایرکت یا پیام؛ موجودی را همان لحظه می‌گوییم.</p></div></li>
-<li><span class="step-n">۳</span><div><h3>هماهنگی ارسال</h3><p>پرداخت و ارسال یا تحویل را با هم هماهنگ می‌کنیم.</p></div></li>
+<li><span class="step-n">۱</span><div><h3>یه قطعه انتخاب کن</h3><p>هر قطعه یه کد داره، مثل <span class="code">S-10</span>، کنار اسمش.</p></div></li>
+<li><span class="step-n">۲</span><div><h3>کدش رو بفرست</h3><p>تو دایرکت یا پیام؛ موجودی رو همون موقع بهت می‌گیم.</p></div></li>
+<li><span class="step-n">۳</span><div><h3>هماهنگی ارسال</h3><p>پرداخت و ارسال رو با هم هماهنگ می‌کنیم.</p></div></li>
 </ol>
 {channel_buttons()}
 </div>
 <figure class="chat" aria-label="نمونهٔ پیام سفارش">
-<figcaption class="chat-who"><i></i>نمونهٔ پیام شما به فروشگاه</figcaption>
-<p class="bubble">سلام! این قطعه را می‌خواهم:<br><span class="code">S-10</span> — ماگ لعابی جنگلی</p>
-<p class="chat-note">دکمهٔ «کپی کد و نام» در صفحهٔ هر قطعه همین پیام را آماده می‌کند.</p>
+<figcaption class="chat-who"><i></i>پیامی که برامون می‌فرستی</figcaption>
+<p class="bubble">سلام! این قطعه رو می‌خوام:<br><span class="code">S-10</span> — ماگ لعابی جنگلی</p>
+<p class="chat-note">دکمهٔ «کپی کد و اسم» تو صفحهٔ هر قطعه همین پیام رو برات آماده می‌کنه.</p>
 </figure>
 </section>"""
 
@@ -367,15 +368,16 @@ def home(products, by_code):
     shelf_html = "".join(
         item(p, big=i in big, sizes="(min-width: 900px) 46vw, 100vw" if i in big else
              "(min-width: 900px) 22vw, 46vw") for i, p in enumerate(shelf))
-    h1 = headline(SITE["tagline"], SITE.get("tagline_em"))
+    h1 = verse(HERO["poem"], HERO.get("em"))
     body = f"""
 <section class="hero">
 {mood("hero-wide", "100vw", cls="hero-bg", eager=True, phone="hero-tall")}
 <canvas class="motes" aria-hidden="true"></canvas>
 <div class="wrap hero-in">
 <div class="hero-copy">
-<h1 class="hero-h1">{h1}</h1>
-<p class="hero-lede">شمع، سفال، نقره، عطر و هدیه؛ و هر چیزی که دنبالش باشید.</p>
+<h1 class="hero-h1 is-verse">{h1}</h1>
+<p class="hero-cite">{esc(HERO["poet"])}</p>
+<p class="hero-lede">{esc(SITE["tagline"])}.</p>
 <div class="hero-cta"><a class="btn btn-pri" href="#collections">دیدن ویترین</a><a class="btn" href="#ask">سفارش ویژه</a></div>
 </div>
 <dl class="hero-stats"><div><dt>قطعه در ویترین</dt><dd>{fa(total)}</dd></div><div><dt>مجموعه</dt><dd>{fa(len(CAT.CATEGORIES))}</dd></div></dl>
@@ -398,9 +400,9 @@ def home(products, by_code):
 {mood("light-ledge", "(min-width: 900px) 50vw, 100vw", cls="state-ph")}
 <div class="state-tx">
 <p class="eyebrow">سفارش ویژه</p>
-<h2 id="h-ask">چیزی در ذهن <b>دارید؟</b></h2>
-<p>اگر آن را در ویترین ندیدید، بگویید چه می‌خواهید؛ پیدایش می‌کنیم و خبرتان می‌کنیم.</p>
-{channel_buttons("سلام! دنبال این هستم:")}
+<h2 id="h-ask">دنبال چیز <b>خاصی</b> هستی؟</h2>
+<p>اگه تو ویترین نبود، فقط بگو چی می‌خوای؛ پیداش می‌کنیم و خبرت می‌کنیم.</p>
+{channel_buttons("سلام! دنبال اینم:")}
 </div>
 </section>
 
@@ -438,7 +440,7 @@ def section_page(c, products):
         sold_html = f"""
 <section class="wrap sold" aria-labelledby="h-sold">
 <h2 id="h-sold">به خانهٔ {hl("تازه")} رفتند</h2>
-<p class="sec-aside">{fa(len(sold))} قطعه از این قفسه فروخته شده. اگر مشابهش را می‌خواهید، بپرسید.</p>
+<p class="sec-aside">{fa(len(sold))} قطعه از این قفسه رفته. اگه مشابهش رو می‌خوای، بپرس.</p>
 <ul class="grid-sold">{"".join(item(p, sizes="(min-width: 700px) 15vw, 30vw") for p in sold)}</ul>
 </section>"""
     body = f"""
@@ -464,13 +466,13 @@ def product_page(p, products):
     same = for_sale([q for q in products if q["category"] == p["category"]])
     i = same.index(p)
     related = (same[i + 1:] + same[:i])[:4]
-    message = f"سلام! این قطعه را می‌خواهم:\n{p['code']} — {p['name']}"
+    message = f"سلام! این قطعه رو می‌خوام:\n{p['code']} — {p['name']}"
     if SITE["url"]:
         message += "\n" + abs_url(p["url"])
     notes = []
     if p["status"] == "day":
-        notes.append("قیمت نقره هر روز تغییر می‌کند؛ قیمتِ امروز را در پیام می‌گوییم.")
-    notes.append("کد را بفرستید؛ موجودی، پرداخت و ارسال را همان‌جا هماهنگ می‌کنیم.")
+        notes.append("قیمت نقره هر روز عوض می‌شه؛ قیمت امروزش رو تو پیام بهت می‌گیم.")
+    notes.append("کدش رو بفرست؛ موجودی، پرداخت و ارسال رو همون‌جا هماهنگ می‌کنیم.")
     crumbs = [("/", "خانه"), (f'/{c["slug"]}/', c["fa"]), (p["url"], p["name"])]
     rel_html = ""
     if related:
@@ -489,10 +491,10 @@ def product_page(p, products):
 <h1>{esc(p["name"])}</h1>
 <p class="prod-price">{price_html(p, long=True)}</p>
 <div class="codebox" id="order"><span>کد قطعه</span><span class="code">{p["code"]}</span>
-<button class="copy" type="button" data-copy="{esc(message)}">کپی کد و نام</button></div>
+<button class="copy" type="button" data-copy="{esc(message)}">کپی کد و اسم</button></div>
 {channel_buttons(message)}
 <ul class="notes">{"".join(f"<li>{n}</li>" for n in notes)}</ul>
-<button class="share" type="button" hidden data-share-title="{esc(p["name"])}">فرستادن برای یک دوست</button>
+<button class="share" type="button" hidden data-share-title="{esc(p["name"])}">بفرست برای یه دوست</button>
 </div>
 </article>
 <div class="buybar" aria-hidden="true"><div class="wrap buybar-in">{price_html(p)}<a class="btn btn-pri" href="#order" tabindex="-1">سفارش با کد <span class="code">{p["code"]}</span></a></div></div>
@@ -509,7 +511,7 @@ def product_page(p, products):
         ld["offers"] = {"@type": "Offer", "price": p["price_toman"] * 10, "priceCurrency": "IRR",
                         "availability": "https://schema.org/InStock", "url": abs_url(p["url"])}
     desc = f'{p["name"]} — {c["fa"]}، کد {p["code"]}. '
-    desc += (f'{CAT.toman(p["price_toman"])} تومان.' if p["status"] == "available" else "قیمت را بپرسید.")
+    desc += (f'{CAT.toman(p["price_toman"])} تومان.' if p["status"] == "available" else "قیمتش رو بپرس.")
     return page(p["url"], f'{p["name"]} · {p["code"]} — {SITE["name_fa"]}', desc, body,
                 og=(f"/assets/img/{stem(p)}-og.jpg", 480, 600), jsonld=ld, body_class="is-product",
                 crumbs=crumbs, show_crumbs=False)
@@ -523,27 +525,27 @@ def about_page():
         items += f'<li>نشانی: {esc(CONTACT["address"])}</li>'
     if CONTACT["hours"]:
         items += f'<li>ساعت کار: {esc(CONTACT["hours"])}</li>'
-    intro = ("یک کانسپت‌استورِ کوچک: شمع، سفال، گل بافتنی، نقره، آرایشی و هدیه. "
-             "اگر چیزی را اینجا ندیدید، بپرسید؛ برایتان پیدایش می‌کنیم.")
+    intro = ("یه کانسپت‌استور کوچیک: شمع، سفال، گل بافتنی، نقره، آرایشی و هدیه. "
+             "اگه چیزی رو اینجا ندیدی، بپرس؛ برات پیداش می‌کنیم.")
     contact = (f"<ul class='contact-list'>{items}</ul>" if items
-               else "<p class='sec-aside'>راه‌های تماس به‌زودی اینجا می‌آید.</p>")
+               else "<p class='sec-aside'>راه‌های تماس به‌زودی همین‌جاست.</p>")
     body = f"""
 {sec_hero("درباره", f'{esc(SITE["name_fa"])}<b>.</b>', intro, "light-ledge", long=True)}
 {order_block()}
 <section class="wrap" id="contact" aria-labelledby="h-contact">
-<div class="sec-head"><div><p class="eyebrow">تماس</p><h2 id="h-contact">با ما در تماس باشید</h2></div></div>
+<div class="sec-head"><div><p class="eyebrow">تماس</p><h2 id="h-contact">باهامون در تماس باش</h2></div></div>
 {contact}
 </section>
 """
     return page("/about/", f'درباره و سفارش — {SITE["name_fa"]}',
-                "چطور از " + SITE["name_fa"] + " سفارش بدهیم: کد قطعه را بفرستید.", body,
+                "چطور از " + SITE["name_fa"] + " سفارش بدیم: کد قطعه رو بفرست.", body,
                 crumbs=[("/", "خانه"), ("/about/", "درباره")])
 
 
 def not_found():
     chips = "".join(f'<a class="btn" href="/{c["slug"]}/">{c["fa"]}</a>' for c in CAT.CATEGORIES)
-    body = sec_hero("۴۰۴", 'این قفسه خالی است<b>.</b>',
-                    "صفحه‌ای که دنبالش بودید اینجا نیست؛ شاید قطعه‌اش فروخته شده. از مجموعه‌ها شروع کنید:",
+    body = sec_hero("۴۰۴", 'این قفسه خالیه<b>.</b>',
+                    "صفحه‌ای که دنبالش بودی اینجا نیست؛ شاید قطعه‌اش فروخته شده. از مجموعه‌ها شروع کن:",
                     "hero-tall", f'<div class="chips">{chips}</div>', long=True)
     return page("/404.html", f'پیدا نشد — {SITE["name_fa"]}', "این صفحه پیدا نشد.", body)
 

@@ -26,10 +26,10 @@
     if (!b) return;
     var label = b.textContent;
     copyText(b.getAttribute("data-copy")).then(function () {
-      b.textContent = "کپی شد — در پیام بچسبانید";
+      b.textContent = "کپی شد — تو پیام بچسبون";
       setTimeout(function () { b.textContent = label; }, 2400);
     }, function () {
-      b.textContent = "کپی نشد؛ کد را دستی بنویسید";
+      b.textContent = "کپی نشد؛ کد رو دستی بنویس";
     });
   });
 

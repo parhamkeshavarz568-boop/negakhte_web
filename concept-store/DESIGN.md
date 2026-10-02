@@ -85,12 +85,23 @@ figures give `٬` a full digit width). Codes stay Latin and LTR (`S-10`).
 
 ---
 
+## 3b. Voice
+
+- **Speak to one person, in the singular (تو).** Never the formal plural
+  (شما · بفرستید · بگویید), which reads like a book or a bank.
+- **Warm and lightly conversational, written not spoken:** «کدش رو بفرست»،
+  «اگه تو ویترین نبود، فقط بگو چی می‌خوای». Polite, never slangy.
+- **The shop finds what you ask for.** Never call it a handmade store.
+- Literary register only where it is literature: the verse.
+
+---
+
 ## 4. The marks shared with negakhte
 
 | Mark | here |
 |---|---|
 | **◆** a small gold square at 45° | after the shop's name, in the header and the giant footer name |
-| **The highlighter** — a gold bar across the lower part of the word | under «بخواهید» in the home headline; «تازه» in «به خانهٔ تازه رفتند» |
+| **The highlighter** — a gold bar across the lower part of the word | under «دو هزار کوزه» in the home verse; «تازه» in «به خانهٔ تازه رفتند» |
 | **The offset shadow** — hard 4px gold, no blur; lifts on hover | every primary button, and the phone buy bar |
 | **The ornament eyebrow** — a 2rem rule, then small text | above every headline |
 
@@ -119,9 +130,11 @@ figures give `٬` a full digit width). Codes stay Latin and LTR (`S-10`).
 
 **Home**
 1. **The sunlit corner.** The empty corner the products were photographed in,
-   full-bleed, the header floating over it. On its calm wall, kept short: the
-   headline «هر چه **بخواهید**، پیدا می‌کنیم.» (two lines), one line of intro,
-   «دیدن ویترین» and «سفارش ویژه», and two numbers on the stone ledge.
+   full-bleed, the header floating over it. On its calm wall: a verse instead
+   of a slogan (Khayyam, «در کارگهِ کوزه‌گری رفتم دوش / دیدم **دو هزار کوزه** گویا
+   و خموش»: a room of objects, each with its own voice), the poet's name, one
+   line of intro, «دیدن ویترین» and «سفارش ویژه», and two numbers on the ledge.
+   The verse lives in `site_config.HERO`.
 2. **The vitrine.** Eight collections as tall photos edge to edge. Desktop with
    a mouse: the first pane is open; the one under the pointer widens (flex
    3.1×, 0.7s), closed panes are slightly desaturated with small labels.
@@ -129,9 +142,9 @@ figures give `٬` a full digit width). Codes stay Latin and LTR (`S-10`).
 3. **The shelf.** Ten pieces in a magazine rhythm on a 12-column grid: one big
    (6 columns × 2 rows) beside four small, then mirrored. Code, name and price
    under each.
-4. **Special order.** The light-on-stone image beside «چیزی در ذهن **دارید؟**»:
+4. **Special order.** The light-on-stone image beside «دنبال چیز **خاصی** هستی؟»:
    if it isn't in the vitrine, say what you want and the shop finds it. With the
-   order buttons (WhatsApp prefilled «سلام! دنبال این هستم:»).
+   order buttons (WhatsApp prefilled «سلام! دنبال اینم:»).
 5. **Ordering.** Three steps with thin oxblood numerals, beside the actual
    message a customer sends (a sample chat bubble).
 6. **Footer.** Ink. Columns, then the shop's name set Black 800, very large.
@@ -157,8 +170,8 @@ gold shadow), notes with gold ◆ bullets. Phones: a buy bar pinned to the botto
 - **The entrance, once per visit (about 1.6s):** the photo brightens and
   settles (scale 1.035 → 1, 3.2s, ease-out); one faint sunbeam passes over the
   wall; the headline arrives word by word, each rising out of a slight blur
-  (95ms apart); the highlighter then draws under «بخواهید»; intro, buttons and
-  numbers follow. Deliberately quiet, never shiny.
+  (70ms apart); the highlighter then draws under «دو هزار کوزه»; the poet's
+  name, intro, buttons and numbers follow. Deliberately quiet, never shiny.
 - **The one thing that keeps moving:** a few specks of dust drifting in the
   window light (site.js; 18–48 specks, paused off-screen and in hidden tabs).
 - Also: vitrine panes unveil as they scroll in, the pane widening, a 3.5% photo

@@ -16,10 +16,10 @@ SITE = {
 
     # The shop sells whatever customers ask for, not only handmade pieces, so
     # nothing on the site positions it as a handmade store.
-    "tagline": "هر چه بخواهید، پیدا می‌کنیم",
-    "tagline_em": "بخواهید",      # the word the home headline sets in oxblood
-    "description": ("شمع، سفال، گل بافتنی، نقره، عطر و هدیه؛ و هر چیزی که دنبالش باشید. "
-                    "هر قطعه یک کد دارد؛ کد را بفرستید تا هماهنگ کنیم."),
+    # The tagline is plain description: page titles, the footer, link previews.
+    "tagline": "شمع، سفال، نقره، عطر و هدیه؛ و هر چیزی که دنبالش باشی",
+    "description": ("شمع، سفال، گل بافتنی، نقره، عطر و هدیه؛ و هر چیزی که دنبالش باشی. "
+                    "هر قطعه یه کد داره؛ کدش رو بفرست تا هماهنگ کنیم."),
 
     # The domain, e.g. "https://example.ir" — no trailing slash, no folder.
     # None = not decided yet: canonical / og:url / sitemap.xml are left out
@@ -47,6 +47,17 @@ CONTACT = {
     "address": None,       # street address, if there is a shop to visit
     "hours": None,         # e.g. "هر روز ۱۱ تا ۲۱"
     "city": None,
+}
+
+# The home page headline: a verse, one line per misra, with the poet's name
+# beneath and one phrase set in oxblood on the gold highlighter. Khayyam: a
+# potter's workshop full of jugs, "speaking and silent" — a room of objects,
+# each with its own voice. The first two misras of the quatrain only (the last
+# two turn to mortality). Public domain (11th–12th c.).
+HERO = {
+    "poem": ["در کارگهِ کوزه‌گری رفتم دوش", "دیدم دو هزار کوزه گویا و خموش"],
+    "poet": "خیام",
+    "em": "دو هزار کوزه",
 }
 
 # Pieces on the home page's shelf, in order, by code. Positions 1 and 8 are
