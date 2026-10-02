@@ -94,18 +94,21 @@ bdi.code, .code {
    alike, which is what makes the photo sit IN the page rather than on it.
    Six soft panes of --sun, multiplied onto the ground. One motion: as you
    scroll, the light slides, as it does across the stone over an afternoon. */
-.light { position: absolute; pointer-events: none; z-index: 1; mix-blend-mode: multiply;
-  aspect-ratio: 1; -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
-  mask-image: radial-gradient(closest-side, #000 58%, transparent 100%); }
+.light { position: absolute; top: 0; bottom: 0; height: 100%; pointer-events: none; z-index: 1;
+  mix-blend-mode: multiply;
+  /* an ellipse inscribed in the box, fading to nothing at its edges — and the box
+     is exactly as tall as its parent, so the light can never be clipped */
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 55%, transparent 100%); }
 .light svg { display: block; width: 100%; height: 100%; fill: var(--sun); }
-.light-hero { width: min(1250px, 112vw); left: 6%; top: -16%; opacity: .74; }
-.light-head { width: min(640px, 120vw); left: -4%; top: -6%; opacity: .6; }
-@media (max-width: 699px) { .light-head { width: 130vw; left: -55vw; top: 2%; } }
-.light-band { width: min(820px, 120vw); right: -8%; top: -50%; opacity: .55; }
+.light-hero { width: min(1250px, 112vw); left: 6%; opacity: .74; }
+.light-head { width: min(620px, 120vw); left: -2%; opacity: .62; }
+.light-band { width: min(820px, 120vw); right: -6%; opacity: .55; }
 @media (max-width: 899px) {
-  .light-hero { width: 165vw; left: -48vw; top: 1%; }
+  .light-hero { width: 165vw; left: -48vw; }
   .hero-in { padding-bottom: var(--s-3); }
 }
+@media (max-width: 699px) { .light-head { width: 130vw; left: -55vw; } }
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
     .light-hero, .light-head {
@@ -117,7 +120,7 @@ bdi.code, .code {
 }
 @keyframes sun-drift {
   from { translate: 0 0; }
-  to   { translate: -10% 9%; }
+  to   { translate: -10% 3%; }
 }
 
 /* ---------------------------------------------------------------- buttons */

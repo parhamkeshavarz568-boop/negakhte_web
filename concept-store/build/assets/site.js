@@ -43,6 +43,16 @@
     });
   }
 
+  // On a phone the section chips scroll sideways; bring the current one into view.
+  var here = document.querySelector(".chips [aria-current]");
+  if (here) {
+    var row = here.closest("ul");
+    if (row.scrollWidth > row.clientWidth) {
+      row.scrollLeft += (here.getBoundingClientRect().left + here.offsetWidth / 2) -
+                        (row.getBoundingClientRect().left + row.clientWidth / 2);
+    }
+  }
+
   // Contact channels not configured yet: the button is drawn, but say so.
   document.querySelectorAll('[data-todo="contact"]').forEach(function (a) {
     a.addEventListener("click", function (e) { e.preventDefault(); });
