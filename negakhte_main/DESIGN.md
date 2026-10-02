@@ -412,11 +412,11 @@ The page reads as a slow walk, not a brochure:
 | 1 | «تغییر از خودمون شروع می‌شه.» | hero | `ripples-wide` / `ripples-tall` (phones) |
 | 2 | «نگاخته یه خانواده‌ست، نه یه مطب.» | page | `tea-circle` «یه حلقه؛ هر استکان، یه نفر.» |
 | 3 | group therapy: «هر شیشه یه رنگ؛ با هم، یه نور.» | scene | `orosi-light` |
-| 4 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
-| 5 | outside the room: «فقط نمی‌شینیم و حرف نمی‌زنیم.» | page | `pomegranate` ارزاق, `door-ajar` حبس, `fern-spiral` پاک‌سازی محیط زیست |
-| 6 | the self-knowledge tests | page | `mirror` |
-| 7 | the people | page | none yet: the therapists' own photographs belong here |
-| 8 | address and contact | page | `two-glasses` |
+| 4 | outside the room: «فقط نمی‌شینیم و حرف نمی‌زنیم.» | page | `pomegranate` ارزاق, `door-ajar` حبس, `fern-spiral` پاک‌سازی محیط زیست |
+| 5 | the self-knowledge tests | page | `mirror` |
+| 6 | the people | page | none yet: the therapists' own photographs belong here |
+| 7 | address and contact | page | `two-glasses` |
+| 8 | Attar's thirty birds, the closing; it runs into the dark footer | night | `simorgh`, the café's painting, as a medallion |
 
 The concept store's pictures stay on the concept store: its sunlit corner was
 tried here and taken out at the owner's request.
