@@ -385,6 +385,19 @@ The tests app stays drawn (§2.4). The company homepage is a different object:
 it presents what نگاخته is. It is not an advertisement, so it describes rather
 than sells. The groups are in person only.
 
+**What "not selling" rules out**, all of it tried and removed at the owner's
+request:
+- an FAQ that answers objections («نگرانی‌های رایج»)
+- a sign-up path («قدم اول فقط یه گفت‌وگوئه»)
+- a trust pitch («قبل از اینکه به یه گروه اعتماد کنی…»)
+- a call to action («هر سؤالی داری، بپرس»)
+- captions that recruit («یه جا برای تو خالیه»)
+- headlines that promise the visitor a result
+
+Every line says what negakhte is or does. Facts that used to live in the FAQ
+now sit where they describe the work: confidentiality and the fact that
+sessions are not recorded are part of «آخر».
+
 **One idea per screen, two kinds of section.** A `.scene` is a photograph
 across the full width with its title set on it. A `.page` is paper, large type
 and room to breathe, with one picture at most. The two alternate, and nothing
@@ -394,14 +407,13 @@ The page reads as a slow walk, not a brochure:
 | # | Section | Kind | Picture |
 |---|---|---|---|
 | 1 | «تغییر از خودمون شروع می‌شه.» | hero | `ripples-wide` / `ripples-tall` (phones): one drop, rings spreading |
-| 2 | «نگاخته یه خانواده‌ست، نه یه مطب.» | page | `tea-circle` «یه جا برای تو خالیه.» |
-| 3 | group therapy | scene + page | `orosi-light`, then the words alone |
-| 4 | a session | scene + page | `cushion-circle`; facts, three moments, `seashell` «لازم نیست حرف بزنی» |
-| 5 | worries | page | `door-ajar`, held in place while the questions scroll |
-| 6 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
-| 7 | the rest of the family | page | `mirror` (tests), `pomegranate` (charity), `fern-spiral` (other) |
-| 8 | how it starts | scene + page | `stepping-stones`; three steps |
-| 9 | who runs the groups, contact | pages | `two-glasses` |
+| 2 | «نگاخته یه خانواده‌ست، نه یه مطب.» | page | `tea-circle` «یه حلقه؛ هر استکان، یه نفر.» |
+| 3 | group therapy: «هر شیشه یه رنگ؛ با هم، یه نور.» | scene + page | `orosi-light`, then what a group is, in words |
+| 4 | a session | scene + page | `cushion-circle`; facts, three moments, `seashell` «گوش دادن» |
+| 5 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
+| 6 | the rest of the family | page | `mirror` (tests), `pomegranate` (charity), `fern-spiral` (other) |
+| 7 | the people | page | none yet: the therapists' own photographs belong here |
+| 8 | address and contact | page | `two-glasses` |
 
 The concept store's pictures stay on the concept store: its sunlit corner was
 tried here and taken out at the owner's request.

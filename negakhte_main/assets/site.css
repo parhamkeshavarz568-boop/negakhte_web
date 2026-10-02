@@ -96,7 +96,6 @@ h1, h2, h3, h4 { margin: 0; font-weight: 800; color: inherit; text-wrap: balance
 .title   { font-size: clamp(32px, 4.9vw, 66px); line-height: 1.22; }
 h3       { font-size: clamp(21px, 1.9vw, 26px); font-weight: 700; line-height: 1.5; }
 .lede    { font-size: clamp(19px, 1.65vw, 23px); line-height: 1.85; color: var(--ink-soft); max-width: 40ch; }
-.small   { font-size: 15px; line-height: 1.8; color: var(--ink-mute); }
 .eyebrow {
   display: flex; align-items: center; gap: 14px;
   margin: 0 0 22px; font-size: 14.5px; font-weight: 700; color: var(--gold-ink);
@@ -246,7 +245,6 @@ h3       { font-size: clamp(21px, 1.9vw, 26px); font-weight: 700; line-height: 1
   grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
 .scene .eyebrow { color: var(--gold-bright); }
 .scene .title { max-width: 15em; color: #FBF6EC; }
-.scene .sub { margin: 22px 0 0; max-width: 34ch; font-size: clamp(18px, 1.5vw, 21px); color: #DCD2BF; }
 .scene-cap { margin: 0; color: rgba(243, 234, 218, .78); }
 .scene-cap::before { background: var(--gold-bright); }
 
@@ -343,43 +341,6 @@ section[id], .page[id] { scroll-margin-top: calc(var(--head) - 1px); }
 .aside p { color: var(--ink-soft); max-width: 46ch; font-size: clamp(18px, 1.45vw, 20.5px); }
 @media (max-width: 600px) { .aside { grid-template-columns: minmax(0, 1fr); gap: 24px; } .aside .fig { width: 104px; } }
 
-/* worries: the door stays while the questions move */
-.split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 7vw, 120px); align-items: start; }
-.split-side { position: sticky; top: calc(var(--head) + 40px); }
-.split-side .lede { margin: 24px 0 40px; }
-.split-side .fig img { aspect-ratio: 5 / 6; }
-@media (max-width: 900px) {
-  .split { grid-template-columns: minmax(0, 1fr); }
-  .split-side { position: static; }
-  .split-side .fig img { aspect-ratio: 4 / 3; object-position: 50% 70%; }
-}
-
-.faq { border-top: 1px solid var(--rule); }
-.faq details { border-bottom: 1px solid var(--rule); }
-.faq summary {
-  display: flex; align-items: center; justify-content: space-between; gap: 24px;
-  padding: 28px 0; cursor: pointer; list-style: none;
-  font-size: clamp(19px, 1.75vw, 23px); font-weight: 700; line-height: 1.55;
-}
-.faq summary::-webkit-details-marker { display: none; }
-.faq summary::after {   /* a plus that turns into a minus */
-  content: ""; flex: none; width: 18px; height: 18px;
-  background:
-    linear-gradient(var(--gold-ink), var(--gold-ink)) center / 100% 1.6px no-repeat,
-    linear-gradient(var(--gold-ink), var(--gold-ink)) center / 1.6px 100% no-repeat;
-  transition: transform .5s var(--ease), background-size .5s var(--ease);
-}
-.faq details[open] summary::after { transform: rotate(180deg); background-size: 100% 1.6px, 1.6px 0; }
-.faq summary:hover { color: var(--teal); }
-.faq .ans { padding: 0 0 30px; color: var(--ink-soft); max-width: 52ch; }
-@supports selector(::details-content) {
-  .faq details::details-content {
-    block-size: 0; overflow: hidden;
-    transition: block-size .55s var(--ease), content-visibility .55s allow-discrete;
-  }
-  .faq details[open]::details-content { block-size: auto; }
-}
-:root { interpolate-size: allow-keywords; }
 
 /* ── the night: Attar's thirty birds ──────────────────────── */
 .night {
@@ -489,7 +450,6 @@ footer .base { margin-top: 64px; padding-top: 26px; border-top: 1px solid rgba(2
 @media (prefers-reduced-motion: reduce) {
   .js .rv, .js .rv-img .ph, .js .rv-img img { opacity: 1; transform: none; clip-path: none; transition: none; }
   .js .seq::before { transform: none; transition: none; }
-  .faq details::details-content { transition: none; }
 }
 @media print {
   .top, .cue { display: none; }
