@@ -192,7 +192,7 @@ def verse(lines, em=None):
     """The home headline: one line per misra, one span per word (the entrance
     brings them in one by one; --i is the order), and the `em` phrase in oxblood
     on the gold highlighter. Punctuation stays inside its word's span."""
-    em_words = em.split(" ") if em else []
+    em_words = [w.rstrip("،.؛") for w in em.split(" ")] if em else []
     out, i = [], 0
     for line in lines:
         words = line.split(" ")
@@ -207,6 +207,25 @@ def verse(lines, em=None):
                 break
         out.append('<span class="ln">' + " ".join(spans) + "</span>")
     return " ".join(out)
+
+
+# Runs inline, right after the headline, before the first paint: picks a verse
+# (never the one shown last in this tab), swaps it in so the entrance animates
+# it, and sizes it so each misra stays on one line — on a narrow phone a long
+# misra may wrap instead of shrinking below 22px. site.js re-fits on resize and
+# when the web font arrives.
+VERSE_PICKER = (
+    '(function(){var t=document.getElementById("verses"),h=document.querySelector(".hero-h1"),'
+    'c=document.querySelector(".hero-cite");if(!t||!h||!t.content)return;var v=t.content.children,n=v.length,'
+    'last=-1;try{last=parseInt(sessionStorage.getItem("verse"),10)}catch(e){}'
+    'var i=Math.floor(Math.random()*n);if(n>1&&i===last)i=(i+1+Math.floor(Math.random()*(n-1)))%n;'
+    'try{sessionStorage.setItem("verse",String(i))}catch(e){}'
+    'h.innerHTML=v[i].innerHTML;if(c)c.textContent=v[i].getAttribute("data-poet");'
+    'window.fitVerse=function(){h.style.fontSize="";h.classList.remove("is-wrapped");var ls=h.querySelectorAll(".ln"),'
+    'a=h.clientWidth,m=0;for(var k=0;k<ls.length;k++)m=Math.max(m,ls[k].scrollWidth);if(m<=a)return;'
+    'var f=parseFloat(getComputedStyle(h).fontSize)*a/m*0.98;if(f<22){f=22;h.classList.add("is-wrapped")}'
+    'h.style.fontSize=Math.floor(f)+"px"};window.fitVerse()})();'
+)
 
 
 def wordmark(cls="wordmark"):
@@ -368,7 +387,8 @@ def home(products, by_code):
     shelf_html = "".join(
         item(p, big=i in big, sizes="(min-width: 900px) 46vw, 100vw" if i in big else
              "(min-width: 900px) 22vw, 46vw") for i, p in enumerate(shelf))
-    h1 = verse(HERO["poem"], HERO.get("em"))
+    h1 = verse(HERO[0]["poem"], HERO[0].get("em"))
+    pool = "".join(f'<div data-poet="{esc(v["poet"])}">{verse(v["poem"], v.get("em"))}</div>' for v in HERO)
     body = f"""
 <section class="hero">
 {mood("hero-wide", "100vw", cls="hero-bg", eager=True, phone="hero-tall")}
@@ -376,7 +396,9 @@ def home(products, by_code):
 <div class="wrap hero-in">
 <div class="hero-copy">
 <h1 class="hero-h1 is-verse">{h1}</h1>
-<p class="hero-cite">{esc(HERO["poet"])}</p>
+<p class="hero-cite">{esc(HERO[0]["poet"])}</p>
+<template id="verses">{pool}</template>
+<script>{VERSE_PICKER}</script>
 <p class="hero-lede">{esc(SITE["tagline"])}.</p>
 <div class="hero-cta"><a class="btn btn-pri" href="#collections">دیدن ویترین</a><a class="btn" href="#ask">سفارش ویژه</a></div>
 </div>

@@ -58,6 +58,14 @@
     a.addEventListener("click", function () { a.closest("details").open = false; });
   });
 
+  // The verse was sized before the web font arrived and for this window width:
+  // size it again when either changes (the picker defines fitVerse inline).
+  if (window.fitVerse) {
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(window.fitVerse);
+    var ft;
+    window.addEventListener("resize", function () { clearTimeout(ft); ft = setTimeout(window.fitVerse, 120); });
+  }
+
   // Dust in the window light: after the entrance, the one thing on the home
   // page that keeps moving. A few warm specks rise and sway in the lit (left)
   // part of the photo and fade at the edges of the light, as in a real

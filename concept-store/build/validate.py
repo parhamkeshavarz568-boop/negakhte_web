@@ -16,7 +16,7 @@ import html.parser, json, os, re, sys
 from collections import Counter
 
 import catalog as CAT
-from site_config import SITE, CONTACT
+from site_config import SITE, CONTACT, HERO
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PUBLIC = os.path.join(os.path.dirname(HERE), "public")
@@ -199,6 +199,16 @@ def main():
         r = contrast(tok[fg], tok[bg])
         if r < 4.5:
             errors.append(f"contrast --{fg} on --{bg} is {r:.2f}:1 (< 4.5)")
+
+    # every home-page verse was checked against Ganjoor and says where it came from
+    for k, v in enumerate(HERO):
+        if not str(v.get("source", "")).startswith("https://ganjoor.net/"):
+            errors.append(f"HERO verse {k + 1} («{v['poem'][0]}») has no Ganjoor source — check it before adding it")
+        if v.get("em") and not any(v["em"] in line for line in v["poem"]):
+            errors.append(f"HERO verse {k + 1}: highlighted phrase «{v['em']}» is not in the verse")
+    home = pages.get("/index.html", (None, ""))[1]
+    if home.count('<div data-poet=') != len(HERO):
+        errors.append(f"home page carries {home.count('<div data-poet=')} verses, site_config has {len(HERO)}")
 
     # the server config ships, and its 404 rule points inside the deploy folder
     ht = os.path.join(PUBLIC, ".htaccess")

@@ -130,11 +130,21 @@ figures give `٬` a full digit width). Codes stay Latin and LTR (`S-10`).
 
 **Home**
 1. **The sunlit corner.** The empty corner the products were photographed in,
-   full-bleed, the header floating over it. On its calm wall: a verse instead
-   of a slogan (Khayyam, «در کارگهِ کوزه‌گری رفتم دوش / دیدم **دو هزار کوزه** گویا
-   و خموش»: a room of objects, each with its own voice), the poet's name, one
-   line of intro, «دیدن ویترین» and «سفارش ویژه», and two numbers on the ledge.
-   The verse lives in `site_config.HERO`.
+   full-bleed, the header floating over it. On its calm wall: a classical verse
+   instead of a slogan, one of 15 chosen at random on every load (never the
+   same twice in a row), the poet's name beneath, one line of intro,
+   «دیدن ویترین» and «سفارش ویژه», and two numbers on the stone ledge.
+   - The verses (`site_config.HERO`): Khayyam ×4, Hafez ×5, Molavi ×3,
+     Saadi ×2, Rudaki ×1, picked for the shop's world (objects, a welcome,
+     seeking, scent, light, the moment). **Every one is checked against
+     Ganjoor and given in its exact text with its source**; validate.py
+     refuses one without. Three were misremembered before checking, and one
+     common "Hafez" line turned out to be only attributed to him.
+   - A small inline script picks the verse before the first paint, so it
+     never flickers and the entrance animates it. It sizes the verse so each
+     misra stays on one line; on a narrow phone a long misra splits into two
+     balanced halves rather than going below 22px. No JavaScript: the
+     Khayyam verse, the first in the list.
 2. **The vitrine.** Eight collections as tall photos edge to edge. Desktop with
    a mouse: the first pane is open; the one under the pointer widens (flex
    3.1×, 0.7s), closed panes are slightly desaturated with small labels.

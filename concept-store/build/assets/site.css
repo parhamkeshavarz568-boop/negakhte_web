@@ -117,13 +117,20 @@ button { font: inherit; color: inherit; }
 .hero-bg, .hero-bg img { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
 .hero-bg img { object-fit: cover; object-position: 20% 75%; }
 .hero-in { position: relative; z-index: 2; display: grid; grid-template-rows: 1fr auto; gap: var(--s4); padding-top: calc(var(--mast) + var(--s4)); padding-bottom: var(--s4); }
-.hero-copy { align-self: center; display: grid; gap: var(--s3); max-width: min(100%, 52rem); }
+.hero-copy { align-self: center; display: grid; gap: var(--s3); max-width: min(100%, 52rem); min-width: 0; }
+/* the columns are the screen, not the widest line: a nowrap misra must never widen
+   them (both grids, or the headline's own box "fits" and nothing gets resized) */
+.hero-in, .hero-copy { grid-template-columns: minmax(0, 1fr); }
+.hero-h1 { min-width: 0; }
 .hero .eyebrow { color: var(--ink); }
 .hero-h1 { font-family: var(--display); font-size: var(--t-h1); font-weight: var(--w-display); line-height: 1.28; }
 .hero-h1 .w { display: inline-block; }
 /* a verse: smaller than a slogan, with the air poetry needs, one misra per line */
 .hero-h1.is-verse { font-size: clamp(1.75rem, 4.3vw, 4rem); line-height: 1.6; }
 .hero-h1.is-verse .ln { white-space: nowrap; }
+/* a misra too long for a narrow phone: two even halves, and air between misras */
+.hero-h1.is-verse.is-wrapped .ln { white-space: normal; text-wrap: balance; }
+.hero-h1.is-verse.is-wrapped .ln + .ln { margin-top: .35em; }
 .hero-cite { display: flex; align-items: center; gap: .75rem; font-size: var(--t-body); font-weight: 600; margin-top: -.5rem; }
 .hero-cite::before { content: ""; width: 2rem; height: 1px; background: currentColor; }
 .hero-h1 b { font-weight: var(--w-strong); color: var(--ox); }

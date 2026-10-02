@@ -49,16 +49,78 @@ CONTACT = {
     "city": None,
 }
 
-# The home page headline: a verse, one line per misra, with the poet's name
-# beneath and one phrase set in oxblood on the gold highlighter. Khayyam: a
-# potter's workshop full of jugs, "speaking and silent" — a room of objects,
-# each with its own voice. The first two misras of the quatrain only (the last
-# two turn to mortality). Public domain (11th–12th c.).
-HERO = {
-    "poem": ["در کارگهِ کوزه‌گری رفتم دوش", "دیدم دو هزار کوزه گویا و خموش"],
-    "poet": "خیام",
-    "em": "دو هزار کوزه",
-}
+# The home page headline: one of these verses, chosen at random on every load
+# (never the same one twice in a row), one line per misra, the poet named
+# beneath, and `em` set in oxblood on the gold highlighter. The first is the
+# default, shown when JavaScript is off.
+#
+# Every verse is checked against Ganjoor (ganjoor.net) and given in its exact
+# text, with the poem it comes from as `source`; validate.py refuses a verse
+# without one. Do not add a verse from memory: three of the first candidates
+# were misremembered (انیس ← رفیق، نکته ← قصه، در نظر هوشیار ← پیش خداوند هوش)
+# and one was only *attributed* to Hafez. All are public domain.
+HERO = [
+    {"poet": "خیام", "em": "دو هزار کوزه",
+     "poem": ["در کارگه کوزه‌گری رفتم دوش",
+              "دیدم دو هزار کوزه گویا و خموش"],
+     "source": "https://ganjoor.net/khayyam/robaee/sh117"},
+    {"poet": "حافظ", "em": "خانه، خانهٔ توست",
+     "poem": ["رَواقِ منظرِ چشمِ من آشیانهٔ توست",
+              "کَرَم نما و فرود آ که خانه، خانهٔ توست"],
+     "source": "https://ganjoor.net/hafez/ghazal/sh34"},
+    {"poet": "مولانا", "em": "با چراغ",
+     "poem": ["دی شیخ با چراغ همی گشت گِرد شهر",
+              "کز دیو و دَد ملولم و انسانم آرزوست"],
+     "source": "https://ganjoor.net/moulavi/shams/ghazalsh/sh441"},
+    {"poet": "رودکی", "em": "بویِ جویِ مولیان",
+     "poem": ["بویِ جویِ مولیان آیَد هَمی",
+              "یادِ یارِ مهربان آیَد هَمی"],
+     "source": "https://ganjoor.net/roodaki/baghimande/sh121"},
+    {"poet": "حافظ", "em": "طرحی نو",
+     "poem": ["بیا تا گل برافشانیم و می در ساغر اندازیم",
+              "فلک را سقف بشکافیم و طرحی نو دراندازیم"],
+     "source": "https://ganjoor.net/hafez/ghazal/sh374"},
+    {"poet": "خیام", "em": "این کوزه",
+     "poem": ["این کوزه چو من عاشق زاری بوده‌ است",
+              "در بندِ سرِ زلفِ نگاری بوده‌ است"],
+     "source": "https://ganjoor.net/khayyam/tarane/tkh5/sh16"},
+    {"poet": "سعدی", "em": "همه عالم",
+     "poem": ["به جهان خُرَّم از آنم که جهان خُرَّم از اوست",
+              "عاشقم بر همه عالم که همه عالم از اوست"],
+     "source": "https://ganjoor.net/saadi/mavaez/ghazal2/sh13"},
+    {"poet": "مولانا", "em": "شمع و شکَر",
+     "poem": ["من غلام قمرم، غیر قمر هیچ مگو",
+              "پیش من جز سخن شمع و شکَر هیچ مگو"],
+     "source": "https://ganjoor.net/moulavi/shams/ghazalsh/sh2219"},
+    {"poet": "حافظ", "em": "ستاره‌ای",
+     "poem": ["ستاره‌ای بدرخشید و ماهِ مجلس شد",
+              "دل رمیدهٔ ما را رفیق و مونس شد"],
+     "source": "https://ganjoor.net/hafez/ghazal/sh167"},
+    {"poet": "خیام", "em": "یک دمِ عمر",
+     "poem": ["ای دوست بیا تا غمِ فردا نخوریم",
+              "وین یک دمِ عمر را غنیمت شمریم"],
+     "source": "https://ganjoor.net/khayyam/robaee/sh121"},
+    {"poet": "سعدی", "em": "برگ درختان سبز",
+     "poem": ["برگ درختان سبز، پیش خداوند هوش",
+              "هر ورقی دفتری‌ست، معرفت کردگار"],
+     "source": "https://ganjoor.net/saadi/divan/ghazals/sh296"},
+    {"poet": "مولانا", "em": "این خانه",
+     "poem": ["این خانه که پیوسته در او بانگ چغانه‌ست",
+              "از خواجه بپرسید که این خانه چه خانه‌ست"],
+     "source": "https://ganjoor.net/moulavi/shams/ghazalsh/sh332"},
+    {"poet": "حافظ", "em": "پرتوِ حُسنت",
+     "poem": ["در ازل پرتوِ حُسنت ز تجلی دَم زد",
+              "عشق پیدا شد و آتش به همه عالم زد"],
+     "source": "https://ganjoor.net/hafez/ghazal/sh152"},
+    {"poet": "خیام", "em": "دریاب دمی",
+     "poem": ["این قافلهٔ عمر عجب می‌گذرد",
+              "دریاب دمی که با طرب می‌گذرد"],
+     "source": "https://ganjoor.net/khayyam/robaee/sh66"},
+    {"poet": "حافظ", "em": "فیضِ گل",
+     "poem": ["بلبل از فیضِ گل آموخت سخن، ور نه نبود",
+              "این همه قول و غزل تعبیه در منقارش"],
+     "source": "https://ganjoor.net/hafez/ghazal/sh277"},
+]
 
 # Pieces on the home page's shelf, in order, by code. Positions 1 and 8 are
 # the big ones (the magazine rhythm). The build fails if any is missing or
