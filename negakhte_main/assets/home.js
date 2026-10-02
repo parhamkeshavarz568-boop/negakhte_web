@@ -9,7 +9,7 @@
       seen.unobserve(e.target);
     }
   }, { rootMargin: "0px 0px -10% 0px", threshold: 0.01 });
-  document.querySelectorAll(".rv, .rv-img, .seq").forEach((el) => seen.observe(el));
+  document.querySelectorAll(".rv, .rv-img").forEach((el) => seen.observe(el));
 
   /* the header is clear over the hero and frosted after it */
   const top = document.querySelector(".top");
@@ -26,7 +26,7 @@
     for (const e of entries) {
       if (!e.isIntersecting) continue;
       links.forEach((a) => a.classList.remove("is-here"));
-      byId.get(e.target.id || e.target.dataset.part)?.classList.add("is-here");
+      byId.get(e.target.id)?.classList.add("is-here");
     }
   }, { rootMargin: "-45% 0px -50% 0px" });
   /* every block is watched; one without a link of its own clears the mark */

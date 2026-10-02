@@ -393,6 +393,9 @@ request:
 - a call to action («هر سؤالی داری، بپرس»)
 - captions that recruit («یه جا برای تو خالیه»)
 - headlines that promise the visitor a result
+- any explanation of what group therapy is or how a session runs (the
+  owner removed the session moments, «گوش دادن» and «گروه‌درمانی یعنی…»):
+  the page names group therapy and leaves it at the poem
 
 Every line says what negakhte is or does. Facts that used to live in the FAQ
 now sit where they describe the work: confidentiality and the fact that
@@ -406,13 +409,12 @@ The page reads as a slow walk, not a brochure:
 
 | # | Section | Kind | Picture |
 |---|---|---|---|
-| 1 | «تغییر از خودمون شروع می‌شه.» | hero | `ripples-wide` / `ripples-tall` (phones): one drop, rings spreading |
+| 1 | «تغییر از خودمون شروع می‌شه.» | hero | `ripples-wide` / `ripples-tall` (phones) |
 | 2 | «نگاخته یه خانواده‌ست، نه یه مطب.» | page | `tea-circle` «یه حلقه؛ هر استکان، یه نفر.» |
-| 3 | group therapy: «هر شیشه یه رنگ؛ با هم، یه نور.» | scene + page | `orosi-light`, then what a group is, in words |
-| 4 | a session | scene + page | `cushion-circle`; three moments, `seashell` «گوش دادن» |
-| 5 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
-| 6 | outside the room: «فقط نمی‌شینیم و حرف نمی‌زنیم.» | page | `pomegranate` ارزاق, `door-ajar` حبس, `fern-spiral` پاک‌سازی محیط زیست |
-| 6b | the self-knowledge tests | page | `mirror` |
+| 3 | group therapy: «هر شیشه یه رنگ؛ با هم، یه نور.» | scene | `orosi-light` |
+| 4 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
+| 5 | outside the room: «فقط نمی‌شینیم و حرف نمی‌زنیم.» | page | `pomegranate` ارزاق, `door-ajar` حبس, `fern-spiral` پاک‌سازی محیط زیست |
+| 6 | the self-knowledge tests | page | `mirror` |
 | 7 | the people | page | none yet: the therapists' own photographs belong here |
 | 8 | address and contact | page | `two-glasses` |
 
@@ -452,7 +454,6 @@ supplies them, and never invent one.
 motion:
 - Things rise into place as they arrive (`.rv`).
 - Pictures unveil: the frame opens while the photo settles (`.rv-img`).
-- A sequence's line draws itself.
 - Scene photographs drift slightly slower than the page. This uses a
   scroll-driven animation, so it costs no script and is simply absent in
   browsers without it.
