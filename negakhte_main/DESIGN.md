@@ -468,6 +468,12 @@ each one's origin, hash and what it shows. Run `python tools/make_images.py`
 to write AVIF + WebP to `assets/img/` at 640 / 1024 / 1536 px (never wider
 than the master). It also writes `og-home.jpg`, the 1200×630 share card.
 
+**Sending or uploading.** Run `python tools/make_zip.py [out.zip]`. The
+default output is `dist/negakhte-main.zip`, and `dist/` is not committed. The
+zip holds only what the pages load: the two pages, their stylesheet, script,
+font and icons, and the photographs they reference. Its root is the site's
+root.
+
 **Weight.** The hero costs about 46 KB (AVIF, desktop) or 43 KB (phone, 2×).
 Everything below it is lazy. The share card is 75 KB. It is a photograph, so
 the drawn-card budget of 25 KB in §6.2 does not apply, and only crawlers fetch
