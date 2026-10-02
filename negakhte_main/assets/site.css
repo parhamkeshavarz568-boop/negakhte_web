@@ -146,7 +146,7 @@ section:last-of-type { padding-block-end:var(--s11); }
   border-top:2px solid var(--gold);
 }
 
-.h-sec  { font-size:clamp(28px,4.4vw,46px); }
+.h-sec  { font-size:clamp(28px,4.4vw,46px); text-wrap:balance; }
 .h-sub  { font-size:clamp(20px,2.4vw,26px); font-weight:700; }
 .lede   { font-size:clamp(18px,1.9vw,21px); color:var(--fg-soft); font-weight:400; }
 .small  { font-size:14.5px; color:var(--fg-mute); line-height:1.8; }
