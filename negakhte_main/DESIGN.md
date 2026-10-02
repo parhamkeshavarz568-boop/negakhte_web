@@ -2,7 +2,7 @@
 # Negakhte — Design Plan
 
 **Property:** negakhte.com — the company site. Main work: group therapy,
-in person and online. The self-knowledge tests are one section of it.
+in person. The self-knowledge tests are one section of it.
 **Author:** design lead
 **Status:** approved direction, phased implementation
 **Sibling property:** کافه نگاخته (`ali-optimized/`) — the brand's other site
@@ -70,7 +70,8 @@ result screen and the share card product surfaces, not afterthoughts.
 
 نگاخته is a company that does several things — group therapy, the
 self-knowledge tests, and charitable work among them. **The main work is group
-therapy, run both in person and online.**
+therapy, run in person.** The homepage presents what نگاخته is; it is not
+an advertisement, so it describes rather than sells.
 
 The site's job, stated by the client: **let a visitor explore and come away
 understanding who نگاخته is and what it does.** That is an orientation problem,
