@@ -78,7 +78,7 @@
       p.vx = (Math.random() - 0.5) * 5;
       p.ph = Math.random() * 6.283;
       p.sp = 0.35 + Math.random() * 0.8;
-      p.a = 0.45 + Math.random() * 0.45;
+      p.a = 0.35 + Math.random() * 0.4;
       return p;
     }
     function setup() {
@@ -108,7 +108,7 @@
         ctx.beginPath();                 // the speck
         ctx.arc(p.x, p.y, p.r, 0, 6.2832);
         ctx.fill();
-        ctx.globalAlpha *= 0.18;         // and the glow the light gives it
+        ctx.globalAlpha *= 0.1;          // and the faint glow the light gives it
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r * 3.2, 0, 6.2832);
         ctx.fill();

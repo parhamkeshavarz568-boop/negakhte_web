@@ -5,12 +5,13 @@ Build the self-hosted font subset.
 
     python build/make_font.py
 
-One family for everything: Estedad (Amin Abedi, OFL), variable 100–900.
-The design sets very thin headlines against one heavy word, so a single
-family does all of it: Thin 100 to Black 800, with Light 300 for titles,
-Medium 500 for names and SemiBold 600 for prices. It covers Latin too, so
-codes (S-10) and brand names (Aroma Fusion) match the Persian.
-Chosen after setting nine Persian faces side by side on the real headline.
+One family for everything: Vazirmatn (Saber Rastikerdar, OFL), variable
+100–900, the pinned v33.003 that amochini vendors and negakhte uses.
+Headlines are Bold 700 with the key word in oxblood, the way negakhte's own
+headline works; text is Regular 400, names Medium 500, prices SemiBold 600.
+Nothing on the site is set lighter than 400: thin Persian at display sizes
+looks fragile, and a thin headline beside one heavy word reads as two
+mismatched fonts, which is why Estedad Thin was dropped.
 
 Why self-hosted: Google Fonts and the jsDelivr/cdnjs/unpkg CDNs sit behind
 networks that are SNI-filtered in Iran, and a stalled font request does not
@@ -18,9 +19,7 @@ fail fast — it holds up first paint. Zero third-party requests.
 
 The subset is the Persian alphabet plus the Arabic look-alikes a non-Persian
 keyboard produces, Persian and ASCII digits, and ASCII. OFL 1.1 requires the
-licence to travel with the font, so it is copied next to the woff2. The
-release ships no licence file; OFL-Estedad.txt is the standard OFL text under
-the copyright line from the font's own name table.
+licence to travel with the font, so it is copied next to the woff2.
 """
 import os, shutil, subprocess, sys
 
@@ -41,7 +40,7 @@ UNICODES = ",".join([
 ])
 
 FONTS = [
-    ("Estedad[wght].ttf", "estedad-subset.woff2", "OFL-Estedad.txt"),
+    ("Vazirmatn[wght].ttf", "vazirmatn-subset.woff2", "OFL-Vazirmatn.txt"),
 ]
 
 

@@ -11,9 +11,10 @@ https://claude.ai/artifact/12raGgd4jreCxTZ9R4C3Nx
 
 ## 1. Subject, audience, the one job
 
-**Subject.** A small Iranian concept store: Ayshid's handmade candles, glazed
-ceramics, crochet flowers, silver, Nixgel / Niura / ELORA beauty, incense,
-spices, 3D stickers and postcards. Many pieces are one-offs.
+**Subject.** A small Iranian concept store: candles, glazed ceramics, crochet
+flowers, silver, Nixgel / Niura / ELORA beauty, incense, spices, stickers and
+postcards — and **whatever a customer asks for**: the shop sources on request.
+It is *not* a handmade store, and nothing on the site should position it as one.
 
 **Audience.** Someone on their phone, usually arriving from Instagram or a link
 a friend sent, looking for a gift or something for their own shelf.
@@ -52,31 +53,35 @@ wall, and the eyebrow there is ink too: gold disappears on beige.
 
 ---
 
-## 3. Type: Estedad, one family
+## 3. Type: Vazirmatn, one family, sturdy weights
 
-**Estedad** (Amin Abedi, OFL), variable 100–900, self-hosted as one 49 KB
-subset. It was chosen after setting nine Persian faces side by side on the real
-headline. One family removes the clash the previous two-typeface pairing had;
-the contrast comes from weight instead.
+**Vazirmatn** (Saber Rastikerdar, OFL), variable 100–900, self-hosted as one
+56 KB subset: negakhte's own typeface, the pinned v33.003 amochini vendors.
+
+Two earlier choices failed in front of the owner, and the reasons are rules now:
+- **Nothing lighter than 400.** Thin Persian at display sizes looks fragile
+  and the joins look broken (Estedad Thin, rejected).
+- **Emphasis is colour, never a jump in weight.** A Thin headline with one
+  Black word reads as two fonts that don't match. The key word is the same
+  weight, in oxblood, on the gold highlighter, exactly negakhte's device.
+- **No negative letter-spacing** on Persian: tightening joined script makes
+  letters collide.
+- One family only (a second display face, Markazi, clashed with the text).
 
 | Token | Size | Weight | Use |
 |---|---|---|---|
-| `--t-title` | 64–152px | Thin 200 | one-word section titles («شمع.») |
-| `--t-h1` | 52–104px | Thin 200 | the home headline; long page titles (`h1.long`) |
-| `--t-h2` | 34–56px | Thin 200 | section heads |
+| `--t-title` | 52–108px | Bold 700 | one-word section titles («شمع.») |
+| `--t-h1` | 48–92px | Bold 700 (word 800) | the home headline; long page titles (`h1.long`) |
+| `--t-h2` | 30–46px | Bold 700 | section heads |
 | `--t-h3` | 24px | SemiBold 600 | step titles |
 | `--t-lede` | 18px | Regular 400 | intros |
 | `--t-name` | 17px | Medium 500 | product names on cards |
 | `--t-body` | 15px | Regular 400 | text, UI |
 | `--t-meta` | 13px | Medium 500 | eyebrows, labels |
 
-- **The headline treatment:** Thin 200 with one word in Black 800 oxblood,
-  sitting on a thin gold highlighter («چیزهای کوچکِ **دست‌ساز**»). It's negakhte's
-  own headline device, set in a different face.
-- **Numerals** are Persian (`۴۶۸٬۰۰۰`). Prices use proportional figures:
-  tabular figures give the separator `٬` a full digit width (`۵۷۰ , ۰۰۰`).
-- **Codes** stay Latin and LTR (`S-10`), SemiBold, tracked: they are what
-  people type into a DM.
+Headlines read `--display`, `--w-display` and `--w-strong`, so the face can
+be swapped in two lines. Numerals are Persian (`۴۶۸٬۰۰۰`), proportional (tabular
+figures give `٬` a full digit width). Codes stay Latin and LTR (`S-10`).
 
 ---
 
@@ -85,7 +90,7 @@ the contrast comes from weight instead.
 | Mark | here |
 |---|---|
 | **◆** a small gold square at 45° | after the shop's name, in the header and the giant footer name |
-| **The highlighter** — a thin gold bar low under the words | under the heavy word of the home headline; «تازه» in «به خانهٔ تازه رفتند» |
+| **The highlighter** — a gold bar across the lower part of the word | under «بخواهید» in the home headline; «تازه» in «به خانهٔ تازه رفتند» |
 | **The offset shadow** — hard 4px gold, no blur; lifts on hover | every primary button, and the phone buy bar |
 | **The ornament eyebrow** — a 2rem rule, then small text | above every headline |
 
@@ -113,10 +118,10 @@ the contrast comes from weight instead.
 ## 6. The pages
 
 **Home**
-1. **The sunlit corner.** The empty corner every product was photographed in,
-   full-bleed. The header floats over it. The headline sits on the calm wall
-   (right, as Persian reads), and the three real numbers rest on the stone
-   ledge. On phones a tall version of the same corner.
+1. **The sunlit corner.** The empty corner the products were photographed in,
+   full-bleed, the header floating over it. On its calm wall, kept short: the
+   headline «هر چه **بخواهید**، پیدا می‌کنیم.» (two lines), one line of intro,
+   «دیدن ویترین» and «سفارش ویژه», and two numbers on the stone ledge.
 2. **The vitrine.** Eight collections as tall photos edge to edge. Desktop with
    a mouse: the first pane is open; the one under the pointer widens (flex
    3.1×, 0.7s), closed panes are slightly desaturated with small labels.
@@ -124,11 +129,12 @@ the contrast comes from weight instead.
 3. **The shelf.** Ten pieces in a magazine rhythm on a 12-column grid: one big
    (6 columns × 2 rows) beside four small, then mirrored. Code, name and price
    under each.
-4. **The statement.** The light-on-stone image beside «با دست، **یکی‌یکی.**»
-   and three live counts.
+4. **Special order.** The light-on-stone image beside «چیزی در ذهن **دارید؟**»:
+   if it isn't in the vitrine, say what you want and the shop finds it. With the
+   order buttons (WhatsApp prefilled «سلام! دنبال این هستم:»).
 5. **Ordering.** Three steps with thin oxblood numerals, beside the actual
    message a customer sends (a sample chat bubble).
-6. **Footer.** Ink. Columns, then the shop's name set Thin 100 at up to 240px.
+6. **Footer.** Ink. Columns, then the shop's name set Black 800, very large.
 
 **Section page.** Eyebrow, the one-word title huge and thin with an oxblood
 full stop, intro, counts; the section's mood banner beside it (below it on
@@ -148,8 +154,13 @@ gold shadow), notes with gold ◆ bullets. Phones: a buy bar pinned to the botto
   Content width 1440px; the hero, vitrine, statement and footer bleed full width.
 - **One radius: 2px.** The chat bubble is the one rounded shape: it's a chat bubble.
 - **Shadows: the gold offset only**, plus the menu dropdown's soft shadow.
-- **Motion, each once and quiet:** the hero photo settles (scale 1.06 → 1,
-  2.6s) while the headline lines rise; vitrine panes unveil from the bottom as
-  they scroll into view (scroll-driven, where supported); the pane widening;
-  a 3.5% photo zoom on hover; view-transition cross-fades. All of it is off
-  under `prefers-reduced-motion`, and nothing is hidden at rest.
+- **The entrance, once per visit (about 1.6s):** the photo brightens and
+  settles (scale 1.035 → 1, 3.2s, ease-out); one faint sunbeam passes over the
+  wall; the headline arrives word by word, each rising out of a slight blur
+  (95ms apart); the highlighter then draws under «بخواهید»; intro, buttons and
+  numbers follow. Deliberately quiet, never shiny.
+- **The one thing that keeps moving:** a few specks of dust drifting in the
+  window light (site.js; 18–48 specks, paused off-screen and in hidden tabs).
+- Also: vitrine panes unveil as they scroll in, the pane widening, a 3.5% photo
+  zoom on hover, view-transition cross-fades. All of it is off under
+  `prefers-reduced-motion`, and nothing is hidden at rest.

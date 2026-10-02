@@ -21,7 +21,7 @@ URL map
 import datetime, hashlib, html, json, os, re, shutil, sys, urllib.parse
 
 import catalog as CAT
-from site_config import SITE, CONTACT, HOME, COVERS, BANNERS, HANDMADE
+from site_config import SITE, CONTACT, HOME, COVERS, BANNERS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -188,6 +188,26 @@ def hl(text):
     return f'<span class="hl">{text}</span>'
 
 
+def headline(text, em=None):
+    """The home headline: one line per clause, one span per word (the entrance
+    brings them in one by one, --i is the order), the `em` word in oxblood on the
+    gold highlighter. Punctuation stays inside its word's span so it never wraps
+    away from it."""
+    lines, i = [], 0
+    clauses = text.split("، ")
+    for n, clause in enumerate(clauses):
+        words = clause.split(" ")
+        out = []
+        for k, w in enumerate(words):
+            tail = "،" if (k == len(words) - 1 and n < len(clauses) - 1) else (
+                "." if (k == len(words) - 1 and n == len(clauses) - 1) else "")
+            word = f'<b class="hl">{esc(w)}</b>' if em and w == em else esc(w)
+            out.append(f'<span class="w" style="--i:{i}">{word}{tail}</span>')
+            i += 1
+        lines.append('<span class="ln">' + " ".join(out) + "</span>")
+    return " ".join(lines)
+
+
 def wordmark(cls="wordmark"):
     return f'<a class="{cls}" href="/">{esc(SITE["name_fa"])}<span class="dia" aria-hidden="true"></span></a>'
 
@@ -217,7 +237,7 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
         '<meta name="color-scheme" content="light">',
         '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
         '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
-        '<link rel="preload" href="/assets/fonts/estedad-subset.woff2" as="font" type="font/woff2" crossorigin>',
+        '<link rel="preload" href="/assets/fonts/vazirmatn-subset.woff2" as="font" type="font/woff2" crossorigin>',
         f'<link rel="stylesheet" href="{CSS_URL}">',
         f'<meta property="og:site_name" content="{esc(SITE["name_fa"])}">',
         f'<meta property="og:title" content="{esc(title)}">',
@@ -347,25 +367,18 @@ def home(products, by_code):
     shelf_html = "".join(
         item(p, big=i in big, sizes="(min-width: 900px) 46vw, 100vw" if i in big else
              "(min-width: 900px) 22vw, 46vw") for i, p in enumerate(shelf))
-    line = esc(SITE["tagline"])
-    em = esc(SITE.get("tagline_em") or "")
-    first, _, rest = line.partition("، ")
-    if em and em in first:
-        first = first.replace(em, f'<b class="hl">{em}</b>', 1)
-    counts = {s: len(for_sale([p for p in products if p["category"] == s]))
-              for s in ("candles", "ceramics", "knitted-flowers")}
+    h1 = headline(SITE["tagline"], SITE.get("tagline_em"))
     body = f"""
 <section class="hero">
 {mood("hero-wide", "100vw", cls="hero-bg", eager=True, phone="hero-tall")}
 <canvas class="motes" aria-hidden="true"></canvas>
 <div class="wrap hero-in">
 <div class="hero-copy">
-<p class="eyebrow">دست‌ساز و انتخابی</p>
-<h1 class="hero-h1"><span class="ln">{first}،</span> <span class="ln">{rest}</span></h1>
-<p class="hero-lede">شمع، سفال، گل بافتنی، نقره و هدیه‌های کوچک. هر قطعه یک کد دارد؛ کدش را برای ما بفرستید.</p>
-<div class="hero-cta"><a class="btn btn-pri" href="#collections">دیدن ویترین</a><a class="btn" href="#order">چطور سفارش بدهم؟</a></div>
+<h1 class="hero-h1">{h1}</h1>
+<p class="hero-lede">شمع، سفال، نقره، عطر و هدیه؛ و هر چیزی که دنبالش باشید.</p>
+<div class="hero-cta"><a class="btn btn-pri" href="#collections">دیدن ویترین</a><a class="btn" href="#ask">سفارش ویژه</a></div>
 </div>
-<dl class="hero-stats"><div><dt>قطعه برای فروش</dt><dd>{fa(total)}</dd></div><div><dt>مجموعه</dt><dd>{fa(len(CAT.CATEGORIES))}</dd></div><div><dt>به خانهٔ تازه رفته</dt><dd>{fa(sold)}</dd></div></dl>
+<dl class="hero-stats"><div><dt>قطعه در ویترین</dt><dd>{fa(total)}</dd></div><div><dt>مجموعه</dt><dd>{fa(len(CAT.CATEGORIES))}</dd></div></dl>
 </div>
 </section>
 
@@ -381,13 +394,13 @@ def home(products, by_code):
 <ul class="ed">{shelf_html}</ul>
 </section>
 
-<section class="state" aria-labelledby="h-state">
+<section class="state" id="ask" aria-labelledby="h-ask">
 {mood("light-ledge", "(min-width: 900px) 50vw, 100vw", cls="state-ph")}
 <div class="state-tx">
-<p class="eyebrow">دست‌ساز</p>
-<h2 id="h-state">با دست،<br><b>یکی‌یکی.</b></h2>
-<p>شمع‌های آیشید، سفالِ لعاب‌دار و گل‌هایی که دانه‌به‌دانه با قلاب بافته شده‌اند. بیشترشان یک بار ساخته می‌شوند؛ وقتی رفتند، رفته‌اند.</p>
-{nums([("شمع", counts["candles"]), ("سفال", counts["ceramics"]), ("گل بافتنی", counts["knitted-flowers"])])}
+<p class="eyebrow">سفارش ویژه</p>
+<h2 id="h-ask">چیزی در ذهن <b>دارید؟</b></h2>
+<p>اگر آن را در ویترین ندیدید، بگویید چه می‌خواهید؛ پیدایش می‌کنیم و خبرتان می‌کنیم.</p>
+{channel_buttons("سلام! دنبال این هستم:")}
 </div>
 </section>
 
@@ -455,8 +468,6 @@ def product_page(p, products):
     if SITE["url"]:
         message += "\n" + abs_url(p["url"])
     notes = []
-    if p["category"] in HANDMADE:
-        notes.append("دست‌ساز است و هر قطعه فقط یکی؛ ممکن است با عکس کمی تفاوت داشته باشد.")
     if p["status"] == "day":
         notes.append("قیمت نقره هر روز تغییر می‌کند؛ قیمتِ امروز را در پیام می‌گوییم.")
     notes.append("کد را بفرستید؛ موجودی، پرداخت و ارسال را همان‌جا هماهنگ می‌کنیم.")
@@ -512,9 +523,8 @@ def about_page():
         items += f'<li>نشانی: {esc(CONTACT["address"])}</li>'
     if CONTACT["hours"]:
         items += f'<li>ساعت کار: {esc(CONTACT["hours"])}</li>'
-    intro = ("یک فروشگاه کوچک برای چیزهایی که دوست داریم: شمع‌های دست‌ساز، سفالِ لعاب‌دار، "
-             "گل‌هایی که با قلاب بافته شده‌اند، نقره، و چند هدیهٔ کوچک. هر قطعه را جدا انتخاب "
-             "کرده‌ایم و جدا عکس گرفته‌ایم، در نور آفتابِ عصر.")
+    intro = ("یک کانسپت‌استورِ کوچک: شمع، سفال، گل بافتنی، نقره، آرایشی و هدیه. "
+             "اگر چیزی را اینجا ندیدید، بپرسید؛ برایتان پیدایش می‌کنیم.")
     contact = (f"<ul class='contact-list'>{items}</ul>" if items
                else "<p class='sec-aside'>راه‌های تماس به‌زودی اینجا می‌آید.</p>")
     body = f"""

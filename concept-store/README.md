@@ -1,14 +1,16 @@
 # Concept store (name to come)
 
-Static site for a small Iranian concept store: Ayshid's handmade candles,
+Static site for a small Iranian concept store: candles,
 ceramics, crochet flowers, silver, Nixgel / Niura / ELORA beauty, incense,
 spices, stickers and postcards. Persian, right-to-left, phone-first.
 
 It belongs to the same house as `negakhte_main`, and is designed to *feel* it
 without saying it: negakhte's palette (paper, ink, oxblood, gold) used in small
 doses, and its marks: the gold ◆ after the name, the gold highlighter, and the
-hard gold offset shadow on buttons. One typeface, Estedad. The home page opens
-on the sunlit corner the products were photographed in. See [DESIGN.md](DESIGN.md).
+hard gold offset shadow on buttons. One typeface, negakhte's Vazirmatn. The home
+page opens on the sunlit corner the products were photographed in. The shop
+sells whatever customers ask for, so it is not presented as a handmade store.
+See [DESIGN.md](DESIGN.md).
 
 **170 pages from 179 catalogue rows:** home, 8 sections, 159 product pages,
 about and 404. No framework, no npm: Python 3.8+ with Pillow, numpy and
@@ -85,7 +87,7 @@ or step by step:
 ```sh
 python build/import_lists.py --force   # spreadsheets → data/products.source.json (overwrites edits!)
 python build/make_images.py            # masters → AVIF + WebP renditions (incremental)
-python build/make_font.py              # the Estedad subset
+python build/make_font.py              # the Vazirmatn subset
 python build/make_icons.py             # favicon.svg + apple-touch-icon.png
 python build/build.py                  # data → public/   (~1 second)
 python build/validate.py               # must end with "build is valid"
@@ -182,7 +184,7 @@ Measured from `public/`:
 | section HTML (candles) | 27.1 KB | 3.7 KB |
 | product HTML | 8.8 KB | 2.4 KB |
 | site.css / site.js | 23.3 / 2.4 KB | 6.0 / 1.1 KB |
-| font (once, cached) | 49 KB | — |
+| font (once, cached) | 56 KB | — |
 | home background | 19 KB on phones, 52 KB on desktop (AVIF) | — |
 
 A grid tile is 8–17 KB as AVIF at phone sizes. Images are lazy below the fold;
@@ -194,6 +196,6 @@ is reviewable next to its source.
 
 ## Licence
 
-Content and photographs belong to the shop. Estedad (Amin Abedi) is SIL OFL
-1.1; its licence ships next to the font in `public/assets/fonts/` and must stay
-with it.
+Content and photographs belong to the shop. Vazirmatn (Saber Rastikerdar) is
+SIL OFL 1.1; its licence ships next to the font in `public/assets/fonts/` and
+must stay with it.

@@ -14,9 +14,11 @@ SITE = {
     "name_en": "Concept Store",
     "name_is_placeholder": True,
 
-    "tagline": "چیزهای کوچکِ دست‌ساز، یکی‌یکی انتخاب‌شده",
-    "tagline_em": "دست‌ساز",      # the word the home page sets in gold
-    "description": ("شمع دست‌ساز، سفال، گل بافتنی، نقره، آرایشی و هدیه‌های کوچک. "
+    # The shop sells whatever customers ask for, not only handmade pieces, so
+    # nothing on the site positions it as a handmade store.
+    "tagline": "هر چه بخواهید، پیدا می‌کنیم",
+    "tagline_em": "بخواهید",      # the word the home headline sets in oxblood
+    "description": ("شمع، سفال، گل بافتنی، نقره، عطر و هدیه؛ و هر چیزی که دنبالش باشید. "
                     "هر قطعه یک کد دارد؛ کد را بفرستید تا هماهنگ کنیم."),
 
     # The domain, e.g. "https://example.ir" — no trailing slash, no folder.
@@ -80,6 +82,3 @@ BANNERS = {
     "spices": "hero-wide",
 }
 
-# Sections whose pieces are made by hand, one at a time. Their product pages
-# say so, and that the piece may differ slightly from the photo.
-HANDMADE = {"candles", "ceramics", "knitted-flowers"}
