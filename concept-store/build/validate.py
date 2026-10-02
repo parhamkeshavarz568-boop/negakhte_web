@@ -69,10 +69,18 @@ def html_files():
                 yield os.path.join(dp, fn)
 
 
+BASE = "/" + (SITE.get("base") or "/").strip("/")
+BASE = "" if BASE == "/" else BASE
+
+
 def resolve(ref):
     path = ref.split("#")[0].split("?")[0]
     if not path:
         return True
+    if BASE:
+        if not path.startswith(BASE + "/"):
+            return False          # a root-absolute link that missed the deploy folder
+        path = path[len(BASE):]
     full = os.path.join(PUBLIC, path.lstrip("/"))
     return os.path.isfile(full) or os.path.isfile(os.path.join(full, "index.html"))
 
@@ -168,14 +176,27 @@ def main():
 
     # colour pairs that carry text — WCAG AA 4.5:1
     css = open(os.path.join(HERE, "assets", "site.css"), encoding="utf-8").read()
-    tok = dict(re.findall(r"--([a-z0-9-]+):\s*(#[0-9a-f]{6})", css))
+    tok = {k: v.lower() for k, v in re.findall(r"--([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})", css)}
+    # every pair that carries text, on every ground it appears on
     for fg, bg in (("ink", "ground"), ("ink-2", "ground"), ("ink-2", "ground-2"), ("ink", "ground-2"),
-                   ("clay", "ground"), ("ground", "clay"), ("ground", "clay-deep"), ("ground", "ink")):
+                   ("gold-ink", "ground"), ("oxblood", "ground"), ("ground", "oxblood"),
+                   ("ground", "oxblood-deep"), ("ground", "ink"), ("ink", "paper"),
+                   ("ground", "wine"), ("gold-light", "wine"), ("ground", "teal"),
+                   ("gold-light", "teal"), ("ink", "gold")):
         r = contrast(tok[fg], tok[bg])
         if r < 4.5:
             errors.append(f"contrast --{fg} on --{bg} is {r:.2f}:1 (< 4.5)")
 
+    # the server config ships, and its 404 rule points inside the deploy folder
+    ht = os.path.join(PUBLIC, ".htaccess")
+    if not os.path.isfile(ht):
+        errors.append("public/.htaccess missing")
+    elif f"ErrorDocument 404 {BASE}/404.html" not in open(ht, encoding="utf-8").read():
+        errors.append(".htaccess 404 rule does not match SITE['base']")
+
     blockers = []
+    if not SITE.get("launch"):
+        blockers.append("preview mode: every page says noindex — site_config.SITE['launch'] = True on launch day")
     if SITE.get("name_is_placeholder"):
         blockers.append(f"shop name is a placeholder («{SITE['name_fa']}») — site_config.SITE")
     if not any(CONTACT[k] for k in ("instagram", "telegram", "whatsapp", "phone")):

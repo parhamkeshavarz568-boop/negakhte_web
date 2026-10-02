@@ -4,13 +4,21 @@ Static site for a small Iranian concept store: Ayshid's handmade candles,
 ceramics, crochet flowers, silver, Nixgel / Niura / ELORA beauty, incense,
 spices, stickers and postcards. Persian, right-to-left, phone-first.
 
+It belongs to the same house as `negakhte_main`, and is designed to *feel* it
+without saying it: negakhte's exact palette (cream, ink, oxblood, gold, teal)
+and its marks — the gold ◆ after the name, the gold highlighter under
+headings, the hard gold offset shadow on buttons. See [DESIGN.md](DESIGN.md) §2–3.
+
 **170 pages from 179 catalogue rows:** home, 8 sections, 159 product pages,
 about and 404. No framework, no npm: Python 3.8+ with Pillow, numpy and
 fontTools (plus `brotli` for the font step).
 
-> **Not ready to go live.** The shop's name, its contact channels and its
-> domain were not in the export. `validate.py` lists them on every run. The
-> owner's checklist (in Persian) is [docs/REVIEW-FA.md](docs/REVIEW-FA.md).
+> **Upload-ready, in preview mode.** `dist/concept-store-upload.zip` can go on
+> a host today, and every page says `noindex` until launch. The shop's name,
+> contact channels and domain were not in the export; `validate.py` lists them
+> as launch blockers on every run. Owner's checklist (Persian):
+> [docs/REVIEW-FA.md](docs/REVIEW-FA.md). Upload guide (Persian):
+> [docs/UPLOAD-FA.md](docs/UPLOAD-FA.md).
 
 ## Run it on your laptop
 
@@ -62,7 +70,7 @@ Four priced rows with no name were named from their photo and flagged.
 ## Build
 
 ```sh
-sh build/all.sh            # everything: import → images → fonts → pages → checks
+sh build/all.sh            # everything: import → images → fonts → icons → pages → checks → zip
 ```
 
 or step by step:
@@ -71,17 +79,47 @@ or step by step:
 python build/import_lists.py --force   # spreadsheets → data/products.source.json (overwrites edits!)
 python build/make_images.py            # masters → AVIF + WebP renditions (incremental)
 python build/make_font.py              # Markazi Text + Vazirmatn subsets
+python build/make_icons.py             # favicon.svg + apple-touch-icon.png
 python build/build.py                  # data → public/   (~1 second)
 python build/validate.py               # must end with "build is valid"
+python build/make_upload.py            # validate, then public/ → dist/concept-store-upload.zip
 ```
 
-Then upload the **contents of `public/`** to the web root.
+## Deploy
+
+1. `python build/make_upload.py` → `dist/concept-store-upload.zip` (51 MB,
+   1,716 files). It refuses to package a build that fails validation.
+2. Upload it into `public_html/` and **Extract there**. The zip holds the
+   *contents* of `public/`, so `index.html` and `.htaccess` land at the root.
+3. Check: home opens on the wine entrance; `/xyz/` shows «این قفسه خالی است»
+   (the `.htaccess` 404 rule works); `/candles` redirects to `/candles/`.
+
+Step by step in Persian, with cPanel / DirectAdmin / FileZilla:
+[docs/UPLOAD-FA.md](docs/UPLOAD-FA.md).
+
+**In a folder instead of the root** (say `example.ir/shop/`): set
+`SITE["base"] = "/shop/"`, rebuild, and extract into `public_html/shop/`. Every
+link, image, srcset, font and the 404 rule follow that one value; this was
+tested by serving a `/shop/` build from a real `shop/` folder.
+
+**Launch day:** fill in `SITE` (name, `url`) and `CONTACT` in
+`build/site_config.py`, set `SITE["launch"] = True` (drops the `noindex`),
+rebuild, `make_upload.py`, upload again. `validate.py`'s blocker list should be
+empty.
+
+`.htaccess` (from `build/templates/htaccess.tpl`) sets caching (a year for
+images, fonts and the `?v=`-fingerprinted CSS/JS; HTML always revalidated),
+gzip/brotli, the AVIF MIME type many hosts still lack, the trailing-slash
+redirect, www → bare domain, and plain security headers. HTTPS is **not**
+forced: forcing it on a host without a certificate takes the site down. The
+template explains the safe order. nginx ignores `.htaccess`; the site still
+works there, without those extras.
 
 ## How to change things
 
 | To change | Edit | Then |
 |---|---|---|
-| name, phone, Instagram, domain, address | `build/site_config.py` | `build.py` |
+| name, phone, Instagram, domain, address, folder, launch | `build/site_config.py` | `build.py` |
 | a price, mark sold, rename a piece | `build/data/products.source.json` | `build.py` |
 | which pieces are on the home page / section covers | `build/site_config.py` (`HOME`, `COVERS`) | `build.py` |
 | section names and intros, spelling rules | `build/catalog.py` | `build.py` |
@@ -133,16 +171,16 @@ Measured from `public/`:
 
 | | raw | gzip |
 |---|---|---|
-| home HTML | 20.2 KB | 3.7 KB |
-| section HTML (candles) | 27.5 KB | 3.6 KB |
-| product HTML | 11.5 KB | 2.7 KB |
-| site.css / site.js | 15.5 / 1.8 KB | 4.3 / 0.9 KB |
+| home HTML | 21.7 KB | 3.8 KB |
+| section HTML (candles) | 27.7 KB | 3.6 KB |
+| product HTML | 11.7 KB | 2.7 KB |
+| site.css / site.js | 21.8 / 2.2 KB | 5.9 / 1.0 KB |
 | fonts (once, cached) | 46 + 56 KB | — |
 
 A grid tile is 8–17 KB as AVIF at phone sizes. Images are lazy below the fold;
 the hero photo is `fetchpriority="high"`.
 
-The repo cost: `public/` is 52 MB (1,714 files, almost all images) and the
+The repo cost: `public/` is 52 MB (1,716 files, almost all images) and the
 masters are 57 MB. It is committed, like amochini's, so the uploadable output
 is reviewable next to its source.
 

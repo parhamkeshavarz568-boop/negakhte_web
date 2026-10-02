@@ -15,12 +15,22 @@ SITE = {
     "name_is_placeholder": True,
 
     "tagline": "چیزهای کوچکِ دست‌ساز، یکی‌یکی انتخاب‌شده",
+    "tagline_em": "دست‌ساز",      # the word the home page sets in gold
     "description": ("شمع دست‌ساز، سفال، گل بافتنی، نقره، آرایشی و هدیه‌های کوچک. "
                     "هر قطعه یک کد دارد؛ کد را بفرستید تا هماهنگ کنیم."),
 
-    # e.g. "https://example.ir" — no trailing slash. None = not decided yet:
-    # canonical / og:url / sitemap.xml are left out rather than pointed at a guess.
+    # The domain, e.g. "https://example.ir" — no trailing slash, no folder.
+    # None = not decided yet: canonical / og:url / sitemap.xml are left out
+    # rather than pointed at a guess.
     "url": None,
+    # The folder the site lives in on that domain. "/" when public/ is the web
+    # root; "/shop/" if it is uploaded into a folder called shop. Every link,
+    # image and the 404 rule follow this one value.
+    "base": "/",
+    # False = preview: every page says noindex, so an upload made before the
+    # name and contacts are final cannot end up in Google under a placeholder.
+    # Set True on launch day; validate.py lists it until then.
+    "launch": False,
     "locale": "fa_IR",
 }
 

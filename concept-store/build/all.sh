@@ -6,6 +6,7 @@ cd "$(dirname "$0")"
 python import_lists.py --force
 python make_images.py
 python make_font.py
+python make_icons.py
 python review_sheet.py
 python build.py
-python validate.py
+python make_upload.py      # runs validate.py first; writes dist/concept-store-upload.zip

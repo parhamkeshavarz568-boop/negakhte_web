@@ -18,7 +18,7 @@ URL map
     /about/                    about, how to order, contact
     /404.html
 """
-import datetime, hashlib, html, json, os, shutil, sys, urllib.parse
+import datetime, hashlib, html, json, os, re, shutil, sys, urllib.parse
 
 import catalog as CAT
 from site_config import SITE, CONTACT, HOME, COVERS, HANDMADE
@@ -27,6 +27,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 PUBLIC = os.path.join(ROOT, "public")
 ASSETS = os.path.join(HERE, "assets")
+
+# The deploy folder: "" when public/ is the web root, "/shop" for a subfolder.
+BASE = "/" + (SITE.get("base") or "/").strip("/")
+BASE = "" if BASE == "/" else BASE
 
 esc = html.escape
 Z = "‌"   # ZWNJ, for the few strings assembled from parts
@@ -165,7 +169,30 @@ def channel_buttons(message=None):
 
 
 def abs_url(path):
-    return SITE["url"] + path if SITE["url"] else None
+    return SITE["url"] + BASE + path if SITE["url"] else None
+
+
+def rebase(text):
+    """Pages are written with root-absolute paths (/assets/…, /candles/). When the
+    site is deployed into a folder, prefix every one of them with it — href, src,
+    each srcset candidate, and the prefetch rule — in one place."""
+    if not BASE:
+        return text
+    text = re.sub(r'(href|src)="/(?!/)', rf'\1="{BASE}/', text)
+    text = re.sub(r'srcset="([^"]*)"',
+                  lambda m: 'srcset="' + re.sub(r'(^|,\s*)/(?!/)', lambda n: n.group(1) + BASE + "/",
+                                                m.group(1)) + '"', text)
+    return text.replace('"href_matches":"/*"', f'"href_matches":"{BASE}/*"')
+
+
+def hl(text):
+    """negakhte's highlighter: a gold bar under the lower half of the words."""
+    return f'<span class="hl">{text}</span>'
+
+
+def wordmark():
+    return (f'<a class="wordmark" href="/">{MARK}<span>{esc(SITE["name_fa"])}</span>'
+            f'<span class="diamond" aria-hidden="true"></span></a>')
 
 
 # ------------------------------------------------------------------ shell
@@ -180,9 +207,11 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
         f"<title>{esc(title)}</title>",
         f'<meta name="description" content="{esc(desc)}">',
-        '<meta name="theme-color" content="#f5eee4">',
+        # the phone's browser bar takes the colour of the top of the page
+        f'<meta name="theme-color" content="{"#3F1610" if "is-home" in body_class else "#F5EFE6"}">',
         '<meta name="color-scheme" content="light">',
         '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
+        '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
         '<link rel="preload" href="/assets/fonts/markazi-subset.woff2" as="font" type="font/woff2" crossorigin>',
         '<link rel="preload" href="/assets/fonts/vazirmatn-subset.woff2" as="font" type="font/woff2" crossorigin>',
         f'<link rel="stylesheet" href="{CSS_URL}">',
@@ -192,6 +221,8 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
         f'<meta property="og:locale" content="{SITE["locale"]}">',
         '<meta property="og:type" content="website">',
     ]
+    if not SITE.get("launch"):
+        head.append('<meta name="robots" content="noindex">')    # preview — see site_config
     if url:
         head.append(f'<link rel="canonical" href="{url}">')
         head.append(f'<meta property="og:url" content="{url}">')
@@ -238,7 +269,7 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
 <a class="skip" href="#main">رفتن به محتوا</a>
 <header class="masthead">
 <div class="wrap masthead-in">
-<a class="wordmark" href="/">{MARK}<span>{esc(SITE["name_fa"])}</span></a>
+{wordmark()}
 <nav class="nav" aria-label="اصلی">{nav}</nav>
 </div>
 </header>
@@ -248,7 +279,7 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
 </main>
 <footer class="foot">
 <div class="wrap foot-in">
-<div class="foot-brand"><a class="wordmark" href="/">{MARK}<span>{esc(SITE["name_fa"])}</span></a>
+<div class="foot-brand">{wordmark()}
 <p>{esc(SITE["tagline"])}</p></div>
 <div><h2>مجموعه‌ها</h2><ul>{sections}</ul></div>
 {foot_contact}
@@ -293,38 +324,51 @@ def home(products, by_code):
             f'<span class="tile-count">{count_label(len(for_sale(ps)))}</span></a></li>')
     total = len(for_sale(products))
     main, a, b = hero
+    line = esc(SITE["tagline"])
+    em = esc(SITE.get("tagline_em") or "")
+    if em and em in line:
+        line = line.replace(em, f"<em>{em}</em>", 1)
+
+    def print_(p, cls, sizes, eager=False):
+        return (f'<a class="print {cls}" href="{p["url"]}">{picture(p, "card", sizes, eager=eager)}'
+                f'<span class="print-cap">{esc(p["name"])}</span></a>')
+
+    # the shelf label: every section, twice over, so the strip can loop seamlessly
+    labels = "".join(f"<span>{c['fa']}</span>" for c in CAT.CATEGORIES)
     body = f"""
-<section class="hero">
+<section class="hero on-dark">
 {light("hero")}
 <div class="wrap hero-in">
 <div class="hero-text">
-<p class="eyebrow">دست‌ساز و انتخابی · {CAT.fa_digits(total)} قطعه برای فروش</p>
-<h1 class="hero-name">{esc(SITE["name_fa"])}</h1>
-<p class="hero-line">{esc(SITE["tagline"])}؛ شمع، سفال، گل بافتنی، نقره و هدیه‌های کوچک.</p>
+<p class="eyebrow">{"" if SITE.get("name_is_placeholder") else "کانسپت‌استور · "}دست‌ساز و انتخابی</p>
+<h1 class="hero-name">{esc(SITE["name_fa"])}<span class="diamond" aria-hidden="true"></span></h1>
+<p class="hero-line">{line}؛ شمع، سفال، گل بافتنی، نقره و هدیه‌های کوچک.</p>
 <div class="hero-cta"><a class="btn btn-primary" href="#collections">دیدن مجموعه‌ها</a><a class="btn" href="/about/#order">چطور سفارش بدهم؟</a></div>
+<p class="hero-count">{CAT.fa_digits(total)} قطعه برای فروش، در {CAT.fa_digits(len(CAT.CATEGORIES))} مجموعه</p>
 </div>
 <div class="hero-shelf">
-<a class="hero-main" href="{main["url"]}">{picture(main, "card", "(min-width: 900px) 34vw, 92vw", eager=True)}<span class="hero-cap">{esc(main["name"])}</span></a>
-<a class="hero-side hero-a" href="{a["url"]}">{picture(a, "card", "(min-width: 900px) 16vw, 44vw")}</a>
-<a class="hero-side hero-b" href="{b["url"]}">{picture(b, "card", "(min-width: 900px) 16vw, 44vw")}</a>
+{print_(main, "hero-main", "(min-width: 900px) 30vw, 88vw", eager=True)}
+{print_(a, "hero-side hero-a", "(min-width: 900px) 17vw, 44vw")}
+{print_(b, "hero-side hero-b", "(min-width: 900px) 16vw, 44vw")}
 </div>
 </div>
 </section>
+<div class="marquee" aria-hidden="true"><div class="marquee-track">{labels}{labels}{labels}{labels}</div></div>
 
 <section class="wrap block" id="collections" aria-labelledby="h-collections">
-<div class="block-head"><h2 id="h-collections">مجموعه‌ها</h2><p>هشت قفسه؛ از شمع و سفال تا عود و ادویه.</p></div>
+<div class="block-head"><h2 id="h-collections">{hl("مجموعه‌ها")}</h2><p>هشت قفسه؛ از شمع و سفال تا عود و ادویه.</p></div>
 <ul class="tiles">{"".join(tiles)}</ul>
 </section>
 
 <section class="wrap block" aria-labelledby="h-shelf">
-<div class="block-head"><h2 id="h-shelf">از قفسه‌ها</h2><p>چند قطعه از هر مجموعه.</p></div>
+<div class="block-head"><h2 id="h-shelf">{hl("از قفسه‌ها")}</h2><p>چند قطعه از هر مجموعه.</p></div>
 <ul class="grid">{"".join(card(p) for p in shelf)}</ul>
 </section>
 
-<section class="order-band" id="order" aria-labelledby="h-order">
+<section class="order-band on-dark" id="order" aria-labelledby="h-order">
 {light("band")}
 <div class="wrap">
-<div class="block-head"><h2 id="h-order">سفارش، در سه قدم</h2><p>سبد خرید نداریم؛ هر قطعه را با کدش سفارش می‌دهید و ما جواب می‌دهیم.</p></div>
+<div class="block-head"><h2 id="h-order">{hl("سفارش، در سه قدم")}</h2><p>سبد خرید نداریم؛ هر قطعه را با کدش سفارش می‌دهید و ما جواب می‌دهیم.</p></div>
 {order_steps()}
 {channel_buttons()}
 </div>
@@ -351,7 +395,7 @@ def section_page(c, products):
     if sold:
         sold_html = f"""
 <section class="wrap block block-sold" aria-labelledby="h-sold">
-<div class="block-head"><h2 id="h-sold">به خانهٔ تازه رفتند</h2><p>{CAT.fa_digits(len(sold))} قطعه از این قفسه فروخته شده. اگر مشابهش را می‌خواهید، بپرسید.</p></div>
+<div class="block-head"><h2 id="h-sold">{hl("به خانهٔ تازه رفتند")}</h2><p>{CAT.fa_digits(len(sold))} قطعه از این قفسه فروخته شده. اگر مشابهش را می‌خواهید، بپرسید.</p></div>
 <ul class="grid grid-sold">{"".join(card(p) for p in sold)}</ul>
 </section>"""
     summary = count_label(len(live)) + (f" · {CAT.fa_digits(len(sold))} فروخته‌شده" if sold else "")
@@ -360,7 +404,7 @@ def section_page(c, products):
 {light("head")}
 <div class="wrap">
 <p class="eyebrow">{summary}</p>
-<h1>{c["fa"]}</h1>
+<h1>{hl(c["fa"])}</h1>
 <p class="sec-intro">{esc(c["intro"])}</p>
 </div>
 </header>
@@ -396,7 +440,7 @@ def product_page(p, products):
     if related:
         rel_html = f"""
 <section class="wrap block" aria-labelledby="h-more">
-<div class="block-head"><h2 id="h-more">باز هم از {c["fa"]}</h2><p><a href="/{c["slug"]}/">همهٔ {count_label(len(same))}</a></p></div>
+<div class="block-head"><h2 id="h-more">{hl("باز هم از " + c["fa"])}</h2><p><a href="/{c["slug"]}/">همهٔ {count_label(len(same))}</a></p></div>
 <ul class="grid">{"".join(card(q) for q in related)}</ul>
 </section>"""
     body = f"""
@@ -449,17 +493,17 @@ def about_page():
 {light("head")}
 <div class="wrap">
 <p class="eyebrow">درباره</p>
-<h1>{esc(SITE["name_fa"])}</h1>
+<h1>{hl(esc(SITE["name_fa"]))}</h1>
 <p class="sec-intro">یک فروشگاه کوچک برای چیزهایی که دوست داریم: شمع‌های دست‌ساز، سفالِ لعاب‌دار، گل‌هایی که با قلاب بافته شده‌اند، نقره، و چند هدیهٔ کوچک. هر قطعه را جدا انتخاب کرده‌ایم و جدا عکس گرفته‌ایم، در همان گوشهٔ آفتاب‌گیری که در همهٔ عکس‌ها می‌بینید.</p>
 </div>
 </header>
 <section class="wrap block" id="order" aria-labelledby="h-order">
-<div class="block-head"><h2 id="h-order">سفارش، در سه قدم</h2><p>سبد خرید نداریم؛ هر قطعه را با کدش سفارش می‌دهید.</p></div>
+<div class="block-head"><h2 id="h-order">{hl("سفارش، در سه قدم")}</h2><p>سبد خرید نداریم؛ هر قطعه را با کدش سفارش می‌دهید.</p></div>
 {order_steps()}
 {channel_buttons()}
 </section>
 <section class="wrap block" id="contact" aria-labelledby="h-contact">
-<div class="block-head"><h2 id="h-contact">تماس</h2></div>
+<div class="block-head"><h2 id="h-contact">{hl("تماس")}</h2></div>
 {"<ul class='contact-list'>" + contact_items + "</ul>" if contact_items else "<p class='hint'>راه‌های تماس به‌زودی اینجا می‌آید.</p>"}
 </section>
 """
@@ -474,7 +518,7 @@ def not_found():
 {light("head")}
 <div class="wrap">
 <p class="eyebrow">۴۰۴</p>
-<h1>این قفسه خالی است</h1>
+<h1>{hl("این قفسه خالی است")}</h1>
 <p class="sec-intro">صفحه‌ای که دنبالش بودید اینجا نیست؛ شاید قطعه‌اش فروخته شده. از مجموعه‌ها شروع کنید:</p>
 <ul class="chips-plain">{"".join(f'<li><a class="btn" href="/{c["slug"]}/">{c["fa"]}</a></li>' for c in CAT.CATEGORIES)}</ul>
 </div>
@@ -489,6 +533,8 @@ def write(path, text):
     if path.endswith("/"):
         full = os.path.join(full, "index.html")
     os.makedirs(os.path.dirname(full), exist_ok=True)
+    if full.endswith(".html"):
+        text = rebase(text)
     with open(full, "w", encoding="utf-8", newline="\n") as f:
         f.write(text)
 
@@ -518,8 +564,12 @@ def main():
     os.makedirs(os.path.join(PUBLIC, "assets"), exist_ok=True)
     for name in ("site.css", "site.js"):
         shutil.copyfile(os.path.join(ASSETS, name), os.path.join(PUBLIC, "assets", name))
-    shutil.copyfile(os.path.join(ASSETS, "favicon.svg"), os.path.join(PUBLIC, "favicon.svg"))
+    for name in ("favicon.svg", "apple-touch-icon.png"):
+        shutil.copyfile(os.path.join(ASSETS, name), os.path.join(PUBLIC, name))
     CSS_URL, JS_URL = asset_url("site.css"), asset_url("site.js")
+    with open(os.path.join(HERE, "templates", "htaccess.tpl"), encoding="utf-8") as f:
+        htaccess = f.read().replace("__BASE__", BASE).replace("__NAME__", SITE["name_en"])
+    write("/.htaccess", htaccess)
 
     write("/", home(products, by_code))
     for c in CAT.CATEGORIES:

@@ -2,3 +2,6 @@
 # in the repo next to its source.
 *.pyc
 __pycache__/
+
+# the upload package is rebuilt from public/ by build/make_upload.py
+dist/
