@@ -394,14 +394,17 @@ The page reads as a slow walk, not a brochure:
 | # | Section | Kind | Picture |
 |---|---|---|---|
 | 1 | «تغییر از خودمون شروع می‌شه.» | hero | `ripples-wide` / `ripples-tall` (phones): one drop, rings spreading |
-| 2 | «نگاخته یه خانواده‌ست، نه یه مطب.» | light scene | `sunlit-corner-wide` / `-tall`, shared with the concept store on purpose |
-| 3 | group therapy | scene + page | `orosi-light`, then `tea-circle` «یه جا برای تو خالیه.» |
+| 2 | «نگاخته یه خانواده‌ست، نه یه مطب.» | page | `tea-circle` «یه جا برای تو خالیه.» |
+| 3 | group therapy | scene + page | `orosi-light`, then the words alone |
 | 4 | a session | scene + page | `cushion-circle`; facts, three moments, `seashell` «لازم نیست حرف بزنی» |
 | 5 | worries | page | `door-ajar`, held in place while the questions scroll |
 | 6 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
 | 7 | the rest of the family | page | `mirror` (tests), `pomegranate` (charity), `fern-spiral` (other) |
 | 8 | how it starts | scene + page | `stepping-stones`; three steps |
 | 9 | who runs the groups, contact | pages | `two-glasses` |
+
+The concept store's pictures stay on the concept store: its sunlit corner was
+tried here and taken out at the owner's request.
 
 **No people, by rule.** That means no face, hand or silhouette, and no
 reflection of one: check frames, mirrors and glass in any replacement. The

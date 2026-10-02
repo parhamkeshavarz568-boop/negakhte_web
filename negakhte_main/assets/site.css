@@ -250,24 +250,9 @@ h3       { font-size: clamp(21px, 1.9vw, 26px); font-weight: 700; line-height: 1
 .scene-cap { margin: 0; color: rgba(243, 234, 218, .78); }
 .scene-cap::before { background: var(--gold-bright); }
 
-/* the light scene: dark words on a sunlit wall */
-.scene.is-light { background: var(--paper); color: var(--ink); align-items: center; }
-.scene.is-light::after {
-  background: linear-gradient(to left, rgba(245, 238, 226, .94) 0%, rgba(245, 238, 226, .72) 34%, rgba(245, 238, 226, 0) 64%);
-}
-.scene.is-light .shell { padding-block: 140px; grid-template-columns: minmax(0, 1fr); }
-.scene.is-light .eyebrow { color: var(--gold-ink); }
-.scene.is-light .title { color: var(--ink); max-width: 11em; }
-.scene.is-light .lede { margin-top: 26px; }
-
 @media (max-width: 760px) {
   .scene { min-height: 78svh; }
   .scene .shell { grid-template-columns: minmax(0, 1fr); gap: 22px; padding-bottom: 48px; }
-  .scene.is-light { align-items: end; }
-  .scene.is-light::after {
-    background: linear-gradient(to top, rgba(245, 238, 226, .96) 0%, rgba(245, 238, 226, .8) 46%, rgba(245, 238, 226, 0) 78%);
-  }
-  .scene.is-light .shell { padding-block: 120px 56px; }
 }
 
 /* ── a page: paper and air ────────────────────────────────── */
@@ -287,6 +272,10 @@ section[id], .page[id] { scroll-margin-top: calc(var(--head) - 1px); }
 .pull p { margin: 0 0 12px; color: var(--ink-mute); font-size: 16.5px; }
 .pull blockquote { margin: 0; font-size: clamp(25px, 2.7vw, 38px); font-weight: 700; line-height: 1.55; color: var(--ink); }
 .pull blockquote span { color: var(--gold-ink); }
+
+.duo.words { align-items: end; }
+.duo.words .pull { margin-top: 0; }
+@media (max-width: 900px) { .duo.words .pull { margin-top: 48px; } }
 
 .fig { margin: 0; }
 .fig .ph { overflow: hidden; border-radius: 3px; background: var(--paper-2); }
