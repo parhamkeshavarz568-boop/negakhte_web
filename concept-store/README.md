@@ -5,9 +5,10 @@ ceramics, crochet flowers, silver, Nixgel / Niura / ELORA beauty, incense,
 spices, stickers and postcards. Persian, right-to-left, phone-first.
 
 It belongs to the same house as `negakhte_main`, and is designed to *feel* it
-without saying it: negakhte's exact palette (cream, ink, oxblood, gold, teal)
-and its marks — the gold ◆ after the name, the gold highlighter under
-headings, the hard gold offset shadow on buttons. See [DESIGN.md](DESIGN.md) §2–3.
+without saying it: negakhte's palette (paper, ink, oxblood, gold) used in small
+doses, and its marks: the gold ◆ after the name, the gold highlighter, and the
+hard gold offset shadow on buttons. One typeface, Estedad. The home page opens
+on the sunlit corner the products were photographed in. See [DESIGN.md](DESIGN.md).
 
 **170 pages from 179 catalogue rows:** home, 8 sections, 159 product pages,
 about and 404. No framework, no npm: Python 3.8+ with Pillow, numpy and
@@ -44,7 +45,13 @@ build/original/lists/     the four spreadsheets, byte-for-byte (candle, beauty, 
 build/original/photos/    203 JPEG masters (q90, 4:4:4, native size) from 206 PNGs;
                           3 byte-identical duplicates dropped
                           MANIFEST.json maps every master back to its zip, filename and sha256
+build/original/atmosphere/ 7 mood images (hero, statement, section banners), generated
+                          by the owner with ChatGPT on 2026-10-02 to match the photos' set;
+                          they show nothing for sale. MANIFEST.json records each one
 ```
+
+**Product images are always the shop's own photographs.** The mood images are
+backgrounds and banners only, and are marked decorative in the HTML.
 
 The spreadsheets do **not** hold their photos in cells. Each photo floats
 over the sheet, anchored to a row, so `import_lists.py` has to work out which
@@ -78,7 +85,7 @@ or step by step:
 ```sh
 python build/import_lists.py --force   # spreadsheets → data/products.source.json (overwrites edits!)
 python build/make_images.py            # masters → AVIF + WebP renditions (incremental)
-python build/make_font.py              # Markazi Text + Vazirmatn subsets
+python build/make_font.py              # the Estedad subset
 python build/make_icons.py             # favicon.svg + apple-touch-icon.png
 python build/build.py                  # data → public/   (~1 second)
 python build/validate.py               # must end with "build is valid"
@@ -87,11 +94,11 @@ python build/make_upload.py            # validate, then public/ → dist/concept
 
 ## Deploy
 
-1. `python build/make_upload.py` → `dist/concept-store-upload.zip` (51 MB,
-   1,716 files). It refuses to package a build that fails validation.
+1. `python build/make_upload.py` → `dist/concept-store-upload.zip` (about 52 MB,
+   1,753 files). It refuses to package a build that fails validation.
 2. Upload it into `public_html/` and **Extract there**. The zip holds the
    *contents* of `public/`, so `index.html` and `.htaccess` land at the root.
-3. Check: home opens on the wine entrance; `/xyz/` shows «این قفسه خالی است»
+3. Check: home opens on the sunlit corner with the big headline; `/xyz/` shows «این قفسه خالی است»
    (the `.htaccess` 404 rule works); `/candles` redirects to `/candles/`.
 
 Step by step in Persian, with cPanel / DirectAdmin / FileZilla:
@@ -171,21 +178,22 @@ Measured from `public/`:
 
 | | raw | gzip |
 |---|---|---|
-| home HTML | 21.7 KB | 3.8 KB |
-| section HTML (candles) | 27.7 KB | 3.6 KB |
-| product HTML | 11.7 KB | 2.7 KB |
-| site.css / site.js | 21.8 / 2.2 KB | 5.9 / 1.0 KB |
-| fonts (once, cached) | 46 + 56 KB | — |
+| home HTML | 21.2 KB | 4.1 KB |
+| section HTML (candles) | 27.1 KB | 3.7 KB |
+| product HTML | 8.8 KB | 2.4 KB |
+| site.css / site.js | 23.3 / 2.4 KB | 6.0 / 1.1 KB |
+| font (once, cached) | 49 KB | — |
+| home background | 19 KB on phones, 52 KB on desktop (AVIF) | — |
 
 A grid tile is 8–17 KB as AVIF at phone sizes. Images are lazy below the fold;
 the hero photo is `fetchpriority="high"`.
 
-The repo cost: `public/` is 52 MB (1,716 files, almost all images) and the
+The repo cost: `public/` is 53 MB (1,753 files, almost all images) and the
 masters are 57 MB. It is committed, like amochini's, so the uploadable output
 is reviewable next to its source.
 
 ## Licence
 
-Content and photographs belong to the shop. Markazi Text (Borna Izadpanah) and
-Vazirmatn (Saber Rastikerdar) are SIL OFL 1.1; their licences ship next to the
-fonts in `public/assets/fonts/` and must stay with them.
+Content and photographs belong to the shop. Estedad (Amin Abedi) is SIL OFL
+1.1; its licence ships next to the font in `public/assets/fonts/` and must stay
+with it.

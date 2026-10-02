@@ -34,6 +34,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MASTERS = os.path.join(HERE, "original", "photos")
+ATMOS = os.path.join(HERE, "original", "atmosphere")   # mood images: backgrounds and banners
 OUT = os.path.join(os.path.dirname(HERE), "public", "assets", "img")
 DATA = os.path.join(HERE, "data")
 
@@ -125,6 +126,47 @@ def render(job):
     return photo, rec
 
 
+ATMOS_W = (640, 1024, 1536)
+OG_HOME = (1200, 630)
+
+
+def render_atmos(force):
+    """The mood images (build/original/atmosphere/MANIFEST.json): full frame, no crop —
+    CSS positions them — at three widths, plus the home page's link-preview card."""
+    out, files = {}, set()
+    for f in sorted(os.listdir(ATMOS)):
+        if not f.endswith(".jpg"):
+            continue
+        name = f[:-4]
+        src = os.path.join(ATMOS, f)
+        mtime = os.path.getmtime(src)
+        im = Image.open(src).convert("RGB")
+        W, H = im.size
+        widths = []
+        for w in ATMOS_W:
+            w = min(w, W)
+            if w in widths:
+                continue
+            h = round(H * w / W)
+            stem = f"atmos-{name}-{w}"
+            done = all(not force and os.path.exists(p) and os.path.getmtime(p) >= mtime
+                       for p in (os.path.join(OUT, f"{stem}.{e}") for e in ("avif", "webp")))
+            if not done:
+                _save(im.resize((w, h), Image.LANCZOS), stem, force)
+            files |= {f"{stem}.avif", f"{stem}.webp"}
+            widths.append(w)
+        out[name] = {"size": [W, H], "widths": widths}
+    # the card Telegram / WhatsApp show for a link to the home page: the sunlit corner
+    hero = Image.open(os.path.join(ATMOS, "hero-wide.jpg")).convert("RGB")
+    W, H = hero.size
+    ch = round(W * OG_HOME[1] / OG_HOME[0])
+    top = (H - ch) // 3
+    hero.crop((0, top, W, top + ch)).resize(OG_HOME, Image.LANCZOS).save(
+        os.path.join(OUT, "og-home.jpg"), "JPEG", quality=80, optimize=True, progressive=True)
+    files.add("og-home.jpg")
+    return out, files
+
+
 def main():
     force = "--all" in sys.argv
     os.makedirs(OUT, exist_ok=True)
@@ -151,13 +193,16 @@ def main():
         keep |= {f"{s}-c{w}.{e}" for w, _ in r["card"] for e in ("avif", "webp")}
         if r["full"]:
             keep |= {f"{s}-f{r['full'][0]}.{e}" for e in ("avif", "webp")} | {f"{s}-og.jpg"}
+    atmos, atmos_files = render_atmos(force)
+    keep |= atmos_files
+    results["_atmos"] = atmos
     orphans = [f for f in os.listdir(OUT) if f not in keep]
     for f in orphans:
         os.remove(os.path.join(OUT, f))
-    with open(os.path.join(DATA, "images.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(DATA, "images.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(dict(sorted(results.items())), f, indent=1)
     total = sum(os.path.getsize(os.path.join(OUT, f)) for f in os.listdir(OUT))
-    print(f"{len(results)} photos, {len(keep)} files, {total / 1e6:.1f} MB"
+    print(f"{len(results) - 1} photos + {len(atmos)} mood images, {len(keep)} files, {total / 1e6:.1f} MB"
           + (f", removed {len(orphans)} orphans" if orphans else ""))
 
 

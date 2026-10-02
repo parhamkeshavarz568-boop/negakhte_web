@@ -1,0 +1,75 @@
+{
+ "_about": "Mood images for the site's backgrounds and section banners. Generated with ChatGPT image generation by the site owner, supplied 2026-10-02, from prompts that match the product photos' set and light. They show no product that is for sale; product images on the site are always the shop's own photographs (build/original/photos/).",
+ "images": {
+  "hero-wide": {
+   "file": "e85bf764-65a2-4476-b2f3-3ef9e4f96304.png",
+   "sha256": "2c6777afa6e8d3efbb1402ba62c3226904b067d8297bbd245bcd78241a2d129a",
+   "size": [
+    1536,
+    1024
+   ],
+   "shows": "empty sunlit corner, wide",
+   "used_for": "home hero, desktop; home link preview; beauty and spices banners"
+  },
+  "hero-tall": {
+   "file": "56313660-4aba-492b-8a56-95d8bbab49cd.png",
+   "sha256": "f038bd5e8331128f38a0a6a3b6194cd6f9be935a8363bfa8a8ea53dfd522cfb6",
+   "size": [
+    1024,
+    1536
+   ],
+   "shows": "empty sunlit corner, tall",
+   "used_for": "home hero, phones; small-gifts banner; 404"
+  },
+  "light-ledge": {
+   "file": "d54517d7-f820-415c-b5a3-9ed6ef32db0e.png",
+   "sha256": "8ef0b8d635b4484c0e2c7edea050ef47e03618e0e9de1d073f0b8909048ba779",
+   "size": [
+    1024,
+    1536
+   ],
+   "shows": "band of sunlight across the ledge edge",
+   "used_for": "home statement; incense banner; about"
+  },
+  "candles": {
+   "file": "0f4ec957-db97-44ad-8a5c-a297b24309b7.png",
+   "sha256": "11639fdb82f4a60f42eff4cbcba92275aa9f2cbeb7d285ddb730c4b268ffb080",
+   "size": [
+    1536,
+    1024
+   ],
+   "shows": "blown-out pillar candle, wax detail",
+   "used_for": "candles banner"
+  },
+  "ceramics": {
+   "file": "0ee9bbe0-baec-4853-8ed8-6fd728e05a04.png",
+   "sha256": "72483c22b1e935fbdb697eacdea5b14b73c478b0c6bd420c3ca8bb9ae55e3a9c",
+   "size": [
+    1536,
+    1024
+   ],
+   "shows": "glazed stoneware bowl rim",
+   "used_for": "ceramics banner"
+  },
+  "crochet": {
+   "file": "83ff4644-4c94-40f7-8fca-1ec0e5e1a2ff.png",
+   "sha256": "93f0a30db83850b3d819f8bb00b22d78c23f2104b6e258c3817204bfa5d67589",
+   "size": [
+    1536,
+    1024
+   ],
+   "shows": "yarn ball and crochet hook",
+   "used_for": "knitted-flowers banner"
+  },
+  "silver": {
+   "file": "316d729d-0bde-4002-926b-0a0f0f633ba3.png",
+   "sha256": "43463d5e290a35293be0acbd6d9eb7ac0a1c986b03193d58b8a30142d0b184ac",
+   "size": [
+    1536,
+    1024
+   ],
+   "shows": "fine silver chain on stone",
+   "used_for": "silver banner"
+  }
+ }
+}

@@ -43,8 +43,8 @@
     });
   }
 
-  // On a phone the section chips scroll sideways; bring the current one into view.
-  var here = document.querySelector(".chips [aria-current]");
+  // On a phone the section tabs scroll sideways; bring the current one into view.
+  var here = document.querySelector(".tabs [aria-current]");
   if (here) {
     var row = here.closest("ul");
     if (row.scrollWidth > row.clientWidth) {
@@ -52,6 +52,11 @@
                         (row.getBoundingClientRect().left + row.clientWidth / 2);
     }
   }
+
+  // The phone menu: close it when a link inside is followed (same-page anchors included).
+  document.querySelectorAll(".menu a").forEach(function (a) {
+    a.addEventListener("click", function () { a.closest("details").open = false; });
+  });
 
   // Contact channels not configured yet: the button is drawn, but say so.
   document.querySelectorAll('[data-todo="contact"]').forEach(function (a) {

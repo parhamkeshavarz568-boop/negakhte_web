@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Build the two self-hosted font subsets.
+Build the self-hosted font subset.
 
     python build/make_font.py
 
-  Markazi Text (Borna Izadpanah, OFL) — names and headings. A text face drawn
-      from Persian book typography, with the slow, inked quality of a label
-      written by hand; it is what makes the site feel like a shop and not a
-      catalogue. Variable 400–700.
-  Vazirmatn (Saber Rastikerdar, OFL) — prices, codes, buttons, small text.
-      Even, clear numerals at small sizes. Variable 100–900, same pinned
-      v33.003 file the amochini site vendors.
+One family for everything: Estedad (Amin Abedi, OFL), variable 100–900.
+The design sets very thin headlines against one heavy word, so a single
+family does all of it: Thin 100 to Black 800, with Light 300 for titles,
+Medium 500 for names and SemiBold 600 for prices. It covers Latin too, so
+codes (S-10) and brand names (Aroma Fusion) match the Persian.
+Chosen after setting nine Persian faces side by side on the real headline.
 
 Why self-hosted: Google Fonts and the jsDelivr/cdnjs/unpkg CDNs sit behind
 networks that are SNI-filtered in Iran, and a stalled font request does not
 fail fast — it holds up first paint. Zero third-party requests.
 
 The subset is the Persian alphabet plus the Arabic look-alikes a non-Persian
-keyboard produces, Persian and ASCII digits, and ASCII (codes like S-12,
-brand names like Aroma Fusion). OFL 1.1 requires the licence to travel with
-the font, so both licence files are copied next to the woff2 files.
+keyboard produces, Persian and ASCII digits, and ASCII. OFL 1.1 requires the
+licence to travel with the font, so it is copied next to the woff2. The
+release ships no licence file; OFL-Estedad.txt is the standard OFL text under
+the copyright line from the font's own name table.
 """
 import os, shutil, subprocess, sys
 
@@ -41,13 +41,16 @@ UNICODES = ",".join([
 ])
 
 FONTS = [
-    ("MarkaziText[wght].ttf", "markazi-subset.woff2", "OFL-MarkaziText.txt"),
-    ("Vazirmatn[wght].ttf", "vazirmatn-subset.woff2", "OFL-Vazirmatn.txt"),
+    ("Estedad[wght].ttf", "estedad-subset.woff2", "OFL-Estedad.txt"),
 ]
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
+    keep = {d for _, d, _ in FONTS} | {l for _, _, l in FONTS}
+    for f in os.listdir(OUT):
+        if f not in keep:
+            os.remove(os.path.join(OUT, f))
     for src, dest, lic in FONTS:
         cmd = [sys.executable, "-m", "fontTools.subset", os.path.join(SRC, src),
                f"--unicodes={UNICODES}", "--flavor=woff2",

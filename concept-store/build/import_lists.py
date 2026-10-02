@@ -243,7 +243,7 @@ def main():
         "unassigned_photos": unassigned,
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8") as f:
+    with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
     from collections import Counter
     print("\n".join(log))

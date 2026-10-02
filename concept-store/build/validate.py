@@ -30,6 +30,7 @@ class Page(html.parser.HTMLParser):
         self.title = self.desc = None
         self.lang = self.dir = None
         self._in = None
+        self._deco = False          # inside <picture class="deco">: a mood image, alt="" is right
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -41,7 +42,10 @@ class Page(html.parser.HTMLParser):
         for k in ("srcset",):
             if a.get(k):
                 self.refs += [(tag, part.strip().split(" ")[0]) for part in a[k].split(",")]
+        if tag == "picture":
+            self._deco = "deco" in (a.get("class") or "").split()
         if tag == "img":
+            a["_deco"] = self._deco
             self.imgs.append(a)
         if tag == "h1":
             self.h1 += 1
@@ -52,6 +56,8 @@ class Page(html.parser.HTMLParser):
 
     def handle_endtag(self, tag):
         self._in = None
+        if tag == "picture":
+            self._deco = False
 
     def handle_data(self, data):
         if self._in and self._in[0] == "title":
@@ -127,8 +133,8 @@ def main():
             elif not resolve(ref):
                 errors.append(f"{rel}: broken {tag} {ref}")
         for im in p.imgs:
-            if not im.get("alt"):
-                errors.append(f"{rel}: <img> without alt ({im.get('src')})")
+            if im.get("alt") is None or (not im.get("alt") and not im["_deco"]):
+                errors.append(f"{rel}: <img> without alt ({im.get('src')}) — only mood images may have alt=\"\"")
             if not (im.get("width") and im.get("height")):
                 errors.append(f"{rel}: <img> without width/height ({im.get('src')}) — layout shift")
         text = "".join(p.text)
@@ -160,7 +166,7 @@ def main():
         src = pages[url][1]
         if pr["status"] == "available":
             want = CAT.toman(pr["price_toman"])
-            m = re.search(r'class="product-price"><span class="price">([^<]+) <small>تومان', src)
+            m = re.search(r'class="prod-price"><span class="pr">([^<]+) <small>تومان', src)
             if not m or m.group(1) != want:
                 errors.append(f"{pr['code']}: page shows {m.group(1) if m else 'no price'}, catalogue says {want}")
         if pr["code"] not in src:
@@ -170,7 +176,7 @@ def main():
     for c in CAT.CATEGORIES:
         src = pages.get(f"/{c['slug']}/index.html", (None, ""))[1]
         want = sum(1 for p in products if p["category"] == c["slug"])
-        got = src.count('<li class="card')
+        got = src.count('<li class="item')
         if got != want:
             errors.append(f"/{c['slug']}/ shows {got} cards, catalogue has {want}")
 
@@ -178,11 +184,9 @@ def main():
     css = open(os.path.join(HERE, "assets", "site.css"), encoding="utf-8").read()
     tok = {k: v.lower() for k, v in re.findall(r"--([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})", css)}
     # every pair that carries text, on every ground it appears on
-    for fg, bg in (("ink", "ground"), ("ink-2", "ground"), ("ink-2", "ground-2"), ("ink", "ground-2"),
-                   ("gold-ink", "ground"), ("oxblood", "ground"), ("ground", "oxblood"),
-                   ("ground", "oxblood-deep"), ("ground", "ink"), ("ink", "paper"),
-                   ("ground", "wine"), ("gold-light", "wine"), ("ground", "teal"),
-                   ("gold-light", "teal"), ("ink", "gold")):
+    for fg, bg in (("ink", "paper"), ("ink-2", "paper"), ("ink", "stone"), ("ink-2", "stone"),
+                   ("gold-ink", "paper"), ("ox", "paper"), ("paper", "ox"), ("paper", "ox-deep"),
+                   ("paper", "ink"), ("on-ink", "ink"), ("gold", "ink")):
         r = contrast(tok[fg], tok[bg])
         if r < 4.5:
             errors.append(f"contrast --{fg} on --{bg} is {r:.2f}:1 (< 4.5)")

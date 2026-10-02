@@ -7,12 +7,12 @@ Write the whole site into public/ from the catalogue.
 
 Reads  build/data/products.source.json   the catalogue (edit this)
        build/data/images.json            written by make_images.py
-       build/site_config.py              name, contacts, home-page picks
-Writes public/  — every page, sitemap, robots, 404. Never edit public/ by
-hand; the next build overwrites it.
+       build/site_config.py              name, contacts, home-page picks, banners
+Writes public/  — every page, sitemap, robots, 404, .htaccess. Never edit
+public/ by hand; the next build overwrites it.
 
 URL map
-    /                          home
+    /                          home: the sunlit corner, the vitrine, the shelf
     /<section>/                eight sections, e.g. /ceramics/
     /<section>/<code>/         one page per piece that is for sale, e.g. /ceramics/s-10/
     /about/                    about, how to order, contact
@@ -21,7 +21,7 @@ URL map
 import datetime, hashlib, html, json, os, re, shutil, sys, urllib.parse
 
 import catalog as CAT
-from site_config import SITE, CONTACT, HOME, COVERS, HANDMADE
+from site_config import SITE, CONTACT, HOME, COVERS, BANNERS, HANDMADE
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -33,7 +33,6 @@ BASE = "/" + (SITE.get("base") or "/").strip("/")
 BASE = "" if BASE == "/" else BASE
 
 esc = html.escape
-Z = "‌"   # ZWNJ, for the few strings assembled from parts
 
 
 # ------------------------------------------------------------------ data
@@ -47,12 +46,16 @@ def load():
         p["sold"] = p["status"] == "sold"
         p["url"] = f"/{p['category']}/{p['code'].lower()}/"
         p["img"] = images[p["photo"]]
-    return products, {p["code"]: p for p in products}
+    return products, {p["code"]: p for p in products}, images["_atmos"]
 
 
 def jalali_year(d):
     # The Persian year turns at Nowruz, 20 or 21 March.
     return d.year - 621 if (d.month, d.day) >= (3, 21) else d.year - 622
+
+
+def fa(n):
+    return CAT.fa_digits(n)
 
 
 # ------------------------------------------------------------------ fragments
@@ -67,16 +70,15 @@ def stem(p):
 
 
 def picture(p, kind, sizes, eager=False, cls=""):
-    """<picture> with AVIF + WebP srcsets and the true pixel size on the <img>."""
+    """A product photo: <picture> with AVIF + WebP srcsets and its true pixel size."""
     s, im = stem(p), p["img"]
     if kind == "card":
         cands = [(f"/assets/img/{s}-c{w}", w) for w, _ in im["card"]]
         w, h = im["card"][1] if len(im["card"]) > 1 else im["card"][0]
-        fallback = f"/assets/img/{s}-c{w}.webp"
     else:
         w, h = im["full"]
         cands = [(f"/assets/img/{s}-f{w}", w)]
-        fallback = f"/assets/img/{s}-f{w}.webp"
+    fallback = f"/assets/img/{s}-{'c' if kind == 'card' else 'f'}{w}.webp"
     avif = ", ".join(f"{u}.avif {cw}w" for u, cw in cands)
     webp = ", ".join(f"{u}.webp {cw}w" for u, cw in cands)
     load = 'fetchpriority="high"' if eager else 'loading="lazy"'
@@ -86,64 +88,60 @@ def picture(p, kind, sizes, eager=False, cls=""):
             f'alt="{alt}" {load} decoding="async"></picture>')
 
 
+def mood(name, sizes, cls="", eager=False, phone=None):
+    """A mood image (build/original/atmosphere/): decorative, so alt="" — it shows
+    the shop's light and materials, never a piece for sale. `phone` swaps in a
+    tall image below 700px."""
+    def sets(n):
+        ws = ATMOS[n]["widths"]
+        return (", ".join(f"/assets/img/atmos-{n}-{w}.avif {w}w" for w in ws),
+                ", ".join(f"/assets/img/atmos-{n}-{w}.webp {w}w" for w in ws))
+    W, H = ATMOS[name]["size"]
+    a, w_ = sets(name)
+    out = [f'<picture class="deco {cls}">']
+    if phone:
+        pa, pw = sets(phone)
+        out.append(f'<source media="(max-width: 699px)" type="image/avif" srcset="{pa}" sizes="100vw">')
+        out.append(f'<source media="(max-width: 699px)" type="image/webp" srcset="{pw}" sizes="100vw">')
+    load = 'fetchpriority="high"' if eager else 'loading="lazy"'
+    out.append(f'<source type="image/avif" srcset="{a}" sizes="{sizes}">')
+    out.append(f'<img src="/assets/img/atmos-{name}-{ATMOS[name]["widths"][-1]}.webp" srcset="{w_}" sizes="{sizes}" '
+               f'width="{W}" height="{H}" alt="" {load} decoding="async"></picture>')
+    return "".join(out)
+
+
 def price_html(p, long=False):
     if p["status"] == "available":
-        return f'<span class="price">{CAT.toman(p["price_toman"])} <small>تومان</small></span>'
+        return f'<span class="pr">{CAT.toman(p["price_toman"])} <small>تومان</small></span>'
     if p["status"] == "day":
-        return f'<span class="price price-ask">{"قیمت به نرخ روز نقره" if long else "قیمت روز"}</span>'
+        return f'<span class="pr pr-ask">{"قیمت به نرخ روز نقره" if long else "قیمت روز"}</span>'
     if p["status"] == "ask":
-        return '<span class="price price-ask">قیمت را بپرسید</span>'
-    return '<span class="price price-sold">فروخته شد</span>'
+        return '<span class="pr pr-ask">قیمت را بپرسید</span>'
+    return '<span class="pr pr-sold">فروخته شد</span>'
 
 
-GRID_SIZES = "(min-width: 1240px) 280px, (min-width: 1100px) 23vw, (min-width: 700px) 31vw, 46vw"
+GRID = "(min-width: 1100px) 22vw, (min-width: 700px) 31vw, 46vw"
 
 
-def card(p):
-    name = esc(p["name"]) if p["name"] else esc(CAT.CATEGORY[p["category"]]["fa"])
-    img = picture(p, "card", GRID_SIZES, cls="card-img")
+def item(p, big=False, sizes=GRID):
+    """A product card: photo, then code, name and price on one baseline."""
+    img = picture(p, "card", sizes, cls="ph")
     if p["sold"]:
-        named = f'<span class="card-name">{name}</span>' if p["name"] else ""
-        return f'<li class="card is-sold">{img}{named}{price_html(p)}</li>'
-    return (f'<li class="card"><a href="{p["url"]}">{img}<span class="card-name">{name}</span>'
-            f'{price_html(p)}</a></li>')
-
-
-def light(where):
-    """The signature: the window's light, as it falls in every photo.
-
-    A six-paned window (2 x 3) projected by a low sun: the panes become lit
-    patches, the mullions between them stay in shade, and the whole shape leans
-    the way the shadows lean in the photographs. CSS feathers its edges and
-    multiplies it onto the ground."""
-    pw, ph, gap = 16, 19, 3.6
-    panes = "".join(
-        f'<rect x="{c * (pw + gap):.1f}" y="{r * (ph + gap):.1f}" width="{pw}" height="{ph}"/>'
-        for c in range(2) for r in range(3))
-    w, h = 2 * pw + gap, 3 * ph + 2 * gap
-    return (f'<div class="light light-{where}" aria-hidden="true">'
-            f'<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">'
-            f'<defs><filter id="soft-{where}" x="-30%" y="-30%" width="160%" height="160%">'
-            f'<feGaussianBlur stdDeviation="1.1"/></filter></defs>'
-            f'<g filter="url(#soft-{where})" transform="translate(50 50) skewX(-32) '
-            f'translate({-w / 2:.2f} {-h / 2:.2f})">{panes}</g></svg></div>')
-
-
-MARK = ('<svg class="mark" viewBox="0 0 24 30" aria-hidden="true">'
-        '<path d="M2 29V12.5C2 6.6 6.5 2.3 12 1c5.5 1.3 10 5.6 10 11.5V29Z" fill="none" '
-        'stroke="currentColor" stroke-width="1.6"/>'
-        '<path d="M12 4v25M2.6 16h18.8" stroke="currentColor" stroke-width="1.2"/></svg>')
+        nm = esc(p["name"]) if p["name"] else "&nbsp;"
+        return f'<li class="item is-sold">{img}<span class="meta"><span class="nm">{nm}</span>{price_html(p)}</span></li>'
+    return (f'<li class="item{" big" if big else ""}"><a href="{p["url"]}">{img}<span class="meta">'
+            f'<span class="code">{p["code"]}</span><span class="nm">{esc(p["name"])}</span>{price_html(p)}</span></a></li>')
 
 
 def channels():
     """[(key, label, href)] for every channel the shop has set. Order = preference."""
     c, out = CONTACT, []
     if c["instagram"]:
-        out.append(("instagram", "دایرکت اینستاگرام", f"https://ig.me/m/{c['instagram']}"))
+        out.append(("instagram", "سفارش در دایرکت اینستاگرام", f"https://ig.me/m/{c['instagram']}"))
     if c["telegram"]:
-        out.append(("telegram", "تلگرام", f"https://t.me/{c['telegram']}"))
+        out.append(("telegram", "سفارش در تلگرام", f"https://t.me/{c['telegram']}"))
     if c["whatsapp"]:
-        out.append(("whatsapp", "واتساپ", f"https://wa.me/{c['whatsapp']}"))
+        out.append(("whatsapp", "سفارش در واتساپ", f"https://wa.me/{c['whatsapp']}"))
     if c["phone"]:
         out.append(("phone", "تماس تلفنی", f"tel:{c['phone']}"))
     return out
@@ -153,15 +151,15 @@ def channel_buttons(message=None):
     chs = channels()
     if not chs:
         # Nothing configured yet: the buttons are drawn so the page can be reviewed,
-        # but they go nowhere. validate.py fails the build for launch until filled.
-        chs = [("instagram", "دایرکت اینستاگرام", None), ("phone", "تماس تلفنی", None)]
+        # but they go nowhere. validate.py lists it as a launch blocker until filled.
+        chs = [("instagram", "سفارش در دایرکت اینستاگرام", None), ("phone", "تماس تلفنی", None)]
     out = []
     for i, (key, label, href) in enumerate(chs):
-        cls = "btn btn-primary" if i == 0 else "btn"
+        cls = "btn btn-pri" if i == 0 else "btn"
         if href and key == "whatsapp" and message:
             href += "?text=" + urllib.parse.quote(message)
         if href:
-            ext = '' if key == "phone" else ' rel="noopener" target="_blank"'
+            ext = "" if key == "phone" else ' rel="noopener" target="_blank"'
             out.append(f'<a class="{cls}" href="{esc(href)}"{ext}>{label}</a>')
         else:
             out.append(f'<a class="{cls}" aria-disabled="true" data-todo="contact">{label}</a>')
@@ -186,34 +184,40 @@ def rebase(text):
 
 
 def hl(text):
-    """negakhte's highlighter: a gold bar under the lower half of the words."""
+    """negakhte's highlighter: a thin gold bar under the words."""
     return f'<span class="hl">{text}</span>'
 
 
-def wordmark():
-    return (f'<a class="wordmark" href="/">{MARK}<span>{esc(SITE["name_fa"])}</span>'
-            f'<span class="diamond" aria-hidden="true"></span></a>')
+def wordmark(cls="wordmark"):
+    return f'<a class="{cls}" href="/">{esc(SITE["name_fa"])}<span class="dia" aria-hidden="true"></span></a>'
+
+
+def for_sale(ps):
+    return [p for p in ps if not p["sold"]]
+
+
+def nums(pairs):
+    return '<dl class="nums">' + "".join(f"<div><dt>{t}</dt><dd>{fa(n)}</dd></div>" for t, n in pairs) + "</dl>"
 
 
 # ------------------------------------------------------------------ shell
 
-NAV = [("/#collections", "مجموعه‌ها"), ("/about/#order", "سفارش"), ("/about/", "درباره")]
+NAV = [("/#collections", "ویترین"), ("/about/#order", "سفارش"), ("/about/", "درباره")]
 
 
-def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs=None):
+def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs=None, show_crumbs=True):
     url = abs_url(path)
+    og_path, og_w, og_h = og if og else (None, 0, 0)
     head = [
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
         f"<title>{esc(title)}</title>",
         f'<meta name="description" content="{esc(desc)}">',
-        # the phone's browser bar takes the colour of the top of the page
-        f'<meta name="theme-color" content="{"#3F1610" if "is-home" in body_class else "#F5EFE6"}">',
+        '<meta name="theme-color" content="#F5EFE6">',
         '<meta name="color-scheme" content="light">',
         '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
         '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
-        '<link rel="preload" href="/assets/fonts/markazi-subset.woff2" as="font" type="font/woff2" crossorigin>',
-        '<link rel="preload" href="/assets/fonts/vazirmatn-subset.woff2" as="font" type="font/woff2" crossorigin>',
+        '<link rel="preload" href="/assets/fonts/estedad-subset.woff2" as="font" type="font/woff2" crossorigin>',
         f'<link rel="stylesheet" href="{CSS_URL}">',
         f'<meta property="og:site_name" content="{esc(SITE["name_fa"])}">',
         f'<meta property="og:title" content="{esc(title)}">',
@@ -226,10 +230,10 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
     if url:
         head.append(f'<link rel="canonical" href="{url}">')
         head.append(f'<meta property="og:url" content="{url}">')
-        if og:
-            head.append(f'<meta property="og:image" content="{abs_url(og)}">')
-            head.append('<meta property="og:image:width" content="480">')
-            head.append('<meta property="og:image:height" content="600">')
+        if og_path:
+            head.append(f'<meta property="og:image" content="{abs_url(og_path)}">')
+            head.append(f'<meta property="og:image:width" content="{og_w}">')
+            head.append(f'<meta property="og:image:height" content="{og_h}">')
     head.append('<meta name="twitter:card" content="summary_large_image">')
     head.append('<script type="speculationrules">{"prefetch":[{"where":{"href_matches":"/*"},'
                 '"eagerness":"moderate"}]}</script>')
@@ -246,20 +250,20 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
                     + "</script>")
 
     nav = "".join(f'<a href="{h}">{t}</a>' for h, t in NAV)
+    menu = "".join(f'<li><a href="{h}">{t}</a></li>' for h, t in NAV)
+    menu += "".join(f'<li><a href="/{c["slug"]}/">{c["fa"]}</a></li>' for c in CAT.CATEGORIES)
     crumb_html = ""
-    if crumbs:
-        parts = [f'<a href="{u}">{esc(n)}</a>' for u, n in crumbs[:-1]]
-        parts.append(f'<span aria-current="page">{esc(crumbs[-1][1])}</span>')
-        crumb_html = '<nav class="crumbs wrap" aria-label="مسیر">' + '<span aria-hidden="true">/</span>'.join(parts) + "</nav>"
+    if crumbs and show_crumbs:
+        crumb_html = '<nav class="crumbs wrap" aria-label="مسیر">' + crumb_links(crumbs) + "</nav>"
 
-    sections = "".join(f'<li><a href="/{c["slug"]}/">{c["fa"]}</a></li>' for c in CAT.CATEGORIES)
+    half = (len(CAT.CATEGORIES) + 1) // 2
+    col = lambda cs: "".join(f'<li><a href="/{c["slug"]}/">{c["fa"]}</a></li>' for c in cs)
     contact = "".join(f'<li><a href="{esc(h)}">{l}</a></li>' for _, l, h in channels())
     if CONTACT["address"]:
         contact += f'<li>{esc(CONTACT["address"])}</li>'
     if CONTACT["hours"]:
         contact += f'<li>{esc(CONTACT["hours"])}</li>'
-    year = CAT.fa_digits(jalali_year(TODAY))
-    foot_contact = (f'<div><h2>تماس</h2><ul>{contact}</ul></div>' if contact else "")
+    contact += '<li><a href="/about/#order">چطور سفارش بدهم؟</a></li><li><a href="/about/">درباره</a></li>'
     return f"""<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
@@ -267,10 +271,11 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
 </head>
 <body class="{body_class}">
 <a class="skip" href="#main">رفتن به محتوا</a>
-<header class="masthead">
-<div class="wrap masthead-in">
+<header class="mast">
+<div class="wrap mast-in">
 {wordmark()}
 <nav class="nav" aria-label="اصلی">{nav}</nav>
+<details class="menu"><summary aria-label="فهرست"><span></span></summary><ul>{menu}</ul></details>
 </div>
 </header>
 {crumb_html}
@@ -279,12 +284,15 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
 </main>
 <footer class="foot">
 <div class="wrap foot-in">
-<div class="foot-brand">{wordmark()}
-<p>{esc(SITE["tagline"])}</p></div>
-<div><h2>مجموعه‌ها</h2><ul>{sections}</ul></div>
-{foot_contact}
+<div><h2>{esc(SITE["name_fa"])}</h2><p>{esc(SITE["tagline"])}. هر قطعه یک کد دارد؛ کدش را برای ما بفرستید.</p></div>
+<div class="foot-cols">
+<div><h2>مجموعه‌ها</h2><ul>{col(CAT.CATEGORIES[:half])}</ul></div>
+<div><h2>&nbsp;</h2><ul>{col(CAT.CATEGORIES[half:])}</ul></div>
+<div><h2>سفارش</h2><ul>{contact}</ul></div>
 </div>
-<p class="wrap foot-small">© {year} {esc(SITE["name_fa"])}</p>
+</div>
+<div class="wrap"><p class="giant" aria-hidden="true">{esc(SITE["name_fa"])}<span class="dia"></span></p>
+<p class="foot-small">© {fa(jalali_year(TODAY))} {esc(SITE["name_fa"])}</p></div>
 </footer>
 <script src="{JS_URL}" defer></script>
 </body>
@@ -292,133 +300,146 @@ def page(path, title, desc, body, *, og=None, jsonld=None, body_class="", crumbs
 """
 
 
+def crumb_links(crumbs):
+    parts = [f'<a href="{u}">{esc(n)}</a>' for u, n in crumbs[:-1]]
+    parts.append(f'<span aria-current="page">{esc(crumbs[-1][1])}</span>')
+    return '<span aria-hidden="true">/</span>'.join(parts)
+
+
 # ------------------------------------------------------------------ pages
 
-def for_sale(ps):
-    return [p for p in ps if not p["sold"]]
+def order_block(heading_id="h-order"):
+    """Three steps, beside the message a customer actually sends."""
+    return f"""<section class="wrap order" id="order" aria-labelledby="{heading_id}">
+<div>
+<p class="eyebrow">بدون سبد خرید</p>
+<h2 id="{heading_id}">سفارش، در سه قدم</h2>
+<ol class="steps">
+<li><span class="step-n">۱</span><div><h3>قطعه را انتخاب کنید</h3><p>هر قطعه یک کد دارد، مثل <span class="code">S-10</span>، کنار نامش.</p></div></li>
+<li><span class="step-n">۲</span><div><h3>کد را بفرستید</h3><p>در دایرکت یا پیام؛ موجودی را همان لحظه می‌گوییم.</p></div></li>
+<li><span class="step-n">۳</span><div><h3>هماهنگی ارسال</h3><p>پرداخت و ارسال یا تحویل را با هم هماهنگ می‌کنیم.</p></div></li>
+</ol>
+{channel_buttons()}
+</div>
+<figure class="chat" aria-label="نمونهٔ پیام سفارش">
+<figcaption class="chat-who"><i></i>نمونهٔ پیام شما به فروشگاه</figcaption>
+<p class="bubble">سلام! این قطعه را می‌خواهم:<br><span class="code">S-10</span> — ماگ لعابی جنگلی</p>
+<p class="chat-note">دکمهٔ «کپی کد و نام» در صفحهٔ هر قطعه همین پیام را آماده می‌کند.</p>
+</figure>
+</section>"""
 
 
-def count_label(n):
-    return f"{CAT.fa_digits(n)} قطعه"
-
-
-def order_steps():
-    return f"""<ol class="steps">
-<li><span class="step-n">۱</span><h3>قطعه را انتخاب کنید</h3><p>هر قطعه یک کد دارد، مثل <bdi class="code">S-10</bdi>؛ زیر قیمتش نوشته شده.</p></li>
-<li><span class="step-n">۲</span><h3>کد را بفرستید</h3><p>کد را در دایرکت یا پیام برای ما بفرستید. موجودی را همان لحظه می‌گوییم.</p></li>
-<li><span class="step-n">۳</span><h3>هماهنگی ارسال</h3><p>شیوهٔ پرداخت و ارسال یا تحویل را با هم هماهنگ می‌کنیم.</p></li>
-</ol>"""
+VIT_SIZES = "(hover: hover) and (min-width: 900px) 31vw, (min-width: 700px) 42vw, 76vw"
 
 
 def home(products, by_code):
-    hero = [by_code[c] for c in HOME["hero"]]
-    shelf = [by_code[c] for c in HOME["shelf"]]
-    tiles = []
-    for c in CAT.CATEGORIES:
-        ps = [p for p in products if p["category"] == c["slug"]]
-        cover = by_code[COVERS[c["slug"]]]
-        tiles.append(
-            f'<li class="tile"><a href="/{c["slug"]}/">'
-            f'{picture(cover, "card", "(min-width: 1100px) 280px, (min-width: 700px) 23vw, 46vw", cls="tile-img")}'
-            f'<span class="tile-name">{c["fa"]}</span>'
-            f'<span class="tile-count">{count_label(len(for_sale(ps)))}</span></a></li>')
     total = len(for_sale(products))
-    main, a, b = hero
+    sold = len(products) - total
+    panes = []
+    for i, c in enumerate(CAT.CATEGORIES):
+        cover = by_code[COVERS[c["slug"]]]
+        n = len(for_sale([p for p in products if p["category"] == c["slug"]]))
+        panes.append(f'<li class="pane{" is-open" if i == 0 else ""}"><a href="/{c["slug"]}/">'
+                     f'{picture(cover, "card", VIT_SIZES)}'
+                     f'<span class="tag"><b>{c["fa"]}</b><em>{fa(n)} قطعه</em></span></a></li>')
+    shelf = [by_code[c] for c in HOME["shelf"]]
+    big = {0, 7}
+    shelf_html = "".join(
+        item(p, big=i in big, sizes="(min-width: 900px) 46vw, 100vw" if i in big else
+             "(min-width: 900px) 22vw, 46vw") for i, p in enumerate(shelf))
     line = esc(SITE["tagline"])
     em = esc(SITE.get("tagline_em") or "")
-    if em and em in line:
-        line = line.replace(em, f"<em>{em}</em>", 1)
-
-    def print_(p, cls, sizes, eager=False):
-        return (f'<a class="print {cls}" href="{p["url"]}">{picture(p, "card", sizes, eager=eager)}'
-                f'<span class="print-cap">{esc(p["name"])}</span></a>')
-
-    # the shelf label: every section, twice over, so the strip can loop seamlessly
-    labels = "".join(f"<span>{c['fa']}</span>" for c in CAT.CATEGORIES)
+    first, _, rest = line.partition("، ")
+    if em and em in first:
+        first = first.replace(em, f'<b class="hl">{em}</b>', 1)
+    counts = {s: len(for_sale([p for p in products if p["category"] == s]))
+              for s in ("candles", "ceramics", "knitted-flowers")}
     body = f"""
-<section class="hero on-dark">
-{light("hero")}
+<section class="hero">
+{mood("hero-wide", "100vw", cls="hero-bg", eager=True, phone="hero-tall")}
 <div class="wrap hero-in">
-<div class="hero-text">
-<p class="eyebrow">{"" if SITE.get("name_is_placeholder") else "کانسپت‌استور · "}دست‌ساز و انتخابی</p>
-<h1 class="hero-name">{esc(SITE["name_fa"])}<span class="diamond" aria-hidden="true"></span></h1>
-<p class="hero-line">{line}؛ شمع، سفال، گل بافتنی، نقره و هدیه‌های کوچک.</p>
-<div class="hero-cta"><a class="btn btn-primary" href="#collections">دیدن مجموعه‌ها</a><a class="btn" href="/about/#order">چطور سفارش بدهم؟</a></div>
-<p class="hero-count">{CAT.fa_digits(total)} قطعه برای فروش، در {CAT.fa_digits(len(CAT.CATEGORIES))} مجموعه</p>
+<div class="hero-copy">
+<p class="eyebrow">دست‌ساز و انتخابی</p>
+<h1 class="hero-h1"><span class="ln">{first}،</span> <span class="ln">{rest}</span></h1>
+<p class="hero-lede">شمع، سفال، گل بافتنی، نقره و هدیه‌های کوچک. هر قطعه یک کد دارد؛ کدش را برای ما بفرستید.</p>
+<div class="hero-cta"><a class="btn btn-pri" href="#collections">دیدن ویترین</a><a class="btn" href="#order">چطور سفارش بدهم؟</a></div>
 </div>
-<div class="hero-shelf">
-{print_(main, "hero-main", "(min-width: 900px) 30vw, 88vw", eager=True)}
-{print_(a, "hero-side hero-a", "(min-width: 900px) 17vw, 44vw")}
-{print_(b, "hero-side hero-b", "(min-width: 900px) 16vw, 44vw")}
+<dl class="hero-stats"><div><dt>قطعه برای فروش</dt><dd>{fa(total)}</dd></div><div><dt>مجموعه</dt><dd>{fa(len(CAT.CATEGORIES))}</dd></div><div><dt>به خانهٔ تازه رفته</dt><dd>{fa(sold)}</dd></div></dl>
 </div>
-</div>
-</section>
-<div class="marquee" aria-hidden="true"><div class="marquee-track">{labels}{labels}{labels}{labels}</div></div>
-
-<section class="wrap block" id="collections" aria-labelledby="h-collections">
-<div class="block-head"><h2 id="h-collections">{hl("مجموعه‌ها")}</h2><p>هشت قفسه؛ از شمع و سفال تا عود و ادویه.</p></div>
-<ul class="tiles">{"".join(tiles)}</ul>
 </section>
 
-<section class="wrap block" aria-labelledby="h-shelf">
-<div class="block-head"><h2 id="h-shelf">{hl("از قفسه‌ها")}</h2><p>چند قطعه از هر مجموعه.</p></div>
-<ul class="grid">{"".join(card(p) for p in shelf)}</ul>
+<section class="vitrine" id="collections" aria-labelledby="h-collections">
+<div class="wrap sec-head"><div><p class="eyebrow">ویترین</p><h2 id="h-collections">هشت مجموعه</h2></div>
+<p class="sec-aside">از شمع و سفال تا گل بافتنی، نقره، عود و ادویه.</p></div>
+<ul class="vit">{"".join(panes)}</ul>
 </section>
 
-<section class="order-band on-dark" id="order" aria-labelledby="h-order">
-{light("band")}
-<div class="wrap">
-<div class="block-head"><h2 id="h-order">{hl("سفارش، در سه قدم")}</h2><p>سبد خرید نداریم؛ هر قطعه را با کدش سفارش می‌دهید و ما جواب می‌دهیم.</p></div>
-{order_steps()}
-{channel_buttons()}
+<section class="wrap shelf" aria-labelledby="h-shelf">
+<div class="sec-head"><div><p class="eyebrow">از قفسه‌ها</p><h2 id="h-shelf">تازه در ویترین</h2></div>
+<a class="sec-link" href="#collections">همهٔ {fa(total)} قطعه، در هشت مجموعه ←</a></div>
+<ul class="ed">{shelf_html}</ul>
+</section>
+
+<section class="state" aria-labelledby="h-state">
+{mood("light-ledge", "(min-width: 900px) 50vw, 100vw", cls="state-ph")}
+<div class="state-tx">
+<p class="eyebrow">دست‌ساز</p>
+<h2 id="h-state">با دست،<br><b>یکی‌یکی.</b></h2>
+<p>شمع‌های آیشید، سفالِ لعاب‌دار و گل‌هایی که دانه‌به‌دانه با قلاب بافته شده‌اند. بیشترشان یک بار ساخته می‌شوند؛ وقتی رفتند، رفته‌اند.</p>
+{nums([("شمع", counts["candles"]), ("سفال", counts["ceramics"]), ("گل بافتنی", counts["knitted-flowers"])])}
 </div>
 </section>
+
+{order_block()}
 """
     store = {"@context": "https://schema.org", "@type": "Store", "name": SITE["name_fa"],
-             "description": SITE["description"], "url": abs_url("/"),
-             "image": abs_url(f"/assets/img/{stem(main)}-og.jpg")}
+             "description": SITE["description"], "url": abs_url("/"), "image": abs_url("/assets/img/og-home.jpg")}
     if CONTACT["phone"]:
         store["telephone"] = CONTACT["phone"]
     if CONTACT["address"]:
         store["address"] = {"@type": "PostalAddress", "streetAddress": CONTACT["address"],
                             "addressLocality": CONTACT["city"] or "", "addressCountry": "IR"}
     return page("/", f'{SITE["name_fa"]} — {SITE["tagline"]}', SITE["description"], body,
-                og=f"/assets/img/{stem(main)}-og.jpg", jsonld=store, body_class="is-home")
+                og=("/assets/img/og-home.jpg", 1200, 630), jsonld=store, body_class="is-home")
+
+
+def sec_hero(eyebrow, title_html, intro, banner, extra="", long=False):
+    return f"""<header class="sec-hero">
+<div class="wrap sec-hero-in">
+<div class="sec-copy"><p class="eyebrow">{eyebrow}</p><h1{' class="long"' if long else ""}>{title_html}</h1>
+<p class="sec-intro">{intro}</p>{extra}</div>
+{mood(banner, "(min-width: 900px) 55vw, 100vw", cls="sec-ph", eager=True)}
+</div>
+</header>"""
 
 
 def section_page(c, products):
     ps = [p for p in products if p["category"] == c["slug"]]
     live, sold = for_sale(ps), [p for p in ps if p["sold"]]
-    others = "".join(f'<li><a href="/{o["slug"]}/"{" aria-current=\"page\"" if o is c else ""}>{o["fa"]}</a></li>'
-                     for o in CAT.CATEGORIES)
+    tabs = "".join(f'<li><a href="/{o["slug"]}/"{" aria-current=\"page\"" if o is c else ""}>{o["fa"]}</a></li>'
+                   for o in CAT.CATEGORIES)
+    counts = [("برای فروش", len(live))] + ([("فروخته‌شده", len(sold))] if sold else [])
     sold_html = ""
     if sold:
         sold_html = f"""
-<section class="wrap block block-sold" aria-labelledby="h-sold">
-<div class="block-head"><h2 id="h-sold">{hl("به خانهٔ تازه رفتند")}</h2><p>{CAT.fa_digits(len(sold))} قطعه از این قفسه فروخته شده. اگر مشابهش را می‌خواهید، بپرسید.</p></div>
-<ul class="grid grid-sold">{"".join(card(p) for p in sold)}</ul>
+<section class="wrap sold" aria-labelledby="h-sold">
+<h2 id="h-sold">به خانهٔ {hl("تازه")} رفتند</h2>
+<p class="sec-aside">{fa(len(sold))} قطعه از این قفسه فروخته شده. اگر مشابهش را می‌خواهید، بپرسید.</p>
+<ul class="grid-sold">{"".join(item(p, sizes="(min-width: 700px) 15vw, 30vw") for p in sold)}</ul>
 </section>"""
-    summary = count_label(len(live)) + (f" · {CAT.fa_digits(len(sold))} فروخته‌شده" if sold else "")
     body = f"""
-<header class="sec-head">
-{light("head")}
-<div class="wrap">
-<p class="eyebrow">{summary}</p>
-<h1>{hl(c["fa"])}</h1>
-<p class="sec-intro">{esc(c["intro"])}</p>
-</div>
-</header>
-<nav class="wrap chips" aria-label="مجموعه‌ها"><ul>{others}</ul></nav>
-<section class="wrap block" aria-label="{c["fa"]} — برای فروش">
-<ul class="grid">{"".join(card(p) for p in live)}</ul>
+{sec_hero("مجموعه", f'{c["fa"]}<b>.</b>', esc(c["intro"]), BANNERS[c["slug"]], nums(counts))}
+<nav class="tabs" aria-label="مجموعه‌ها"><div class="wrap"><ul>{tabs}</ul></div></nav>
+<section class="wrap listing" aria-label="{c["fa"]} — برای فروش">
+<ul class="grid">{"".join(item(p) for p in live)}</ul>
 </section>
 {sold_html}
 """
     cover = live[0] if live else ps[0]
     return page(f'/{c["slug"]}/', f'{c["fa"]} — {SITE["name_fa"]}',
-                f'{c["intro"]} {count_label(len(live))} برای فروش.', body,
-                og=f"/assets/img/{stem(cover)}-og.jpg" if cover["img"]["og"] else None,
-                crumbs=[("/", "خانه"), (f'/{c["slug"]}/', c["fa"])])
+                f'{c["intro"]} {fa(len(live))} قطعه برای فروش.', body,
+                og=(f"/assets/img/{stem(cover)}-og.jpg", 480, 600) if cover["img"]["og"] else None,
+                crumbs=[("/", "خانه"), (f'/{c["slug"]}/', c["fa"])], body_class="is-section")
 
 
 BRANDS = (("نیکس‌ژل", "Nixgel"), ("نیورا", "Niura"), ("الورا", "ELORA"))
@@ -428,46 +449,48 @@ def product_page(p, products):
     c = CAT.CATEGORY[p["category"]]
     same = for_sale([q for q in products if q["category"] == p["category"]])
     i = same.index(p)
-    related = (same[i + 1:] + same[:i])[:8]
+    related = (same[i + 1:] + same[:i])[:4]
     message = f"سلام! این قطعه را می‌خواهم:\n{p['code']} — {p['name']}"
     if SITE["url"]:
         message += "\n" + abs_url(p["url"])
-    handmade = ('<li>دست‌ساز است و هر قطعه فقط یکی؛ ممکن است با عکس کمی تفاوت داشته باشد.</li>'
-                if p["category"] in HANDMADE else "")
-    day = ('<li>قیمت نقره هر روز تغییر می‌کند؛ قیمتِ امروز را در پیام می‌گوییم.</li>'
-           if p["status"] == "day" else "")
+    notes = []
+    if p["category"] in HANDMADE:
+        notes.append("دست‌ساز است و هر قطعه فقط یکی؛ ممکن است با عکس کمی تفاوت داشته باشد.")
+    if p["status"] == "day":
+        notes.append("قیمت نقره هر روز تغییر می‌کند؛ قیمتِ امروز را در پیام می‌گوییم.")
+    notes.append("کد را بفرستید؛ موجودی، پرداخت و ارسال را همان‌جا هماهنگ می‌کنیم.")
+    crumbs = [("/", "خانه"), (f'/{c["slug"]}/', c["fa"]), (p["url"], p["name"])]
     rel_html = ""
     if related:
         rel_html = f"""
-<section class="wrap block" aria-labelledby="h-more">
-<div class="block-head"><h2 id="h-more">{hl("باز هم از " + c["fa"])}</h2><p><a href="/{c["slug"]}/">همهٔ {count_label(len(same))}</a></p></div>
-<ul class="grid">{"".join(card(q) for q in related)}</ul>
+<section class="wrap more" aria-labelledby="h-more">
+<div class="sec-head"><div><p class="eyebrow">از همین قفسه</p><h2 id="h-more">باز هم {c["fa"]}</h2></div>
+<a class="sec-link" href="/{c["slug"]}/">همهٔ {fa(len(same))} قطعه ←</a></div>
+<ul class="grid">{"".join(item(q) for q in related)}</ul>
 </section>"""
     body = f"""
-<article class="wrap product">
-<div class="product-photo">{picture(p, "full", "(min-width: 900px) 52vw, 100vw", eager=True)}</div>
-<div class="product-info">
+<article class="prod">
+<div class="prod-ph">{picture(p, "full", "(min-width: 900px) 56vw, 100vw", eager=True)}</div>
+<div class="prod-info">
+<nav class="crumbs" aria-label="مسیر">{crumb_links(crumbs)}</nav>
 <p class="eyebrow"><a href="/{c["slug"]}/">{c["fa"]}</a></p>
 <h1>{esc(p["name"])}</h1>
-<p class="product-price">{price_html(p, long=True)}</p>
-<div class="order" id="order">
-<p class="code-row"><span>کد قطعه</span><bdi class="code" dir="ltr">{p["code"]}</bdi>
-<button class="copy" type="button" data-copy="{esc(message)}">کپی کد و نام</button></p>
+<p class="prod-price">{price_html(p, long=True)}</p>
+<div class="codebox" id="order"><span>کد قطعه</span><span class="code">{p["code"]}</span>
+<button class="copy" type="button" data-copy="{esc(message)}">کپی کد و نام</button></div>
 {channel_buttons(message)}
-<p class="hint">کد را بفرستید؛ موجودی، پرداخت و ارسال را همان‌جا هماهنگ می‌کنیم.</p>
+<ul class="notes">{"".join(f"<li>{n}</li>" for n in notes)}</ul>
 <button class="share" type="button" hidden data-share-title="{esc(p["name"])}">فرستادن برای یک دوست</button>
 </div>
-<ul class="notes">{handmade}{day}</ul>
-</div>
 </article>
-<div class="buybar" aria-hidden="true"><div class="wrap buybar-in">{price_html(p)}<a class="btn btn-primary" href="#order" tabindex="-1">سفارش با کد <bdi dir="ltr">{p["code"]}</bdi></a></div></div>
+<div class="buybar" aria-hidden="true"><div class="wrap buybar-in">{price_html(p)}<a class="btn btn-pri" href="#order" tabindex="-1">سفارش با کد <span class="code">{p["code"]}</span></a></div></div>
 {rel_html}
 """
     ld = {"@context": "https://schema.org", "@type": "Product", "name": p["name"], "sku": p["code"],
           "image": abs_url(f"/assets/img/{stem(p)}-f{p['img']['full'][0]}.webp"),
           "url": abs_url(p["url"]), "category": c["fa"]}
-    for fa, en in BRANDS:
-        if fa in p["name"]:
+    for fa_, en in BRANDS:
+        if fa_ in p["name"]:
             ld["brand"] = {"@type": "Brand", "name": en}
     if p["status"] == "available":
         # Schema.org wants ISO 4217 and Toman has no code: publish the Rial value.
@@ -476,35 +499,29 @@ def product_page(p, products):
     desc = f'{p["name"]} — {c["fa"]}، کد {p["code"]}. '
     desc += (f'{CAT.toman(p["price_toman"])} تومان.' if p["status"] == "available" else "قیمت را بپرسید.")
     return page(p["url"], f'{p["name"]} · {p["code"]} — {SITE["name_fa"]}', desc, body,
-                og=f"/assets/img/{stem(p)}-og.jpg", jsonld=ld, body_class="is-product",
-                crumbs=[("/", "خانه"), (f'/{c["slug"]}/', c["fa"]), (p["url"], p["name"])])
+                og=(f"/assets/img/{stem(p)}-og.jpg", 480, 600), jsonld=ld, body_class="is-product",
+                crumbs=crumbs, show_crumbs=False)
 
 
 def about_page():
-    contact_items = "".join(f'<li><a href="{esc(h)}">{l}</a></li>' for _, l, h in channels())
+    items = "".join(f'<li><a href="{esc(h)}">{l}</a></li>' for _, l, h in channels())
     if CONTACT["phone_display"]:
-        contact_items += f'<li>تلفن: <bdi dir="ltr">{esc(CONTACT["phone_display"])}</bdi></li>'
+        items += f'<li>تلفن: <span class="code">{esc(CONTACT["phone_display"])}</span></li>'
     if CONTACT["address"]:
-        contact_items += f'<li>نشانی: {esc(CONTACT["address"])}</li>'
+        items += f'<li>نشانی: {esc(CONTACT["address"])}</li>'
     if CONTACT["hours"]:
-        contact_items += f'<li>ساعت کار: {esc(CONTACT["hours"])}</li>'
+        items += f'<li>ساعت کار: {esc(CONTACT["hours"])}</li>'
+    intro = ("یک فروشگاه کوچک برای چیزهایی که دوست داریم: شمع‌های دست‌ساز، سفالِ لعاب‌دار، "
+             "گل‌هایی که با قلاب بافته شده‌اند، نقره، و چند هدیهٔ کوچک. هر قطعه را جدا انتخاب "
+             "کرده‌ایم و جدا عکس گرفته‌ایم، در نور آفتابِ عصر.")
+    contact = (f"<ul class='contact-list'>{items}</ul>" if items
+               else "<p class='sec-aside'>راه‌های تماس به‌زودی اینجا می‌آید.</p>")
     body = f"""
-<header class="sec-head">
-{light("head")}
-<div class="wrap">
-<p class="eyebrow">درباره</p>
-<h1>{hl(esc(SITE["name_fa"]))}</h1>
-<p class="sec-intro">یک فروشگاه کوچک برای چیزهایی که دوست داریم: شمع‌های دست‌ساز، سفالِ لعاب‌دار، گل‌هایی که با قلاب بافته شده‌اند، نقره، و چند هدیهٔ کوچک. هر قطعه را جدا انتخاب کرده‌ایم و جدا عکس گرفته‌ایم، در همان گوشهٔ آفتاب‌گیری که در همهٔ عکس‌ها می‌بینید.</p>
-</div>
-</header>
-<section class="wrap block" id="order" aria-labelledby="h-order">
-<div class="block-head"><h2 id="h-order">{hl("سفارش، در سه قدم")}</h2><p>سبد خرید نداریم؛ هر قطعه را با کدش سفارش می‌دهید.</p></div>
-{order_steps()}
-{channel_buttons()}
-</section>
-<section class="wrap block" id="contact" aria-labelledby="h-contact">
-<div class="block-head"><h2 id="h-contact">{hl("تماس")}</h2></div>
-{"<ul class='contact-list'>" + contact_items + "</ul>" if contact_items else "<p class='hint'>راه‌های تماس به‌زودی اینجا می‌آید.</p>"}
+{sec_hero("درباره", f'{esc(SITE["name_fa"])}<b>.</b>', intro, "light-ledge", long=True)}
+{order_block()}
+<section class="wrap" id="contact" aria-labelledby="h-contact">
+<div class="sec-head"><div><p class="eyebrow">تماس</p><h2 id="h-contact">با ما در تماس باشید</h2></div></div>
+{contact}
 </section>
 """
     return page("/about/", f'درباره و سفارش — {SITE["name_fa"]}',
@@ -513,16 +530,10 @@ def about_page():
 
 
 def not_found():
-    body = f"""
-<header class="sec-head sec-404">
-{light("head")}
-<div class="wrap">
-<p class="eyebrow">۴۰۴</p>
-<h1>{hl("این قفسه خالی است")}</h1>
-<p class="sec-intro">صفحه‌ای که دنبالش بودید اینجا نیست؛ شاید قطعه‌اش فروخته شده. از مجموعه‌ها شروع کنید:</p>
-<ul class="chips-plain">{"".join(f'<li><a class="btn" href="/{c["slug"]}/">{c["fa"]}</a></li>' for c in CAT.CATEGORIES)}</ul>
-</div>
-</header>"""
+    chips = "".join(f'<a class="btn" href="/{c["slug"]}/">{c["fa"]}</a>' for c in CAT.CATEGORIES)
+    body = sec_hero("۴۰۴", 'این قفسه خالی است<b>.</b>',
+                    "صفحه‌ای که دنبالش بودید اینجا نیست؛ شاید قطعه‌اش فروخته شده. از مجموعه‌ها شروع کنید:",
+                    "hero-tall", f'<div class="chips">{chips}</div>', long=True)
     return page("/404.html", f'پیدا نشد — {SITE["name_fa"]}', "این صفحه پیدا نشد.", body)
 
 
@@ -540,19 +551,22 @@ def write(path, text):
 
 
 def check_picks(by_code):
-    bad = [c for c in HOME["hero"] + HOME["shelf"] + list(COVERS.values())
-           if c not in by_code or by_code[c]["sold"]]
+    bad = [c for c in HOME["shelf"] + list(COVERS.values()) if c not in by_code or by_code[c]["sold"]]
     if bad:
         raise SystemExit(f"site_config picks that are missing or sold: {bad} — choose others")
+    missing = [b for b in set(BANNERS.values()) if b not in ATMOS]
+    if missing:
+        raise SystemExit(f"site_config BANNERS name mood images that do not exist: {missing}")
 
 
 TODAY = datetime.date.today()
 CSS_URL = JS_URL = None
+ATMOS = {}
 
 
 def main():
-    global CSS_URL, JS_URL
-    products, by_code = load()
+    global CSS_URL, JS_URL, ATMOS
+    products, by_code, ATMOS = load()
     check_picks(by_code)
 
     # pages are regenerated wholesale; images and fonts are left where they are
@@ -568,8 +582,7 @@ def main():
         shutil.copyfile(os.path.join(ASSETS, name), os.path.join(PUBLIC, name))
     CSS_URL, JS_URL = asset_url("site.css"), asset_url("site.js")
     with open(os.path.join(HERE, "templates", "htaccess.tpl"), encoding="utf-8") as f:
-        htaccess = f.read().replace("__BASE__", BASE).replace("__NAME__", SITE["name_en"])
-    write("/.htaccess", htaccess)
+        write("/.htaccess", f.read().replace("__BASE__", BASE).replace("__NAME__", SITE["name_en"]))
 
     write("/", home(products, by_code))
     for c in CAT.CATEGORIES:

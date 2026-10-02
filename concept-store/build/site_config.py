@@ -47,23 +47,37 @@ CONTACT = {
     "city": None,
 }
 
-# Pieces chosen for the front of the shop, by code. The build fails if any of
-# these is missing or sold, so a sale never leaves a hole on the home page.
+# Pieces on the home page's shelf, in order, by code. Positions 1 and 8 are
+# the big ones (the magazine rhythm). The build fails if any is missing or
+# sold, so a sale never leaves a hole on the home page.
 HOME = {
-    "hero": ["C-08", "S-26", "O-61"],
-    "shelf": ["C-04", "S-10", "O-26", "B-19", "O-21", "S-23", "C-20", "O-03"],
+    "shelf": ["C-08", "S-10", "O-26", "B-19", "O-09", "S-23", "O-03", "C-04", "C-20", "O-21"],
 }
 
-# The cover photo of each section on the home page.
+# The photo for each section's pane in the home page vitrine, by code.
 COVERS = {
     "candles": "C-07",
     "ceramics": "S-26",
     "knitted-flowers": "O-61",
     "silver": "O-21",
-    "beauty": "B-19",
+    "beauty": "B-02",
     "small-gifts": "O-34",
-    "incense": "O-03",
+    "incense": "O-13",
     "spices": "O-38",
+}
+
+# The mood image at the top of each section page (build/original/atmosphere/).
+# The four material studies go to their own sections; the rest share the
+# empty sunlit corner.
+BANNERS = {
+    "candles": "candles",
+    "ceramics": "ceramics",
+    "knitted-flowers": "crochet",
+    "silver": "silver",
+    "beauty": "hero-wide",
+    "small-gifts": "hero-tall",
+    "incense": "light-ledge",
+    "spices": "hero-wide",
 }
 
 # Sections whose pieces are made by hand, one at a time. Their product pages
