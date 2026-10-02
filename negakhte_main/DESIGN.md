@@ -378,6 +378,47 @@ list of tired defaults, and it is exempt here for a specific reason: it is not a
 default reached for out of laziness, it is documented brand equity from a
 property that already exists. Inheritance, not habit.
 
+### 2.5 Photographs (the homepage only)
+
+The tests app stays drawn (§2.4). The company homepage, `home.html`, carries
+twelve photographs, and one rule governs all of them: **no person appears.**
+Not a face, a hand, or a silhouette. That covers reflections too, so check any
+replacement for faces in frames, mirrors and glass before using it. Group
+therapy is told through what is left when the people are absent or about to
+arrive: the empty seat, the open door, the second glass.
+
+| Where | Image | What it says |
+|---|---|---|
+| hero | `ripples-wide` / `ripples-tall` (phones) | one drop, rings spreading: change starts small and from you |
+| map, main card | `tea-circle` | glasses in a circle, one place still empty: «یه جا برای تو خالیه.» |
+| map, tests | `mirror` | an old mirror showing only sky |
+| map, charity | `pomegranate` | many seeds, one fruit |
+| therapy band | `orosi-light` | coloured glass, one light: «هر شیشه یه رنگ؛ با هم، یه نور.» |
+| a session | `cushion-circle` | the room minutes before anyone comes |
+| «لازم نیست حرف بزنی» | `seashell` | a shell that listens |
+| worries | `door-ajar` | «یه کم بازه؛ همین کافیه.» |
+| dark tests panel | `fern-spiral` | a frond unrolling: growth in its own order |
+| start | `stepping-stones` | «یه قدم، بعد یکی دیگه.» |
+| contact | `two-glasses` | «دو تا چای، یه گفت‌وگو.» |
+
+**Pipeline.** Masters live in `images/source/*.jpg`. `MANIFEST.json` records
+each one's original file, its hash, and what it shows. To regenerate the
+renditions, run `python tools/make_images.py`. It writes AVIF + WebP to
+`assets/img/` at 640 / 1024 / 1536 px, never wider than the master, plus
+`og-home.jpg`, the 1200×630 card for Telegram and WhatsApp shares.
+
+**Treatment.** No filters or overlays, apart from the hero's reading gradient.
+Captions are one short line in the house voice, marked with a gold dot.
+Only the hero moves. Its photo settles from 5% zoom over 3 s (`ng-settle`) and
+its words rise (`ng-rise`), and both happen only when motion is allowed.
+Every photo except the hero is `loading="lazy"` with real `width`/`height`.
+On the hero the gold accent switches to `--gold-bright` so it holds contrast
+on dark water.
+
+**Weight.** The hero costs about 46 KB (AVIF, desktop) or 43 KB (phone, 2×).
+The share card is 75 KB. It is a photograph, so the drawn-card budget of
+25 KB in §6.2 does not apply, and crawlers are the only ones who fetch it.
+
 ---
 
 ## 3. Components

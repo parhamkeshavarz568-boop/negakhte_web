@@ -654,3 +654,89 @@ footer .bleed { inset-block-end:-30%; inset-inline-end:-8%; opacity:.06; }
   /* Paused, not removed: the frame it holds is the finished drawing. */
   .orb { animation-play-state: paused !important; }
 }
+
+
+/* ============================================================== PHOTOGRAPHS
+   Objects, light and nature — never a person. Each image carries its
+   section's idea as a quiet metaphor (images/source/MANIFEST.json says which).
+   Captions are short lines, marked with the mark's own gold dot. */
+figure { margin:0; }
+.ph { display:block; overflow:hidden; border-radius:2px; background:var(--parchment); }
+.ph img { display:block; width:100%; height:auto; }
+.fig-cap { display:flex; align-items:center; gap:var(--s3); margin-top:var(--s3);
+  font-size:14px; color:var(--fg-mute); }
+.fig-cap::before { content:""; flex:none; width:7px; height:7px; border-radius:50%; background:var(--gold); }
+
+.fig-wide { margin-block-start:var(--s8); }
+.fig-wide .ph img { aspect-ratio:21 / 9; object-fit:cover; }
+.fig-wide.r32 .ph img { aspect-ratio:3 / 2; }
+@media (max-width:760px) { .fig-wide .ph img, .fig-wide.r32 .ph img { aspect-ratio:4 / 3; } }
+
+/* ── the hero: still water, one drop, the title on the calm side ── */
+.hero-photo { position:relative; isolation:isolate; overflow:hidden; display:grid;
+  padding-block:0; min-height:min(84svh, 760px); background:var(--teal-deep); color:var(--fg-on-dark); }
+.hero-photo .hero-bg, .hero-photo .hero-bg img { position:absolute; inset:0; width:100%; height:100%; z-index:-2; }
+.hero-photo .hero-bg img { object-fit:cover; object-position:30% 50%; }
+.hero-photo::before { content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(270deg, rgba(8,28,28,.6) 0%, rgba(8,28,28,.32) 42%, rgba(8,28,28,0) 72%); }
+.hero-photo .hero-in { display:grid; align-items:center; padding-block:var(--s10); }
+.hero-photo .hero-copy { max-width:36rem; min-width:0; }
+.hero-photo h1 { color:#FBF7EF; }
+.hero-photo h1 .accent { color:var(--gold-bright); }
+.hero-photo .lede { color:var(--fg-on-dark); }
+.hero-photo .eyebrow { color:var(--gold-bright); }
+.hero-photo .btn-1 { background:var(--gold-bright); color:var(--ink); box-shadow:none; }
+.hero-photo .btn-1:hover { background:#FBF7EF; color:var(--ink); }
+.hero-photo .btn-2 { background:transparent; color:#FBF7EF; border-color:rgba(251,247,239,.55); }
+.hero-photo .btn-2:hover { background:rgba(251,247,239,.12); border-color:#FBF7EF; }
+@media (max-width:760px) {
+  .hero-photo { min-height:max(36rem, 92svh); }
+  .hero-photo .hero-bg img { object-position:30% 85%; }
+  .hero-photo::before { background:linear-gradient(180deg, rgba(8,28,28,.62) 0%, rgba(8,28,28,.3) 52%, rgba(8,28,28,0) 76%); }
+  .hero-photo .hero-in { align-items:start; padding-block:var(--s9) var(--s8); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-photo .hero-bg img { animation:ng-settle 3s cubic-bezier(.16,1,.3,1) both; }
+  .hero-photo .hero-copy > * { animation:ng-rise 1s cubic-bezier(.16,1,.3,1) both; }
+  .hero-photo .hero-copy > :nth-child(2) { animation-delay:.12s; }
+  .hero-photo .hero-copy > :nth-child(3) { animation-delay:.28s; }
+  .hero-photo .hero-copy > :nth-child(4) { animation-delay:.4s; }
+}
+@keyframes ng-settle { from { scale:1.05; } }
+@keyframes ng-rise { from { opacity:0; translate:0 14px; } }
+
+/* ── what we do ── */
+.map-ph { margin:calc(-1 * var(--s8)) calc(-1 * var(--s7)) var(--s6); }
+.map-ph .ph { border-radius:0; }
+.map-ph .ph img { aspect-ratio:16 / 9; object-fit:cover; }
+.map-ph .fig-cap { padding-inline:var(--s7); }
+.map .rest > div.with-ph { display:grid; grid-template-columns:84px minmax(0,1fr); column-gap:var(--s5); align-items:start; }
+.map .rest > div.with-ph > picture { grid-row:span 2; }
+.with-ph > .ph img { aspect-ratio:1; object-fit:cover; }
+/* a placeholder card's «برای تکمیل» badge is a ::before, so it would take the photo's grid
+   cell; give it its own row above */
+.with-ph.todo::before { grid-column:1 / -1; justify-self:start; }
+
+/* ── a panel with a photograph beside its words ── */
+.panel.with-ph { display:grid; grid-template-columns:120px minmax(0,1fr); column-gap:var(--s6); align-items:start; }
+.panel.with-ph > picture { grid-row:span 2; }
+/* on a phone the photo sits beside the heading only; the words run full width under both */
+@media (max-width:640px) {
+  .panel.with-ph { grid-template-columns:72px minmax(0,1fr); column-gap:var(--s5); align-items:center; }
+  .panel.with-ph > picture { grid-row:auto; }
+  .panel.with-ph > h3 { margin:0; }
+  .panel.with-ph > p { grid-column:1 / -1; margin-block-start:var(--s5); }
+}
+.panel-ph { margin:calc(-1 * var(--s6)) calc(-1 * var(--s6)) var(--s5); }
+.panel-ph .ph { border-radius:0; }
+.panel-ph .ph img { aspect-ratio:4 / 3; object-fit:cover; object-position:50% 22%; }
+
+/* ── worries: the door ── */
+.fig-door { margin-block-start:var(--s7); }
+.fig-door .ph img { aspect-ratio:3 / 4; object-fit:cover; }
+@media (max-width:979px) { .fig-door .ph img { aspect-ratio:4 / 3; object-position:50% 70%; } }
+
+/* ── contact: the two glasses ── */
+.contact-grid { display:grid; gap:var(--s8); grid-template-columns:minmax(0,1fr); align-items:center; }
+@media (min-width:920px) { .contact-grid { grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
+.fig-contact .ph img { aspect-ratio:4 / 3; object-fit:cover; }
