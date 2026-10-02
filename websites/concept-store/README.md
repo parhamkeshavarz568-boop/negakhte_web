@@ -28,7 +28,7 @@ fontTools (plus `brotli` for the font step).
 The built site is committed, so a fresh clone is already a working website:
 
 ```powershell
-cd negakhte_web\concept-store\public
+cd negakhte_web\websites\concept-store\public
 python -m http.server 8000
 ```
 

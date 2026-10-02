@@ -3,7 +3,7 @@
 """
 Worst-case text contrast over the two photographs text sits on.
 
-    cd amochini/public && python3 -m http.server 8907 &
+    cd websites/amochini/public && python3 -m http.server 8907 &
     PORT=8907 python3 build/check_contrast.py
 
 Every other surface on this site is a flat token, so its contrast is a

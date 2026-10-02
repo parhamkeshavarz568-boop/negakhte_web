@@ -3,7 +3,7 @@
 """
 The tape must never show a gap.
 
-    cd amochini/public && python3 -m http.server 8907 &
+    cd websites/amochini/public && python3 -m http.server 8907 &
     PORT=8907 python3 build/check_tape.py
 
 A marquee is N identical copies translated by one copy's width, so that the

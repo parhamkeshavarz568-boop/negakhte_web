@@ -8,14 +8,14 @@ nothing to install, nothing to compile.
 ```powershell
 # Windows PowerShell
 git clone https://github.com/parhamkeshavarz568-boop/negakhte_web.git
-cd negakhte_web\amochini\public
+cd negakhte_web\websites\amochini\public
 python -m http.server 8000
 ```
 
 ```bash
 # macOS / Linux
 git clone https://github.com/parhamkeshavarz568-boop/negakhte_web.git
-cd negakhte_web/amochini/public
+cd negakhte_web/websites/amochini/public
 python3 -m http.server 8000
 ```
 
@@ -54,7 +54,7 @@ through one point would be invented. To see what it looks like once history
 accumulates:
 
 ```powershell
-cd negakhte_web\amochini\build
+cd negakhte_web\websites\amochini\build
 python make_preview.py
 ```
 

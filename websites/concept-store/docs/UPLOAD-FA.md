@@ -8,7 +8,7 @@
 python build/make_upload.py
 ```
 
-نتیجه: `concept-store/dist/concept-store-upload.zip` (حدود ۵۲ مگابایت).
+نتیجه: `websites/concept-store/dist/concept-store-upload.zip` (حدود ۵۲ مگابایت).
 این دستور اول سایت را چک می‌کند و اگر خطا داشته باشد، زیپ نمی‌سازد.
 
 > **حالت پیش‌نمایش.** تا وقتی نام فروشگاه و راه‌های تماس نهایی نشده‌اند، همهٔ صفحه‌ها
