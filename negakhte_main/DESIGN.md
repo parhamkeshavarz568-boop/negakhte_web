@@ -411,7 +411,8 @@ The page reads as a slow walk, not a brochure:
 | 3 | group therapy: «هر شیشه یه رنگ؛ با هم، یه نور.» | scene + page | `orosi-light`, then what a group is, in words |
 | 4 | a session | scene + page | `cushion-circle`; facts, three moments, `seashell` «گوش دادن» |
 | 5 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
-| 6 | the rest of the family | page | `mirror` (tests), `pomegranate` (charity), `fern-spiral` (other) |
+| 6 | outside the room: «فقط نمی‌شینیم و حرف نمی‌زنیم.» | page | `pomegranate` ارزاق, `door-ajar` حبس, `fern-spiral` پاک‌سازی محیط زیست |
+| 6b | the self-knowledge tests | page | `mirror` |
 | 7 | the people | page | none yet: the therapists' own photographs belong here |
 | 8 | address and contact | page | `two-glasses` |
 
@@ -425,6 +426,18 @@ so the crop leaves it out. Where the painting came from is not recorded; the
 café uses it, and its rights should be confirmed before launch. Group therapy
 is told through what is left when the people are absent or about to arrive:
 the empty seat, the open door, the second glass.
+
+**Outside the room.** The groups also act together, and in the doing people
+see themselves more clearly and a group becomes a community. The projects are
+told with the owner's facts only:
+- ارزاق, which they call کار خیر: food packages for families in need, with
+  «خدایا شکرت» written on the boxes.
+- حبس: phase one freed five people who were jailed unintentionally or
+  through no fault of their own, and supported their families.
+- An environmental cleanup that negakhte's art department made into a clip;
+  the link is still owed.
+
+These are only some of the projects, and the page says so.
 
 **The verse** is checked against Ganjoor: عطار، منطق‌الطیر، «سی‌مرغ در
 پیشگاه سیمرغ» (`/attar/manteghotteyr/30-morgh/sh4`). Thirty birds look for
