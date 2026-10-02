@@ -1,0 +1,12 @@
+# Text stays LF on every OS. build.py fingerprints site.css and site.js by
+# their bytes (?v=<sha256>), so a CRLF checkout (core.autocrlf=true on
+# Windows) would change both fingerprints and rewrite all 170 pages on the
+# next build, with nothing actually changed.
+* text=auto eol=lf
+
+*.jpg   binary
+*.webp  binary
+*.avif  binary
+*.woff2 binary
+*.ttf   binary
+*.xlsx  binary
