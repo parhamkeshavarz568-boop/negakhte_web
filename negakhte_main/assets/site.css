@@ -205,7 +205,6 @@ h3       { font-size: clamp(21px, 1.9vw, 26px); font-weight: 700; line-height: 1
 }
 .hero-in { padding-block: calc(var(--head) + 40px) clamp(96px, 16vh, 170px); }
 .hero h1 { max-width: 9.4em; }
-.hero .lede { color: #DCD2BF; margin-top: 30px; max-width: 44ch; }
 
 /* the cue: a drop falling, to say there is more below */
 .cue {
@@ -226,7 +225,6 @@ h3       { font-size: clamp(21px, 1.9vw, 26px); font-weight: 700; line-height: 1
     background: linear-gradient(to bottom, rgba(7, 26, 26, .9) 0%, rgba(7, 26, 26, .6) 36%, rgba(7, 26, 26, 0) 58%);
   }
   .hero-in { padding-block: calc(var(--head) + 48px) 0; }
-  .hero .lede { margin-top: 22px; }
 }
 
 /* ── a scene: a photograph across the width ───────────────── */
@@ -430,7 +428,6 @@ footer .base { margin-top: 64px; padding-top: 26px; border-top: 1px solid rgba(2
   /* the hero: the water settles, the words rise */
   .hero-bg { animation: settle 3.2s var(--ease) both; }
   .hero-in > * { animation: rise 1.3s var(--ease) both; }
-  .hero-in > :nth-child(2) { animation-delay: .25s; }
   .cue::after { animation: drop 2.8s cubic-bezier(.55, 0, .45, 1) infinite 1.6s; }
   .medal svg { animation: orbit 120s linear infinite; }
 
