@@ -409,7 +409,7 @@ The page reads as a slow walk, not a brochure:
 | 1 | «تغییر از خودمون شروع می‌شه.» | hero | `ripples-wide` / `ripples-tall` (phones): one drop, rings spreading |
 | 2 | «نگاخته یه خانواده‌ست، نه یه مطب.» | page | `tea-circle` «یه حلقه؛ هر استکان، یه نفر.» |
 | 3 | group therapy: «هر شیشه یه رنگ؛ با هم، یه نور.» | scene + page | `orosi-light`, then what a group is, in words |
-| 4 | a session | scene + page | `cushion-circle`; facts, three moments, `seashell` «گوش دادن» |
+| 4 | a session | scene + page | `cushion-circle`; three moments, `seashell` «گوش دادن» |
 | 5 | Attar's thirty birds | night | `simorgh`, the café's painting, as a medallion |
 | 6 | outside the room: «فقط نمی‌شینیم و حرف نمی‌زنیم.» | page | `pomegranate` ارزاق, `door-ajar` حبس, `fern-spiral` پاک‌سازی محیط زیست |
 | 6b | the self-knowledge tests | page | `mirror` |
@@ -444,9 +444,9 @@ These are only some of the projects, and the page says so.
 the Simorgh and find that they are it. That is the site's title, written eight
 centuries earlier.
 
-**Facts are the owner's, not ours.** A session is about two hours, group size
-is not fixed, and the therapist is at most sessions, not all of them.
-«هفته‌ای یه بار» is still unconfirmed. Never invent a number.
+**No session numbers on the page.** The owner removed the facts row (length,
+group size, frequency, therapist). Don't bring numbers back unless the owner
+supplies them, and never invent one.
 
 **Motion.** It is one vocabulary, used everywhere, and it stops under reduced
 motion:
